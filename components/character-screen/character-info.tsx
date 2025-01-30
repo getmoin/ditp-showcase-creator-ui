@@ -1,9 +1,8 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 import { useShowcaseStore } from "@/hooks/use-showcase-store";
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
+import { User } from "lucide-react";
 
 export const CharacterInfo = () => {
   const t = useTranslations()
@@ -70,7 +69,7 @@ export const CharacterInfo = () => {
           <p>{t('character.headshot_image_label')}</p>
           <div className=" p-6 m-1 flex justify-center items-center bg-light-bg dark:bg-dark-bg ">
             {!showcaseJSON.personas[selectedCharacter].headshot_image ? (
-              <FontAwesomeIcon icon={faUser} />
+              <User />
             ) : (
               <Image
                 width={100}
@@ -86,7 +85,7 @@ export const CharacterInfo = () => {
           <p>{t('character.full_body_image_label')}</p>
           <div className="p-6 m-1 flex justify-center items-center bg-light-bg dark:bg-dark-bg">
             {!showcaseJSON.personas[selectedCharacter].body_image ? (
-              <FontAwesomeIcon icon={faUser} />
+              <User />
             ) : (
               <Image
                 width={100}
