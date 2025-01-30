@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Trash2 } from "lucide-react";
 import { OnboardingStep } from "@/types";
-import { useTranslations } from 'next-intl';
-
+import { convertBase64 } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 interface LocalFileUploadProps {
   text: string;
   element: keyof OnboardingStep;
@@ -24,19 +24,6 @@ export function LocalFileUpload({
   useEffect(() => {
     setPreview(localJSON[element] || null);
   }, [localJSON, element]);
-
-  const convertBase64 = (file: File) => {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
-      fileReader.onload = () => {
-        resolve(fileReader.result);
-      };
-      fileReader.onerror = (error) => {
-        reject(error);
-      };
-    });
-  };
 
   const handleChange = async (newValue: File | null) => {
     if (newValue) {
