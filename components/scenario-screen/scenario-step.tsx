@@ -107,7 +107,7 @@ export const ScenarioStep = ({
               <hr />
               <div className="w-full py-2">
                 <p className="text-sm m-1 mt-2 font-bold">
-                  Requested Credentials:
+                  {t('scenario.requested_credentials_label')}
                 </p>
                 <div className="flex flex-wrap gap-2 p-2">
                   {Object.keys(step.requestOptions.proofRequest.attributes).map(

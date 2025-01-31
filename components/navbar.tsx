@@ -10,7 +10,7 @@ export const NavBar = () => {
   const t = useTranslations()
   return (
     <div className="flex justify-between px-8 dark:text-dark-text">
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center border-red-300">
         <DarkModeToggle />
       </div>
       <div className="flex justify-center items-center">
