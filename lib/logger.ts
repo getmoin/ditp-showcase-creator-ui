@@ -2,8 +2,6 @@ import { LogEvent, pino, type Logger } from "pino";
 
 /**
  * Application configuration object
- * @constant
- * @type {Object}
  * @property {string} serverUrl - URL for the API server, defaults to localhost:3000
  * @property {string} env - Current environment (development, production, test)
  * @property {string} publicUrl - Base URL for public assets
@@ -16,7 +14,6 @@ const config = {
 
 /**
  * Main logger instance configured with pretty printing and browser transport
- * @type {Logger}
  * @property {Object} transport - Configuration for pino-pretty formatting
  * @property {string} level - Minimum log level, defaults to "info"
  * @property {string[]} redact - Fields to be redacted from logs
@@ -60,17 +57,18 @@ const logger: Logger = pino({
             ],
             headers
           );
-          navigator.sendBeacon(`${config.serverUrl}/log`, blob)
+          if (config.serverUrl) {
+            navigator.sendBeacon(`${config.serverUrl}/log`, blob)
+          }
         }
       },
-    },
+    }
   },
 });
 
 /**
  * Creates a new logger instance with additional context
  * @param {string} context - Context identifier for the logger
- * @returns {Logger} A child logger instance with the specified context
  * @example
  * const credentialsLogger = createContextLogger('credentials');
  * credentialsLogger.info('Credentials has been created'); // Logs with 'credentials' context
@@ -81,15 +79,11 @@ export const createContextLogger = (context: string) => {
 
 /**
  * Pre-configured logger for store-related operations
- * @constant
- * @type {Logger}
  */
 export const storeLogger = createContextLogger('store')
 
 /**
  * Pre-configured logger for credential-related operations
- * @constant
- * @type {Logger}
  */
 export const credentialsLogger = createContextLogger('credentials')
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useShowcaseStore } from "@/hooks/use-showcase-store";
 import { useTranslations } from 'next-intl';
+import logger from "@/lib/logger";
 
 export const JSONPreview = () => {
   const t = useTranslations()
@@ -14,7 +15,7 @@ export const JSONPreview = () => {
   };
 
   useEffect(() => {
-    console.log("JSONPreview received new data:", showcaseJSON);
+    logger.info("JSONPreview received new data:", showcaseJSON);
   }, [showcaseJSON]);
 
   return (

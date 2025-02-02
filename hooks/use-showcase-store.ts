@@ -3,6 +3,7 @@ import { immer } from "zustand/middleware/immer";
 import { DEFAULT_JSON } from "@/lib/fixtures";
 import { ShowcaseJSON } from "@/types";
 import { CredentialFormData } from "@/schemas/credential";
+import { formatLogContext, storeLogger } from "@/lib/logger";
 
 interface State {
   showcaseJSON: ShowcaseJSON;
@@ -61,13 +62,17 @@ export const useShowcaseStore = create<State & Actions>()(
 
     // Character Details
     // those methods are temporary, to be replaced with each dedicated service
-    updateCharacterDetails: ({ name, type, description }) =>
+    updateCharacterDetails: ({ name, type, description }) => {
+      storeLogger.info(formatLogContext({
+        action: 'updateCharacterDetails',
+        details: { name, type }
+      }));
       set((state) => {
         const persona = state.showcaseJSON.personas[state.selectedCharacter];
         persona.name = name;
         persona.type = type;
         persona.description = description;
-      }),
+      })},
 
     updateCharacterImage: (imageType, imageData) =>
       set((state) => {
