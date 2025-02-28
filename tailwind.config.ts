@@ -57,6 +57,11 @@ export default {
         "light-bg": "#f5f5f5",
         "light-bg-secondary": "#e5e5e5",
 
+        // ------ Others ------ //
+        "light-yellow": "#FCBA19",
+        "light-blue": "#003366",
+        "dark-grey":"#1F2223",
+
         // ------ Text ------ //
 
         "dark-text": "#FFFFFF",
@@ -78,6 +83,7 @@ export default {
         // ------ Borders ------ //
         "dark-border": "#525252",
         "light-border": "#FFFFFF",
+        "light-border-secondary": "#C5C6C6",
       },
       borderRadius: {
         lg: "var(--radius)",

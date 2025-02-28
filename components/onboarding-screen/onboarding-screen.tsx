@@ -12,14 +12,16 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 import { SortableStep } from "@/components/onboarding-screen/sortable-step";
 import { useShowcaseStore } from "@/hooks/use-showcase-store";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import { Plus, Trash2 } from "lucide-react";
+import Image from "next/image";
+import ButtonOutline from "../ui/button-outline";
 
 export const OnboardingScreen = () => {
-  const t = useTranslations()
+  const t = useTranslations();
   const { showcaseJSON, selectedCharacter } = useShowcaseStore();
   const {
     screens,
@@ -29,10 +31,13 @@ export const OnboardingScreen = () => {
     moveStep,
     removeStep,
     setStepState,
+    stepState,
   } = useOnboarding();
 
   const initialScreens = useMemo(() => {
-    return JSON.parse(JSON.stringify(showcaseJSON.personas[selectedCharacter].onboarding));
+    return JSON.parse(
+      JSON.stringify(showcaseJSON.personas[selectedCharacter].onboarding)
+    );
   }, [showcaseJSON.personas, selectedCharacter]);
 
   useEffect(() => {
@@ -43,7 +48,9 @@ export const OnboardingScreen = () => {
     const { active, over } = event;
     if (!over) return;
 
-    const oldIndex = screens.findIndex((screen) => screen.screenId === active.id);
+    const oldIndex = screens.findIndex(
+      (screen) => screen.screenId === active.id
+    );
     const newIndex = screens.findIndex((screen) => screen.screenId === over.id);
 
     if (oldIndex !== newIndex) {
@@ -59,22 +66,110 @@ export const OnboardingScreen = () => {
     setSelectedStep(index);
   };
 
+  const characters = [
+    {
+      id: 1,
+      name: "Ana",
+      type: "Student",
+      description:
+        "Meet Ana Ana is a student at BestBC College. To help make student life easier, BestBC College is going to offer Ana a digital Student Card to put in her BC Wallet.",
+      headshot: "../../public/assets/NavBar/Joyce.png",
+      bodyImage: "../../public/assets/NavBar/Joyce.png",
+      selected: false,
+      isHidden: false,
+    },
+    {
+      id: 2,
+      name: "Joyce",
+      type: "Teacher",
+      description:
+        "Meet Joyce Joyce is a Teacher at BestBC College. To help make teacher life easier, BestBC College is going to offer Joyce a digital Teacher Card to put in her BC Wallet.",
+      headshot: "../../public/assets/NavBar/Joyce.png",
+      bodyImage: "../../public/assets/NavBar/Joyce.png",
+      selected: false,
+      isHidden: false,
+    },
+    // {
+    //   id: 3,
+    //   name: "Bob",
+    //   type: "Director",
+    //   description: "Director at BestBC College.",
+    //   headshot:"../../public/assets/NavBar/Joyce.png",
+    //   bodyImage: "../../public/assets/NavBar/Joyce.png",
+    //   selected: false,
+    //   isHidden: false,
+    // },
+  ];
+
   return (
     <>
-      <div className="mt-8">
-        <div className="flex justify-between mb-4">
-          <p className="font-bold text-xl">{t('onboarding.steps_added_label', { stepCount: screens.length })}</p>
-          <div className="">
+      <div className="bg-white dark:bg-dark-bg-secondary text-light-text dark:text-dark-text">
+        <div className="flex bg-gray-100 rounded-md border-b">
+          {characters.map((char: any, index: number) => (
+            <div
+              key={char.id}
+              className={`w-1/2 p-4 text-center border ${
+                index === 0
+                  ? "bg-white dark:bg-dark-bg shadow-md"
+                  : "bg-gray-200"
+              }`}
+            >
+              <div className="flex flex-col items-center">
+                {/* Character Avatar Placeholder */}
+                <div className="w-12 h-12 bg-gray-300 rounded-full mb-2">
+                  <Image
+                    src={require(`../../public/assets/NavBar/${char.name}.png`)}
+                    alt={char.name}
+                    width={50}
+                    height={50}
+                    className="rounded-full"
+                  />
+                </div>
+
+                <div className="text-lg font-semibold">{char.name}</div>
+                <div className="text-sm text-gray-500">{char.type}</div>
+
+                {/* Status Badge */}
+                {stepState == "no-selection" && (
+                  <div className="w-full mt-2 px-3 py-1 bg-yellow-400 text-xs font-semibold rounded">
+                    Incomplete
+                  </div>
+                )}
+                {/* {index !== 0 && (
+                  <div className="w-full mt-2 px-3 py-1 bg-yellow-400 text-xs font-semibold rounded">
+                    Incomplete
+                  </div>
+                )} */}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-cols">
+          <div className="border-b w-full light-border dark:dark-border">
+            <div className="p-4">
+              <h2 className="text-base font-bold">
+                {t("onboarding.editing_steps_label", { name: "Ana" })}
+              </h2>
+              <p className="text-xs">{t("onboarding.editing_steps_message")}</p>
+            </div>
+          </div>
+          {/* <div className="font-bold text-xl">
+           {t("onboarding.steps_added_label", { stepCount: screens.length })}
+           {t("onboarding.steps_added_label", { stepCount: screens.length })}
+          </div> */}
+
+          {/* <div className="">
             <button
               onClick={() => setStepState("creating-new")}
               className="text-sm add-attr-btn border bg-light-bg dark:bg-dark-bg hover:bg-light-btn-hover dark:hover:bg-dark-btn-hover font-bold py-2 px-4 rounded inline-flex items-center"
             >
-              <span>{t('onboarding.add_step_label')}</span>
+              <span>{t("onboarding.add_step_label")}</span>
               <div className="text-md ml-2">
                 <Plus />
               </div>
             </button>
-          </div>
+          </div> */}
         </div>
 
         <DndContext
@@ -94,7 +189,7 @@ export const OnboardingScreen = () => {
                   stepIndex={index + 1}
                   totalSteps={screens.length}
                 />
-
+                {/* 
                 <div className="flex text-xl mt-10">
                   <button
                     className="px-3 hover-red"
@@ -102,7 +197,7 @@ export const OnboardingScreen = () => {
                   >
                     <Trash2 />
                   </button>
-                </div>
+                </div> */}
               </div>
             ))}
 
@@ -120,7 +215,18 @@ export const OnboardingScreen = () => {
         </DndContext>
       </div>
 
-      <div className="w-full pt-5 flex flex-col justify-center items-center">
+      <div className="p-4 mt-auto pt-10">
+        <ButtonOutline
+          onClick={() => {
+            setStepState("creating-new");
+            window.scrollTo({ top: 200, behavior: "smooth" });
+          }}
+          className="w-full"
+        >
+          {t("onboarding.add_step_label")}
+        </ButtonOutline>
+      </div>
+      {/* <div className="w-full pt-5 flex flex-col justify-center items-center">
         <button
           onClick={() => {
             setStepState("creating-new");
@@ -128,12 +234,17 @@ export const OnboardingScreen = () => {
           }}
           className="text-sm add-attr-btn border bg-light-bg dark:bg-dark-bg hover:bg-light-btn-hover dark:hover:bg-dark-btn-hover font-bold py-2 px-4 rounded inline-flex items-center"
         >
-          <span>{t('onboarding.add_step_label')}</span>
+          <span>{t("onboarding.add_step_label")}</span>
           <div className="text-md ml-2">
             <Plus />
           </div>
         </button>
-      </div>
+      </div> */}
+      {/* <div className="p-4 mt-auto">
+              <button className="w-full border border-gray-600 py-2 rounded-md text-gray-700 font-bold">
+              {t('character.create_new_character_label')}
+              </button>
+            </div> */}
     </>
   );
 };

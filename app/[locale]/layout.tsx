@@ -12,6 +12,7 @@ import {notFound} from 'next/navigation';
 import { Locale, PageParams } from "@/types";
 
 import "./globals.css";
+import Sidebar from "@/components/sidebar";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -61,12 +62,15 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <NextIntlClientProvider messages={messages}>
-            <div className="min-h-screen bg-light-bg dark:bg-dark-bg text-light-text">
-              <NavBar/>
-              {children}
-              {process.env.NODE_ENV === "development" && <JSONPreview />}
-              <Footer/>
+            <div className="flex h-screen bg-light-bg dark:bg-dark-bg text-light-text">
+              {/* <NavBar /> */}
+              <Sidebar />
+              <main className="flex-1 overflow-auto">
+                {children}
+              </main>
             </div>
+            {process.env.NODE_ENV === "development" && <JSONPreview />}
+            <Footer/>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
