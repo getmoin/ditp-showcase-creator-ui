@@ -149,7 +149,6 @@ export const DisplayStepCredentials = ({
                       setEditingCredentials([...editingCredentials, index]);
                     }}
                   >
-                    {/* <Edit className="h-3 w-3 mr-1" /> */}
                     EDIT PROOF REQUEST
                   </Button>
                 )}

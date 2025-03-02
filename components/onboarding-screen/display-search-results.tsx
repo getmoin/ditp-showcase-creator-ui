@@ -65,9 +65,6 @@ export const DisplaySearchResults = ({
                 <p className="font-semibold">Attributes</p>
                 <p>{credential.attributes.length}</p>
               </div>
-
-              {/* Right Section - Empty (To Balance Layout) */}
-              <div></div>
             </div>
 
             {/* <div className="grid grid-cols-3 w-full py-3 bg-light-bg hover:bg-light-btn-hover dark:bg-dark-bg dark:hover:bg-dark-btn-hover text-light-text dark:text-dark-text">

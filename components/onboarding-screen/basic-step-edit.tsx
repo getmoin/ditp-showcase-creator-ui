@@ -7,23 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { FormTextArea, FormTextInput } from "@/components/text-input";
 import {
-  Download,
   Edit,
-  EllipsisVertical,
-  Eye,
   Monitor,
-  RotateCw,
-  Search,
-  Trash2,
 } from "lucide-react";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import { BasicStepFormData } from "@/schemas/onboarding";
 import { basicStepSchema } from "@/schemas/onboarding";
 import { LocalFileUpload } from "./local-file-upload";
 import { useTranslations } from "next-intl";
-import { Label } from "../ui/label";
-import { DisplaySearchResults } from "./display-search-results";
-import { useShowcaseStore } from "@/hooks/use-showcase-store";
 import StepHeader from "../step-header";
 import ButtonOutline from "../ui/button-outline";
 import DeleteModal from "../delete-modal";
@@ -38,8 +29,6 @@ export const BasicStepEdit = () => {
     setStepState,
     stepState,
   } = useOnboarding();
-  const { showcaseJSON, selectedCharacter } = useShowcaseStore();
-  const [searchResults, setSearchResults] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const currentStep = selectedStep !== null ? screens[selectedStep] : null;
@@ -190,7 +179,6 @@ export const BasicStepEdit = () => {
             />
 
             <div className="space-y-2">
-              {/* <label className="text-sm font-medium">Page Description</label> */}
               <FormTextArea
                 label={t("onboarding.page_description_label")}
                 name="text"
@@ -224,35 +212,7 @@ export const BasicStepEdit = () => {
                 </p>
               )}
             </div>
-            {/* <div>
-            <div className="font-bold text-lg border-b-2 border-black pb-4">
-              Add Credential
-            </div>
-            <div className="mt-4">
-              <Label className="text-base font-bold" htmlFor={"Search"}>
-                {"Search for a Credential:"}
-              </Label>
-              <div className="relative w-full mt-2">
-                <input
-                  className="dark:text-dark-text dark:bg-dark-input rounded pl-2 pr-10 mb-2 w-full border"
-                  placeholder={t("onboarding.search_credential_placeholder")}
-                  type="text"
-                  // onChange={(e) => searchCredential(e.target.value)}
-                />
-              </div>
-            </div>
-            <Label className="text-base font-bold" htmlFor={"Search"}>
-                {"Credential Added: "}
-            </Label>
-            <DisplaySearchResults
-              selectedCharacter={selectedCharacter}
-              showcaseJSON={showcaseJSON}
-              searchResults={searchResults}
-              addCredential={addCredential}
-            />
-          </div> */}
           </div>
-
         </form>
       </Form>
           <div className="mt-auto pt-4 border-t flex justify-end gap-3">
@@ -266,7 +226,6 @@ export const BasicStepEdit = () => {
               {t("action.next_label")}
             </ButtonOutline>
           </div>
-          {/* Delete Modal */}
           <DeleteModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}

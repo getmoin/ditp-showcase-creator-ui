@@ -3,19 +3,13 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { FormTextInput, FormTextArea } from "@/components/text-input";
 import { basicStepSchema, BasicStepFormData } from "@/schemas/scenario";
 import { useScenarios } from "@/hooks/use-scenarios";
 import { RequestType, StepType } from "@/types";
 import {
-  Download,
-  EllipsisVertical,
-  Eye,
   Monitor,
-  RotateCw,
-  Trash2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import StepHeader from "../step-header";

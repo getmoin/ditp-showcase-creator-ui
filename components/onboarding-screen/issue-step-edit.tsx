@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { FormTextArea, FormTextInput } from "@/components/text-input";
 import { LocalFileUpload } from "@/components/onboarding-screen/local-file-upload";
@@ -13,16 +12,9 @@ import { useShowcaseStore } from "@/hooks/use-showcase-store";
 import { useOnboarding } from "@/hooks/use-onboarding";
 import { IssueStepFormData, issueStepSchema } from "@/schemas/onboarding";
 import {
-  Download,
-  EllipsisVertical,
-  Eye,
   Monitor,
-  RotateCw,
-  Search,
-  Trash2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Label } from "../ui/label";
 import StepHeader from "../step-header";
 import ButtonOutline from "../ui/button-outline";
 import DeleteModal from "../delete-modal";
@@ -207,9 +199,6 @@ export function IssueStepEdit() {
                     type="text"
                     onChange={(e) => searchCredential(e.target.value)}
                   />
-                  {/* <span className="absolute right-4 top-1/4">
-                    <Search />
-                  </span> */}
                 </div>
               </div>
             </div>

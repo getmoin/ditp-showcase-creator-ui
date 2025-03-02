@@ -3,6 +3,7 @@ import Image from "next/image";
 import { convertBase64 } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { useTranslations } from 'next-intl';
+import { FormMessage } from "./ui/form";
 
 export const FileUploadFull = ({
   text,

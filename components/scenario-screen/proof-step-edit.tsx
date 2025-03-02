@@ -157,34 +157,33 @@ export const ProofStepEdit = () => {
 
   return (
     <>
-            <StepHeader
+        <StepHeader
         icon={<Monitor strokeWidth={3} />}
         title={"Edit Proof Step"}
         onActionClick={(action) => {
-          switch (action) {
-            case "save":
-              console.log("Save Draft clicked");
-              break;
-            case "preview":
-              console.log("Preview clicked");
-              break;
-            case "revert":
-              console.log("Revert Changes clicked");
-              break;
-            case "delete":
-              console.log("Delete Page clicked");
-              setIsModalOpen(true);
-              setIsOpen(false);
-              break;
-            default:
-              console.log("Unknown action");
-          }
-        }}
-      />
+            switch (action) {
+              case "save":
+                console.log("Save Draft clicked");
+                break;
+              case "preview":
+                console.log("Preview clicked");
+                break;
+              case "revert":
+                console.log("Revert Changes clicked");
+                break;
+              case "delete":
+                console.log("Delete Page clicked");
+                setIsModalOpen(true);
+                setIsOpen(false);
+                break;
+              default:
+                console.log("Unknown action");
+            }
+          }}
+        />
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="">
-
+        <div>
           <div className="space-y-6">
             <FormTextInput
               label="Title"
@@ -234,9 +233,6 @@ export const ProofStepEdit = () => {
                       type="text"
                       onChange={(e) => searchCredential(e.target.value)}
                     />
-                    {/* <span className="absolute right-4 top-1/4">
-                    <Search />
-                  </span> */}
                   </div>
                 </div>
               </div>

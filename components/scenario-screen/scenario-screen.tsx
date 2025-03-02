@@ -7,7 +7,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Copy } from "lucide-react";
+import { Copy } from "lucide-react";
 import { ScenarioStep } from "./scenario-step";
 import { useShowcaseStore } from "@/hooks/use-showcase-store";
 import { useScenarios } from "@/hooks/use-scenarios";
@@ -77,17 +77,7 @@ export const ScenarioScreen = () => {
       bodyImage: "../../public/assets/NavBar/Joyce.png",
       selected: false,
       isHidden: false,
-    },
-    // {
-    //   id: 3,
-    //   name: "Bob",
-    //   type: "Director",
-    //   description: "Director at BestBC College.",
-    //   headshot:"../../public/assets/NavBar/Joyce.png",
-    //   bodyImage: "../../public/assets/NavBar/Joyce.png",
-    //   selected: false,
-    //   isHidden: false,
-    // },
+    }
   ];
 
   return (
@@ -121,11 +111,6 @@ export const ScenarioScreen = () => {
                   Incomplete
                 </div>
               )}
-              {/* {index !== 0 && (
-                        <div className="w-full mt-2 px-3 py-1 bg-yellow-400 text-xs font-semibold rounded">
-                          Incomplete
-                        </div>
-                      )} */}
             </div>
           </div>
         ))}
@@ -140,34 +125,19 @@ export const ScenarioScreen = () => {
           </div>
         </div>
       </div>
-      {/* <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">
-          {t("scenario.scenarios_added_label", {
-            scenarioCount: scenarios.length,
-          })}
-        </h2>
-        <Button onClick={handleAddScenario} className="gap-2">
-          <Plus className="h-4 w-4" />
-          {t("scenario.add_scenario_label")}
-        </Button>
-      </div> */}
 
-      {/* Main UI */}
       <div className="flex">
-        {/* Scenarios List */}
         <div className="flex-1">
           {scenarios.map((scenario, index) => (
             <div
               key={scenario.id}
               className="pb-2 border rounded-lg dark:border-dark-border overflow-hidden flex"
             >
-              {/* Black Column with Copy Icon for each Scenario */}
               <div className="w-12 bg-[#3A3B3B] flex justify-center items-center">
                 <Copy className="h-6 w-6 text-white" />
               </div>
 
               <div className="flex-1">
-                {/* Scenario Header */}
                 <div className="p-3 bg-light-bg dark:bg-dark-bg">
                   <h3 className="text-xl font-bold">{scenario.name}</h3>
                 </div>
@@ -191,7 +161,6 @@ export const ScenarioScreen = () => {
                     </SortableContext>
                   </DndContext>
 
-                  {/* Button aligned to the right */}
                   <div className="mt-4 flex justify-end">
                     <ButtonOutline
                       onClick={() => {
@@ -200,21 +169,8 @@ export const ScenarioScreen = () => {
                     >
                       {t("scenario.add_step_label")}
                     </ButtonOutline>
-
-                    {/* <Button
-                      variant="outline"
-                      onClick={() => {
-                        setStepState("adding-step");
-                      }}
-                      // className="gap-2"
-                      className="w-fit px-6 bg-light-btn text-light-text dark:bg-dark-btn dark:text-dark-text border border-dark-border dark:border-light-border py-2 rounded text-gray-700 font-bold"
-                    >
-                      {t("scenario.add_step_label").toUpperCase()}
-                    </Button> */}
                   </div>
                 </div>
-
-                {/* Delete Scenario Button */}
                 <div className="p-5 bg-light-bg dark:bg-dark-bg">
                   <Button
                     variant="destructive"
@@ -233,7 +189,7 @@ export const ScenarioScreen = () => {
           className="w-full"
           onClick={() => {
             setStepState("editing-scenario");
-            // window.scrollTo({ top: 200, behavior: "smooth" });
+            window.scrollTo({ top: 200, behavior: "smooth" });
           }}
         >
           {t("scenario.add_scenario_label").toUpperCase()}

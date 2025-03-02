@@ -16,7 +16,6 @@ import { useTranslations } from "next-intl";
 import { SortableStep } from "@/components/onboarding-screen/sortable-step";
 import { useShowcaseStore } from "@/hooks/use-showcase-store";
 import { useOnboarding } from "@/hooks/use-onboarding";
-import { Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import ButtonOutline from "../ui/button-outline";
 
@@ -88,17 +87,7 @@ export const OnboardingScreen = () => {
       bodyImage: "../../public/assets/NavBar/Joyce.png",
       selected: false,
       isHidden: false,
-    },
-    // {
-    //   id: 3,
-    //   name: "Bob",
-    //   type: "Director",
-    //   description: "Director at BestBC College.",
-    //   headshot:"../../public/assets/NavBar/Joyce.png",
-    //   bodyImage: "../../public/assets/NavBar/Joyce.png",
-    //   selected: false,
-    //   isHidden: false,
-    // },
+    }
   ];
 
   return (
@@ -115,7 +104,6 @@ export const OnboardingScreen = () => {
               }`}
             >
               <div className="flex flex-col items-center">
-                {/* Character Avatar Placeholder */}
                 <div className="w-12 h-12 bg-gray-300 rounded-full mb-2">
                   <Image
                     src={require(`../../public/assets/NavBar/${char.name}.png`)}
@@ -129,17 +117,11 @@ export const OnboardingScreen = () => {
                 <div className="text-lg font-semibold">{char.name}</div>
                 <div className="text-sm text-gray-500">{char.type}</div>
 
-                {/* Status Badge */}
                 {stepState == "no-selection" && (
                   <div className="w-full mt-2 px-3 py-1 bg-yellow-400 text-xs font-semibold rounded">
                     Incomplete
                   </div>
                 )}
-                {/* {index !== 0 && (
-                  <div className="w-full mt-2 px-3 py-1 bg-yellow-400 text-xs font-semibold rounded">
-                    Incomplete
-                  </div>
-                )} */}
               </div>
             </div>
           ))}
@@ -154,22 +136,6 @@ export const OnboardingScreen = () => {
               <p className="text-xs">{t("onboarding.editing_steps_message")}</p>
             </div>
           </div>
-          {/* <div className="font-bold text-xl">
-           {t("onboarding.steps_added_label", { stepCount: screens.length })}
-           {t("onboarding.steps_added_label", { stepCount: screens.length })}
-          </div> */}
-
-          {/* <div className="">
-            <button
-              onClick={() => setStepState("creating-new")}
-              className="text-sm add-attr-btn border bg-light-bg dark:bg-dark-bg hover:bg-light-btn-hover dark:hover:bg-dark-btn-hover font-bold py-2 px-4 rounded inline-flex items-center"
-            >
-              <span>{t("onboarding.add_step_label")}</span>
-              <div className="text-md ml-2">
-                <Plus />
-              </div>
-            </button>
-          </div> */}
         </div>
 
         <DndContext
@@ -189,15 +155,6 @@ export const OnboardingScreen = () => {
                   stepIndex={index + 1}
                   totalSteps={screens.length}
                 />
-                {/* 
-                <div className="flex text-xl mt-10">
-                  <button
-                    className="px-3 hover-red"
-                    onClick={() => removeStep(index)}
-                  >
-                    <Trash2 />
-                  </button>
-                </div> */}
               </div>
             ))}
 
@@ -226,25 +183,6 @@ export const OnboardingScreen = () => {
           {t("onboarding.add_step_label")}
         </ButtonOutline>
       </div>
-      {/* <div className="w-full pt-5 flex flex-col justify-center items-center">
-        <button
-          onClick={() => {
-            setStepState("creating-new");
-            window.scrollTo({ top: 200, behavior: "smooth" });
-          }}
-          className="text-sm add-attr-btn border bg-light-bg dark:bg-dark-bg hover:bg-light-btn-hover dark:hover:bg-dark-btn-hover font-bold py-2 px-4 rounded inline-flex items-center"
-        >
-          <span>{t("onboarding.add_step_label")}</span>
-          <div className="text-md ml-2">
-            <Plus />
-          </div>
-        </button>
-      </div> */}
-      {/* <div className="p-4 mt-auto">
-              <button className="w-full border border-gray-600 py-2 rounded-md text-gray-700 font-bold">
-              {t('character.create_new_character_label')}
-              </button>
-            </div> */}
     </>
   );
 };

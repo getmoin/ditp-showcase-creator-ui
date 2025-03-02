@@ -5,25 +5,9 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useState } from "react";
 import { useOnboarding } from "@/hooks/use-onboarding";
-import { Label } from "../ui/label";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
 import { Input } from "../ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import ButtonOutline from "../ui/button-outline";
 
 interface DisplayAddedCredentialsProps {
@@ -45,9 +29,7 @@ export const DisplayAddedCredentials = ({
   const { selectedStep, stepState, screens, setStepState } = useOnboarding();
   const credentials = localJSON.credentials || [];
   const hasCredentials = credentials.length > 0;
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isAttributesAdded, setIsAttributesAdded] = useState(false);
 
   if (!hasCredentials) {
     return (

@@ -1,12 +1,7 @@
 import { Card } from "@/components/ui/card";
 import {
   ArrowRight,
-  Download,
-  EllipsisVertical,
-  Eye,
   Monitor,
-  RotateCw,
-  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StepType } from "@/types";
@@ -27,7 +22,6 @@ export const ChooseStepType = ({
   addNewStep: (type: StepType) => void;
 }) => {
   const t = useTranslations();
-  const [isOpen, setIsOpen] = useState(false);
 
   const STEP_TYPES: StepTypeOption[] = [
     {
@@ -77,7 +71,6 @@ export const ChooseStepType = ({
             <h3 className="text-xl font-bold w-1/4">{option.title}</h3>
             <div className="p-6 flex items-center justify-between w-1/4">
               <div className="space-y-1 flex justify-between">
-                {/* <p className="text-muted-foreground">{option.subtitle}</p> */}
                 <ul className="mt-2 space-y-1 text-start">
                   {option.features.map((feature) => (
                     <li key={feature} className="text-sm text-muted-foreground">
