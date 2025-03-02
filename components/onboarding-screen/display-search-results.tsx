@@ -66,23 +66,6 @@ export const DisplaySearchResults = ({
                 <p>{credential.attributes.length}</p>
               </div>
             </div>
-
-            {/* <div className="grid grid-cols-3 w-full py-3 bg-light-bg hover:bg-light-btn-hover dark:bg-dark-bg dark:hover:bg-dark-btn-hover text-light-text dark:text-dark-text">
-              <div className="col-span-1">
-                <p className="mb-1 font-bold">Name:</p>
-                <p>{credential.name}</p>
-              </div>
-
-              <div className="col-span-1">
-                <p className="mb-1 font-bold">Issuer:</p>
-                <p>{credential.issuer_name}</p>
-              </div>
-
-              <div className="col-span-1">
-                <p className="mb-1 font-bold">Attributes:</p>
-                <p>{credential.attributes.length}</p>
-              </div>
-            </div> */}
           </button>
         );
       })}

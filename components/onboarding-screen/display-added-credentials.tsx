@@ -1,5 +1,5 @@
 import { NoSelection } from "../credentials/no-selection";
-import { CirclePlus, Trash2, X } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { ShowcaseJSON } from "@/types";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -161,35 +161,6 @@ export const DisplayAddedCredentials = ({
           </div>
         );
       })}
-
-      {/* {isEditing &&
-              localData.requestOptions?.proofRequest &&
-              selectedStep !== null &&
-              selectedScenario !== null ? (
-                <EditProofRequest
-                  showcaseJSON={showcaseJSON}
-                  proofRequest={localData.requestOptions.proofRequest}
-                  credentialName={credential}
-                  selectedCharacter={selectedCharacter}
-                  selectedScenario={selectedScenario}
-                  selectedStep={selectedStep}
-                  setEditingCredentials={setEditingCredentials}
-                  editingCredentials={editingCredentials}
-                  editingIndex={index}
-                />
-              ) : (
-                <Button
-                  variant="ghost"
-                  className="text-xs font-semibold hover:bg-transparent hover:underline p-1"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    // setEditingCredentials([...editingCredentials, index]);
-                  }}
-                >
-
-                  EDIT PROOF REQUEST
-                </Button>
-              )} */}
     </div>
   );
 };

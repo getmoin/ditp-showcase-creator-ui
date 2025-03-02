@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useState } from "react";
 
 export const PublishInfo = () => {
-  const [isOpen, setIsOpen] = useState(false);
 
   const characters = [
     {
@@ -85,7 +84,7 @@ export const PublishInfo = () => {
             </div>
 
             {/* Credential Section */}
-            <div className="mt-4 border-l-[16px] border-[#FCBA19] bg-gray-50 dark:bg-gray-700 p-4">
+            <div className="mt-4 border-l-[16px] border-light-yellow bg-gray-50 dark:bg-gray-700 p-4">
               <p className="font-semibold text-gray-900 dark:text-white">
                 Will receive the following credential(s):
               </p>

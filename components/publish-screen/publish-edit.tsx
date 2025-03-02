@@ -2,54 +2,23 @@
 
 import { useState } from "react";
 import {
-  Download,
-  EllipsisVertical,
-  Eye,
   Monitor,
-  RotateCw,
-  Trash2,
-  TriangleAlert,
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { FormTextArea, FormTextInput } from "../text-input";
 import { Form } from "../ui/form";
 import { useForm } from "react-hook-form";
-import { BasicStepFormData, basicStepSchema } from "@/schemas/scenario";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RequestType, StepType } from "@/types";
 import { LocalFileUpload } from "../onboarding-screen/local-file-upload";
 import { IssueStepFormData, issueStepSchema } from "@/schemas/onboarding";
-import Notification from "../notification-modal";
 import StepHeader from "../step-header";
 import ButtonOutline from "../ui/button-outline";
-import DeleteModal from "../delete-modal";
 import { Link } from "@/i18n/routing";
 
 export const PublishEdit = () => {
   const t = useTranslations();
-  const [isOpen, setIsOpen] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  //   const form = useForm<BasicStepFormData>({
-  //     resolver: zodResolver(basicStepSchema),
-  //     mode: "all",
-  //     defaultValues: {
-  //       type: StepType.BASIC,
-  //       title: "",
-  //       text: "",
-  //       requestOptions: {
-  //         type: RequestType.BASIC,
-  //         title: "",
-  //         text: "",
-  //         proofRequest: {
-  //           attributes: {},
-  //           predicates: {},
-  //         },
-  //       },
-  //     },
-  //   });
 
   const form = useForm<IssueStepFormData>({
     resolver: zodResolver(issueStepSchema),
@@ -57,21 +26,7 @@ export const PublishEdit = () => {
   });
 
   const onSubmit = (data: IssueStepFormData) => {
-    console.log("data ", data);
-    // if (selectedScenario === null || selectedStep === null) return;
-
-    // // Transform the form data back to the expected format
-    // const stepData = {
-    //   ...data,
-    //   type: data.type.toUpperCase() as StepType,
-    //   requestOptions: {
-    //     ...data.requestOptions,
-    //     type: data.requestOptions.type.toUpperCase() as RequestType,
-    //   },
-    // };
-
-    // updateStep(selectedScenario, selectedStep, stepData);
-    // setStepState("none-selected");
+    console.log(data);
   };
 
   const localJSON = {
@@ -87,19 +42,6 @@ export const PublishEdit = () => {
 
   return (
     <div className="flex flex-col min-h-screen p-6">
-      {/* <div className="p-6">
-      <button
-        onClick={() => setShowNotification(true)}
-        className="bg-blue-500 text-white px-4 py-2 rounded-md"
-      >
-        Show Notification
-      </button>
-
-      {showNotification && (
-        <Notification message="Showcase Created" onClose={() => setShowNotification(false)} />
-      )}
-    </div> */}
-      {/* Header Section */}
       <StepHeader
         icon={<Monitor strokeWidth={3} />}
         title={"Publish your showcase"}

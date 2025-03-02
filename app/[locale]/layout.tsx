@@ -63,7 +63,6 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider messages={messages}>
             <div className="flex h-screen bg-light-bg dark:bg-dark-bg text-light-text">
-              {/* <NavBar /> */}
               <Sidebar />
               <main className="flex-1 overflow-auto">
                 {children}

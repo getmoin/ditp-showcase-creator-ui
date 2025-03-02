@@ -83,32 +83,6 @@ export const CredentialsDisplay = () => {
   };
 
   return (
-    // <div className="mt-8">
-    //   <div className="flex justify-between mb-4">
-    //     <h3 className="text-xl font-bold">{t('credentials.credentials_added_label', { credentialCount: Object.entries(showcaseJSON.personas[selectedCharacter].credentials).length })}</h3>
-    //     <div>
-    //       {!isCreating && (
-    //         <Button
-    //           onClick={startCreating}
-    //           variant="outline"
-    //           className="flex items-center gap-2"
-    //           data-button-id="create-button-credentials"
-    //         >
-    //           <span>{t('credentials.add_credential_label')}</span>
-    //           <Plus className="w-4 h-4" />
-    //         </Button>
-    //       )}
-    //     </div>
-    //   </div>
-
-      // <CredentialsList
-      //   selectedCharacter={selectedCharacter}
-      //   showcaseJSON={showcaseJSON}
-      // />
-    // </div>
-
-  
-
     <div className="w-full h-full mx-auto bg-white shadow-lg rounded-lg">
       {/* Tabs */}
       <div className="flex border-b">
@@ -133,17 +107,6 @@ export const CredentialsDisplay = () => {
           Schemas ({data.schemas.length})
         </button>
       </div>
-
-      {/* What are Schemas */}
-      {/* <div className="p-4 bg-light-bg mb-2">
-        <p className="text-xl font-semibold">What are Schemas?</p>
-        <p className="text-[#474543]">
-          Schemas define the structure of credentials, specifying attributes
-          like names, dates, and IDs.
-        </p>
-      </div> */}
-
-      {/* Content */}
       <div className="">
         <div className="p-4 bg-light-bg">
           <p className="text-xl font-semibold">
@@ -175,7 +138,6 @@ export const CredentialsDisplay = () => {
         </div>
         {data[activeTab].map((item: any) => (
           <div key={item.id} className="border-b">
-            {/* Show details if clicked, otherwise show the credential */}
             {activeTab === "credentials" && openId === item.id ? (
               <div className="p-3 bg-light-bg flex flex-col border-b items-center text-center">
                 <div
@@ -215,20 +177,11 @@ export const CredentialsDisplay = () => {
           </div>
         ))}
       </div>
-
-      {/* Button */}
       <ButtonOutline className="w-full mt-4 border py-2 rounded-md font-bold">
         {activeTab === "schemas"
           ? "CREATE NEW SCHEMA"
           : "CREATE NEW CREDENTIAL"}
       </ButtonOutline>
-
-
-
-      {/* <CredentialsList
-        selectedCharacter={selectedCharacter}
-        showcaseJSON={showcaseJSON}
-      /> */}
     </div>
   );
 };

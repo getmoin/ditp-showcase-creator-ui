@@ -24,22 +24,4 @@ const ButtonOutline: React.FC<ButtonProps> = ({
   );
 };
 
-// const ButtonOutline: React.FC<ButtonProps> = ({
-//   children,
-//   className = "",
-//   ...props
-// }) => {
-//   return (
-//     <button
-//       className={`px-8 border-2 border-dark-border dark:border-light-border py-2 rounded-md font-bold 
-//       bg-white text-light-text dark:bg-dark-btn dark:text-dark-text 
-//       hover:bg-light-btn dark:hover:bg-dark-btn-hover 
-//       ${className}`}
-//       {...props}
-//     >
-//       {children}
-//     </button>
-//   );
-// };
-
 export default ButtonOutline;

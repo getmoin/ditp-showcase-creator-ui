@@ -10,13 +10,6 @@ import { PublishInfo } from "./publish-info";
 import { useEffect } from "react";
 
 export default function PublishMain({ params }: { params: PageParams }) {
-  const t = useTranslations("scenario");
-  //   const { locale } = await params;
-  //   setRequestLocale(locale);
-//   useEffect(() => {
-//     async function fetchData() {}
-//     fetchData();
-//   }, []);
 
   return (
     <div className="flex text-light-text bg-light-bg dark:bg-dark-bg dark:text-dark-text flex-col h-full w-full bg-gray-100">
