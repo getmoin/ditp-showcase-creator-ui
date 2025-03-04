@@ -13,7 +13,7 @@ const ButtonOutline: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`px-8 border-2 border-dark-border dark:border-light-border py-2 rounded-md font-bold 
+      className={`px-8 border-2 border-dark-border  uppercase py-2 rounded-md font-bold 
       text-light-text dark:text-dark-text 
       hover:bg-light-btn dark:hover:bg-dark-btn-hover 
       ${hasBgClass ? "" : "bg-white dark:bg-dark-btn"} ${className}`}
