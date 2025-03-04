@@ -26,10 +26,14 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          rm -rf node_modules
+          rm -f package-lock.json
+          npm cache clean --force
           npm install
+          # npm install --save-dev eslint@8.x @typescript-eslint/parser@6.x @typescript-eslint/eslint-plugin@6.x
 
       - name: Run Linting
-        run: npm run lint
+        run: npx eslint . --ext .ts,.tsx
 
       - name: Run Unit Tests
         run: npm test
