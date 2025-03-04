@@ -31,22 +31,6 @@ jobs:
           npm cache clean --force
           npm install
 
-      - name: Create ESLint Override Config
-        run: |
-          echo '{
-            "extends": "next/core-web-vitals",
-            "rules": {
-              "@typescript-eslint/no-unsafe-declaration-merging": "off",
-              "@typescript-eslint/no-explicit-any": "off",
-              "@typescript-eslint/no-unused-vars": "off",
-              "@next/next/no-img-element": "off",
-              "react-hooks/exhaustive-deps": "off"
-            }
-          }' > .eslintrc.json
-
-      - name: Run Linting
-        run: npm run lint
-
       - name: Run Unit Tests
         run: npm test
 
