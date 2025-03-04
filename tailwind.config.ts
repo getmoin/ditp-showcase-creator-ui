@@ -52,8 +52,9 @@ export default {
         },
                 // ------ Backgrounds ------ //
 
-        "dark-bg": "#222222",
+        "dark-bg": "#202223",
         "dark-bg-secondary": "#282828",
+        "dark-bg-tertiary": "#3A3B3B",
         "light-bg": "#f5f5f5",
         "light-bg-secondary": "#e5e5e5",
 
@@ -75,7 +76,7 @@ export default {
 
         // ------ Buttons ------ //
 
-        "light-btn": "#f5f5f5",
+        "light-btn": "#f5f5f4",
         "light-btn-hover": "#d1d1d1",
         "dark-btn": "#222222",
         "dark-btn-hover": "#333333",
@@ -89,6 +90,9 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      fontFamily: {
+        sans: ['montserrat', 'sans-serif'],
       },
     },
   },

@@ -3,19 +3,23 @@
     "title": "DITP Showcase Creator",
     "description": "Create your own showcase for the DITP"
   },
-  "home":{
+  "home": {
     "header_title": "Welcome to the Showcase Builder!",
-    "header_tab_all":"All",
-    "header_tab_mine":"Mine",
-    "header_tab_others":"Others"
+    "header_tab_all": "All",
+    "header_tab_mine": "Mine",
+    "header_tab_others": "Others"
   },
-  "showcases":{
+  "showcases": {
     "header_title": "Showcases",
-    "header_tab_overview":"Overview",
-    "header_tab_draft":"Draft",
-    "header_tab_under_review":"Under Review",
-    "header_tab_published":"Published",
-    "create_new_showcase_label":"CREATE NEW SHOWCASE"
+    "header_tab_overview": "Overview",
+    "header_tab_draft": "Draft",
+    "header_tab_under_review": "Under Review",
+    "header_tab_published": "Published",
+    "create_new_showcase_label": "CREATE NEW SHOWCASE",
+    "created_by_label": "Created By",
+    "description_label": "Description",
+    "character_label": "Character(s)",
+    "description_version" : "Version"
   },
   "character": {
     "header_title": "Create your Character",
@@ -42,7 +46,7 @@
     "select_your_character_subtitle": "Select an existing character or use the fields on the right to create a new character.",
     "character_detail": "Character Details",
     "hide_character": "Hide this character",
-    "create_new_character_label":"CREATE NEW CHARACTER",
+    "create_new_character_label": "CREATE NEW CHARACTER",
     "hide_character_placeholder": "Turning this setting on will hide this character and any attached scenarios."
   },
   "credentials": {
@@ -85,7 +89,7 @@
     "first_checkbox_label": "Issuance",
     "second_checkbox_label": "Proof Request",
     "import_instructions_title": "View Instructions",
-   "link_text" : "Find on CandyScan",
+    "link_text": "Find on CandyScan",
     "step1_title": "Step 1",
     "step1_description": "Navigate to the Source URL where the credential is located:",
     "step1_link_text": "CandyScan",
@@ -105,7 +109,7 @@
     "step3_schema_note": "(Required for issuance & proof request)",
     "step3_details": "Once you find the correct entry, locate the following:",
     "step4_title": "Step 4",
-   " step3_credential_id_format": "Format: TxID:3:<schema-name>:<definition>",
+    " step3_credential_id_format": "Format: TxID:3:<schema-name>:<definition>",
     "step4_description": "Copy and Enter the IDs in the Import Input Fields",
     "step4_details": "Enter the Schema ID (and the Credential Definition ID if applicable) into the provided fields."
   },
@@ -166,8 +170,8 @@
     "edit_summary_label": "Summary",
     "proof_attribute_placeholder": "Select attribute",
     "confirm_information_to_send_label": "Confirm the information to send",
-    "basic_label":"Basic",
-    "proof_request_label":"Proof Request"
+    "basic_label": "Basic",
+    "proof_request_label": "Proof Request"
   },
   "action": {
     "cancel_label": "CANCEL",
@@ -199,7 +203,7 @@
     "credentials_label": "Credentials",
     "onboarding_label": "Onboarding",
     "scenario_label": "Scenario",
-    "publish_label":"Publish"
+    "publish_label": "Publish"
   },
   "sidebar": {
     "home_label": "Home",
