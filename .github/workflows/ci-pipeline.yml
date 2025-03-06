@@ -94,7 +94,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   image-scan:
-    name: Image Scan
+    name: Image Scan - Frontend
     needs: build
     runs-on: ubuntu-latest
 
