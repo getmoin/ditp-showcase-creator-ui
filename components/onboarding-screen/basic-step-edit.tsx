@@ -18,6 +18,7 @@ import { useTranslations } from "next-intl";
 import StepHeader from "../step-header";
 import ButtonOutline from "../ui/button-outline";
 import DeleteModal from "../delete-modal";
+import { Link } from "@/i18n/routing";
 
 export const BasicStepEdit = () => {
   const t = useTranslations();
@@ -38,12 +39,12 @@ export const BasicStepEdit = () => {
   const defaultValues = currentStep
     ? {
         title: currentStep.title,
-        text: currentStep.text,
+        description: currentStep.description,
         image: currentStep.image || "",
       }
     : {
         title: "",
-        text: "",
+        description: "",
         image: "",
       };
 
@@ -57,7 +58,7 @@ export const BasicStepEdit = () => {
     if (currentStep) {
       form.reset({
         title: currentStep.title,
-        text: currentStep.text,
+        description: currentStep.description,
         image: currentStep.image || "",
       });
     }
@@ -119,7 +120,7 @@ export const BasicStepEdit = () => {
             <h4 className="text-sm font-medium text-muted-foreground">
               {t("onboarding.page_description_label")}
             </h4>
-            <p className="text-lg whitespace-pre-wrap">{currentStep.text}</p>
+            <p className="text-lg whitespace-pre-wrap">{currentStep.description}</p>
           </div>
 
           {currentStep.image && (
@@ -168,8 +169,8 @@ export const BasicStepEdit = () => {
         }}
       />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-6">
-          <div className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="space-y-6 h-screen">
             <FormTextInput
               label={t("onboarding.page_title_label")}
               name="title"
@@ -181,14 +182,14 @@ export const BasicStepEdit = () => {
             <div className="space-y-2">
               <FormTextArea
                 label={t("onboarding.page_description_label")}
-                name="text"
+                name="description"
                 register={form.register}
-                error={form.formState.errors.text?.message}
+                error={form.formState.errors.description?.message}
                 placeholder={t("onboarding.page_description_placeholder")}
               />
-              {form.formState.errors.text && (
+              {form.formState.errors.description && (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.text.message}
+                  {form.formState.errors.description.message}
                 </p>
               )}
             </div>
@@ -213,24 +214,25 @@ export const BasicStepEdit = () => {
               )}
             </div>
           </div>
-        </form>
-      </Form>
           <div className="mt-auto pt-4 border-t flex justify-end gap-3">
-            <ButtonOutline onClick={handleCancel} className="w-1/6">
+            <ButtonOutline onClick={handleCancel} type="button">
               {t("action.cancel_label")}
             </ButtonOutline>
+            {/* <Link href="/scenarios"> */}
             <ButtonOutline
+              type="submit"
               disabled={!form.formState.isDirty || !form.formState.isValid}
-              className="w-1/6"
             >
               {t("action.next_label")}
             </ButtonOutline>
+            {/* </Link> */}
           </div>
+        </form>
+      </Form>
           <DeleteModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             onDelete={() => {
-              console.log("Item Deleted");
               setIsModalOpen(false);
             }}
             header="Are you sure you want to delete this page?"

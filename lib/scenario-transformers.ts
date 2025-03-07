@@ -32,9 +32,9 @@ const transformStep = (step: ScenarioStep): ScenarioFormData['steps'][number] =>
     });
 
     return {
-      screenId: step.screenId,
+      id: step.id,
       title: step.title,
-      text: step.text,
+      description: step.description,
       type: StepType.CONNECT_AND_VERIFY as const,
       requestOptions: {
         title: step.requestOptions.title,
@@ -49,10 +49,10 @@ const transformStep = (step: ScenarioStep): ScenarioFormData['steps'][number] =>
   }
   
   return {
-    screenId: step.screenId,
+    id: step.id,
     title: step.title,
-    text: step.text,
-    type: StepType.BASIC as const,
+    description: step.description,
+    type: StepType.HUMAN_TASK as const,
     requestOptions: {
       title: step.requestOptions.title,
       text: step.requestOptions.text,

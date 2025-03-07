@@ -2,7 +2,8 @@ import { ReactNode} from "react";
 
 export enum StepType {
   BASIC = "BASIC",
-  CONNECT_AND_VERIFY = "CONNET_AND_VERIFY"
+  CONNECT_AND_VERIFY = "CONNET_AND_VERIFY",
+  HUMAN_TASK = "HUMAN_TASK"
 }
 
 export enum RequestType {
@@ -43,9 +44,9 @@ interface ProgressBarItem {
 }
 
 export interface OnboardingStep {
-  screenId: string;
+  id: string;
   title: string;
-  text: string;
+  description: string;
   image?: string;
   credentials?: string[];
 }
@@ -79,10 +80,10 @@ export interface RequestOptions {
 }
 
 export interface ScenarioStep {
-  screenId: string;
-  type: StepType.BASIC | StepType.CONNECT_AND_VERIFY;
+  id: string;
+  type: StepType.BASIC | StepType.CONNECT_AND_VERIFY | StepType.HUMAN_TASK
   title: string;
-  text: string;
+  description: string;
   requestOptions: RequestOptions;
 }
 

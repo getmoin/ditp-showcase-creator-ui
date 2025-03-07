@@ -33,7 +33,7 @@ export const DisplayAddedCredentials = ({
 
   if (!hasCredentials) {
     return (
-      <div className="m-5 p-5 w-full h-full">
+      <div className="m-5 p-5 w-full">
         <NoSelection text={t("onboarding.no_credentials_added_message")} />
       </div>
     );

@@ -5,13 +5,14 @@ import { Persona, ShowcaseJSON } from "@/types";
 import { CredentialFormData } from "@/schemas/credential";
 
 type Tab = "Character" | "Onboarding" | "Scenario" | "Publish";
-
+type PersonaState = "editing-persona" | "no-selection" | "creating-new";
 interface State {
   showcaseJSON: ShowcaseJSON;
   selectedCharacter: number;
   currentPage: string;
   editMode: boolean;
   activeTab: Tab;
+  personaState: PersonaState;
 }
 
 interface Actions {
@@ -19,9 +20,10 @@ interface Actions {
   setSelectedCharacter: (index: number) => void;
   setEditMode: (mode: boolean) => void;
   setActiveTab: (tab: Tab) => void;
+  setStepState: (state: PersonaState) => void;
   updateCharacterDetails: (data: {
     name: string;
-    type: string;
+    role: string;
     description: string;
   }) => void;
   updateCharacterImage: (
@@ -47,12 +49,18 @@ export const useShowcaseStore = create<State & Actions>()(
     currentPage: "character",
     activeTab: "Character",
     editMode: false,
+    personaState:'no-selection',
 
     setActiveTab: (tab) => {
       set((state) => {
         state.activeTab = tab;
       });
     },
+
+    setStepState: (newState) =>
+      set((state) => {
+        state.personaState = newState;
+      }),
 
     setShowcaseJSON: (json) =>
       set((state) => {
@@ -72,11 +80,11 @@ export const useShowcaseStore = create<State & Actions>()(
 
     // Character Details
     // those methods are temporary, to be replaced with each dedicated service
-    updateCharacterDetails: ({ name, type, description }) =>
+    updateCharacterDetails: ({ name, role, description }) =>
       set((state) => {
         const persona = state.showcaseJSON.personas[state.selectedCharacter];
         persona.name = name;
-        persona.type = type;
+        persona.type = role;
         persona.description = description;
       }),
 

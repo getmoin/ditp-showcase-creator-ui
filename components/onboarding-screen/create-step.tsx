@@ -13,13 +13,13 @@ export const CreateNewStep = () => {
 
   const handleAddStep = (isIssue: boolean) => {
     const newStep = {
-      screenId: `${Date.now()}`,
+      id: `${Date.now()}`,
       title: "",
-      text: "",
+      description: "",
       image: "",
       ...(isIssue && { credentials: [] }),
     };
-
+    console.log('newStep',newStep)
     createStep(newStep);
     setStepState(isIssue ? "editing-issue" : "editing-basic");
   };

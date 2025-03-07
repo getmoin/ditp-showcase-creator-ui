@@ -142,9 +142,9 @@ export const useCreateStep = () => {
 
   const onSubmit = (data: OnboardingStepFormData) => {
     const newStep = {
-      screenId: `${Date.now()}`,
+      id: `${Date.now()}`,
       title: data.title,
-      text: data.text,
+      description: data.text,
       image: data.image || '',
       ...(data.type === 'issue' && { credentials: data.credentials || [] }),
     };

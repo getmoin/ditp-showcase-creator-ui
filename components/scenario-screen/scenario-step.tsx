@@ -7,7 +7,7 @@ import { Copy, GripVertical, Monitor, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 
-const MAX_CHARS = 50;
+const MAX_CHARS = 10;
 
 export const ScenarioStep = ({
   step,
@@ -31,7 +31,7 @@ export const ScenarioStep = ({
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: step.screenId,
+      id: step.id,
     });
 
   const style = {
@@ -40,6 +40,8 @@ export const ScenarioStep = ({
   };
 
   const handleSelect = () => {
+    console.log('scenarioIndex',scenarioIndex);
+    console.log('stepIndex: ',stepIndex)
     setSelectedStep(stepIndex);
     setSelectedScenario(scenarioIndex);
     setStepState(
@@ -52,7 +54,7 @@ export const ScenarioStep = ({
     e.stopPropagation();
     removeStep(scenarioIndex, stepIndex);
   };
-
+// console.log('Step===',step);
   return (
     <div
       ref={setNodeRef}
@@ -103,18 +105,18 @@ export const ScenarioStep = ({
         >
           <span className="font-semibold">{step.title}</span>
           <p>
-            {step.text.length > MAX_CHARS ? (
+            {step.description.length > MAX_CHARS ? (
               <>
                 <span className="text-xs">
-                  {step.text.slice(0, MAX_CHARS)}...{" "}
+                  {step.description.slice(0, MAX_CHARS)}...{" "}
                 </span>
                 <span className="text-xs">{t("action.see_more_label")}</span>
               </>
             ) : (
-              step.text
+              step.description
             )}
           </p>
-          {step.screenId == "testClothesOnlineStep1" && (
+          {step.id == "testClothesOnlineStep1" && (
             <div className="bg-white dark:bg-dark-bg-secondary p-2 flex">
               <Image
                 src={require(`../../public/assets/NavBar/${"Joyce"}.png`)}

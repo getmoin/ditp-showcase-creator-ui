@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import StepHeader from "../step-header";
 import ButtonOutline from "../ui/button-outline";
 import DeleteModal from "../delete-modal";
+import { Link } from "@/i18n/routing";
 
 export const BasicStepEdit = () => {
   const t = useTranslations();
@@ -28,7 +29,7 @@ export const BasicStepEdit = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  console.log('scenarios============ ',scenarios);
   const currentScenario =
     selectedScenario !== null ? scenarios[selectedScenario] : null;
   const currentStep =
@@ -40,9 +41,9 @@ export const BasicStepEdit = () => {
     resolver: zodResolver(basicStepSchema),
     mode: "all",
     defaultValues: {
-      type: StepType.BASIC,
+      type: StepType.HUMAN_TASK,
       title: "",
-      text: "",
+      description: "",
       requestOptions: {
         type: RequestType.BASIC,
         title: "",
@@ -58,10 +59,10 @@ export const BasicStepEdit = () => {
   useEffect(() => {
     if (currentStep) {
       const formData = {
-        screenId: currentStep.screenId,
-        type: StepType.BASIC,
+        id: currentStep.id,
+        type: StepType.HUMAN_TASK,
         title: currentStep.title,
-        text: currentStep.text,
+        description: currentStep.description,
         requestOptions: {
           type: RequestType.BASIC,
           title: currentStep.requestOptions?.title || "",
@@ -79,6 +80,7 @@ export const BasicStepEdit = () => {
   }, [currentStep, form.reset]);
 
   const onSubmit = (data: BasicStepFormData) => {
+    console.log('data',data);
     if (selectedScenario === null || selectedStep === null) return;
 
     // Transform the form data back to the expected format
@@ -90,11 +92,11 @@ export const BasicStepEdit = () => {
         type: data.requestOptions.type.toUpperCase() as RequestType,
       },
     };
-
+    console.log('StepData After Update',stepData);
     updateStep(selectedScenario, selectedStep, stepData);
     setStepState("none-selected");
   };
-
+console.log('form.formState',form.formState)
   if (!currentStep) return null;
 
   return (
@@ -136,26 +138,26 @@ export const BasicStepEdit = () => {
 
             <FormTextArea
               label={t("scenario.edit_page_description_label")}
-              name="text"
+              name="description"
               register={form.register}
-              error={form.formState.errors.text?.message}
+              error={form.formState.errors.description?.message}
               placeholder={t("scenario.edit_page_description_placeholder")}
             />
           </div>
 
           <div className="mt-auto pt-4 border-t flex justify-end gap-3">
             <ButtonOutline
-              className="w-1/6"
               onClick={() => setStepState("none-selected")}
             >
               {t("action.cancel_label")}
             </ButtonOutline>
+            {/* <Link href="/publish"> */}
             <ButtonOutline
-              className="w-1/6"
               disabled={!form.formState.isDirty || !form.formState.isValid}
             >
               {t("action.next_label")}
             </ButtonOutline>
+            {/* </Link> */}
           </div>
         </form>
       </Form>

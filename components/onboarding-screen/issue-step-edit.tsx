@@ -38,7 +38,7 @@ export function IssueStepEdit() {
     if (currentStep) {
       form.reset({
         title: currentStep.title,
-        text: currentStep.text,
+        description: currentStep.description,
         image: currentStep.image || "",
         credentials: currentStep.credentials || [],
       });
@@ -94,12 +94,12 @@ export function IssueStepEdit() {
     const updatedStep = {
       ...screens[selectedStep],
       ...data,
-      screenId: screens[selectedStep].screenId,
+      screenId: screens[selectedStep].id,
     };
 
-    // updateStep(selectedStep, updatedStep);
-    // setStepState("no-selection");
-    // setSelectedStep(null);
+    updateStep(selectedStep, updatedStep);
+    setStepState("no-selection");
+    setSelectedStep(null);
   };
 
   const handleCancel = () => {
@@ -157,9 +157,9 @@ export function IssueStepEdit() {
           <div className="space-y-2">
             <FormTextArea
               label={t("onboarding.page_description_label")}
-              name="text"
+              name="description"
               register={form.register}
-              error={form.formState.errors.text?.message}
+              error={form.formState.errors.description?.message}
               placeholder={t("onboarding.page_description_placeholder")}
             />
           </div>
@@ -223,15 +223,14 @@ export function IssueStepEdit() {
               </p>
             )}
           </div>
-        </div>
-
         <div className="mt-auto pt-4 border-t flex justify-end gap-3">
-          <ButtonOutline onClick={handleCancel} className="w-1/6">
+          <ButtonOutline onClick={handleCancel}>
             {t("action.cancel_label")}
           </ButtonOutline>
-          <ButtonOutline disabled={!form.formState.isDirty} className="w-1/6">
+          <ButtonOutline disabled={!form.formState.isDirty}>
             {t("action.next_label")}
           </ButtonOutline>
+        </div>
         </div>
       </form>
       {/* Delete Modal */}

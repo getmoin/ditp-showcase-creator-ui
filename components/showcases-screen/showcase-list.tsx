@@ -139,7 +139,7 @@ export const ShowcaseList = () => {
               <div
                 className="relative min-h-[15rem] h-auto flex items-center justify-center bg-cover bg-center"
                 style={{
-                  backgroundImage: `url('https://s3-alpha-sig.figma.com/img/5d4c/7e9e/2467b71299aa7c9a6f2c7c75216f6b05?Expires=1740960000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=JXtepvEoR1yywWRY~olsbtjNO0lt6mrPq4ne9XfxI4-V49FlIlBjZytt3YX-jFBZVAIpIcobonxly-evL~ps1bHpdUxlVurVIeO0czDEbuOZGa61fwjkkY0EjL0kXGotqQH8~D3ra7Lw4A2LjE2qtVKL3tVTPxmrTDJ0G6VvWKbqbo7fSzwWPArPM2keMl~pbzB5z9~KEUTGzqZ74RmgPLJ0pyzc9D7o-Jb-46BBS2TomxEWqfJB2YO9U1y0z0sXa~ftV-BpYbZLYyt~cRg8HXFox8ixj94NQsRIPxBoc9pmQFDWzqQf9KLDTaP6MxXo8t5drcEsNyC3sfKRjNzKKA__')`,
+                  backgroundImage: `url('https://picsum.photos/400')`,
                 }}
               >
                 <div
@@ -168,7 +168,7 @@ export const ShowcaseList = () => {
                       {item.title}
                     </h2>
                   </div>
-                  <ButtonOutline className="bg-transparent px-12">
+                  <ButtonOutline className="bg-transparent">
                     {t("action.preview_label")}
                   </ButtonOutline>
                 </div>

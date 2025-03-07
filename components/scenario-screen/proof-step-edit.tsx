@@ -195,9 +195,9 @@ export const ProofStepEdit = () => {
 
             <FormTextArea
               label="Page Content"
-              name="text"
+              name="description"
               register={form.register}
-              error={form.formState.errors.text?.message}
+              error={form.formState.errors.description?.message}
               placeholder="Enter Page Content"
             />
           </div>
