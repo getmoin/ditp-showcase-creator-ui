@@ -11,7 +11,7 @@ import { Form } from "../ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LocalFileUpload } from "../onboarding-screen/local-file-upload";
-import { IssueStepFormData, issueStepSchema } from "@/schemas/onboarding";
+import { PublishFormData,publishSchema } from "@/schemas/publish";
 import StepHeader from "../step-header";
 import ButtonOutline from "../ui/button-outline";
 import { Link } from "@/i18n/routing";
@@ -20,18 +20,17 @@ export const PublishEdit = () => {
   const t = useTranslations();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const form = useForm<IssueStepFormData>({
-    resolver: zodResolver(issueStepSchema),
+  const form = useForm<PublishFormData>({
+    resolver: zodResolver(publishSchema),
     mode: "all",
   });
 
-  const onSubmit = (data: IssueStepFormData) => {
+  const onSubmit = (data: PublishFormData) => {
     console.log(data);
   };
 
   const localJSON = {
-    image: form.watch("image"),
-    credentials: form.watch("credentials"),
+    image: form.watch("image")
   };
 
   const handleCancel = () => {
@@ -64,10 +63,17 @@ export const PublishEdit = () => {
             />
             <FormTextArea
               label="Showcase Description"
-              name="title"
+              name="description"
               register={form.register}
-              error={form.formState.errors.title?.message}
+              error={form.formState.errors.description?.message}
               placeholder="Enter showcase description"
+            />
+             <FormTextArea
+              label="Showcase Completion Details"
+              name="showcase_completion_detail"
+              register={form.register}
+              error={form.formState.errors.showcase_completion_detail?.message}
+              placeholder="Add details here that should appear in the pop-up box that appears at completion of your showcase."
             />
             <div className="space-y-2">
               <LocalFileUpload
@@ -93,11 +99,12 @@ export const PublishEdit = () => {
               </ButtonOutline>
             </div>
             <div className="flex gap-3">
-              <ButtonOutline className="" onClick={handleCancel}>
+              <ButtonOutline disabled={!form.formState.isValid || !form.formState.isDirty} onClick={handleCancel}>
                 {"SAVE AS DRAFT"}
               </ButtonOutline>
               <button
-                // disabled={!form.formState.isDirty}
+                type="submit"
+                // disabled={!form.formState.isValid || !form.formState.isDirty}
                 onClick={() => setIsModalOpen(true)}
                 className="px-6 bg-light-yellow py-2 rounded text-gray-700 font-bold"
               >
@@ -141,6 +148,7 @@ export const PublishEdit = () => {
             <div className="mt-4 flex justify-end gap-2 border-t pt-3 border-gray-300">
               <button
                 onClick={() => setIsModalOpen(false)}
+                type="button"
                 className="px-4 py-2 text-gray-700 rounded"
               >
                 {t("action.cancel_label")}

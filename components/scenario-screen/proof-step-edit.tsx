@@ -259,13 +259,13 @@ export const ProofStepEdit = () => {
         </div>
         <div className="mt-auto pt-4 border-t flex justify-end gap-3">
           <ButtonOutline
-            className="w-1/6"
+            
             onClick={() => setStepState("none-selected")}
           >
             {t("action.cancel_label")}
           </ButtonOutline>
 
-          <ButtonOutline className="w-1/6" disabled={!form.formState.isDirty}>
+          <ButtonOutline  disabled={!form.formState.isDirty}>
             {t("action.next_label")}
           </ButtonOutline>
         </div>

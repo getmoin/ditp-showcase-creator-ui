@@ -22,7 +22,7 @@ import DeleteModal from "../delete-modal";
 export function IssueStepEdit() {
   const t = useTranslations();
   const { showcaseJSON, selectedCharacter } = useShowcaseStore();
-  const { selectedStep, screens, updateStep, setSelectedStep, setStepState } =
+  const { selectedStep, screens, updateStep, setSelectedStep, setStepState,removeStep } =
     useOnboarding();
   const [searchResults, setSearchResults] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -101,6 +101,29 @@ export function IssueStepEdit() {
     setStepState("no-selection");
     setSelectedStep(null);
   };
+
+  const deleteStep = async (id: any) => {
+    try {
+      if (!id) {
+        console.error("Error: Step ID is required for deletion.");
+        return;
+      }
+
+      console.log("Deleting persona with ID:", id);
+      removeStep(id);
+
+      // // Step 1: Send DELETE request to the API
+      // await apiClient.delete(`/personas/${personaId}`);
+
+      console.log("Persona deleted successfully!");
+
+      // // Step 2: Update the persona list after deletion
+      // GetPersona();
+    } catch (error) {
+      console.error("Error deleting persona:", error);
+    }
+  };
+
 
   const handleCancel = () => {
     form.reset();
@@ -240,6 +263,7 @@ export function IssueStepEdit() {
         onDelete={() => {
           console.log("Item Deleted");
           setIsModalOpen(false);
+          deleteStep(currentStep?.id);
         }}
         header="Are you sure you want to delete this page?"
         description="Are you sure you want to delete this page?"

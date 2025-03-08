@@ -29,12 +29,14 @@ export const BasicStepEdit = () => {
     updateStep,
     setStepState,
     stepState,
+    removeStep
   } = useOnboarding();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const currentStep = selectedStep !== null ? screens[selectedStep] : null;
   const isEditMode = stepState === "editing-basic";
   const [isOpen, setIsOpen] = useState(false);
+  console.log('Current Step',currentStep);
 
   const defaultValues = currentStep
     ? {
@@ -72,6 +74,28 @@ export const BasicStepEdit = () => {
       });
       setStepState("no-selection");
       setSelectedStep(null);
+    }
+  };
+
+  const deleteStep = async (id: any) => {
+    try {
+      if (!id) {
+        console.error("Error: Step ID is required for deletion.");
+        return;
+      }
+
+      console.log("Deleting persona with ID:", id);
+      removeStep(id);
+
+      // // Step 1: Send DELETE request to the API
+      // await apiClient.delete(`/personas/${personaId}`);
+
+      console.log("Persona deleted successfully!");
+
+      // // Step 2: Update the persona list after deletion
+      // GetPersona();
+    } catch (error) {
+      console.error("Error deleting persona:", error);
     }
   };
 
@@ -234,6 +258,7 @@ export const BasicStepEdit = () => {
             onClose={() => setIsModalOpen(false)}
             onDelete={() => {
               setIsModalOpen(false);
+              deleteStep(currentStep?.id)
             }}
             header="Are you sure you want to delete this page?"
             description="Are you sure you want to delete this page?"

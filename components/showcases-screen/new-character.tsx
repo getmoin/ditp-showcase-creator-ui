@@ -835,7 +835,7 @@ export default function NewCharacterPage() {
                 </div>
               </>
             ) : (
-              <div className="self-center justify-center mt-[50%]">No Persona Selected</div>
+              <div className="self-center justify-center mt-[23%]">No Persona Selected</div>
             )}
           </div>
         </div>

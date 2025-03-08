@@ -6,6 +6,7 @@ import { useScenarios } from "@/hooks/use-scenarios";
 import { Copy, GripVertical, Monitor, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { produce } from "immer";
 
 const MAX_CHARS = 10;
 
@@ -40,8 +41,6 @@ export const ScenarioStep = ({
   };
 
   const handleSelect = () => {
-    console.log('scenarioIndex',scenarioIndex);
-    console.log('stepIndex: ',stepIndex)
     setSelectedStep(stepIndex);
     setSelectedScenario(scenarioIndex);
     setStepState(
@@ -49,12 +48,35 @@ export const ScenarioStep = ({
     );
   };
 
+  const handleCopyStep = (index: number) => {
+    try {
+      const { scenarios } = useScenarios.getState()
+
+      if (!scenarios[index].steps[index]) return;
+
+      const stepToCopy = scenarios[index].steps[index]
+
+      const newStep = JSON.parse(JSON.stringify(stepToCopy));
+      newStep.id = `${Date.now()}`; // Ensure a unique ID
+
+
+      useScenarios.setState(
+        produce((state) => {
+          state.scenarios[index].steps.splice(index + 1, 0, newStep);
+          state.selectedStep = index + 1;
+        })
+      )
+    } catch (error) {
+      console.log('Error in Copy Step',error)
+    }
+  }
+
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     removeStep(scenarioIndex, stepIndex);
   };
-// console.log('Step===',step);
+
   return (
     <div
       ref={setNodeRef}
@@ -80,6 +102,7 @@ export const ScenarioStep = ({
           <div
             onClick={(e) => {
               e.stopPropagation(); // Prevent drag interference
+              handleCopyStep(stepIndex)
             }}
             className="text-white text-2xl flex flex-col gap-2 cursor-pointer"
           >

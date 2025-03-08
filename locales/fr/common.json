@@ -133,7 +133,8 @@
     "edit_summary_label": "Résumé",
     "proof_attribute_placeholder": "Sélectionner un attribut",
     "basic_label":"Basique",
-    "proof_request_label":"Demande de preuve"
+    "proof_request_label":"Demande de preuve",
+    "scenario_description" : "Scenario Description"
   },
   "action": {
     "cancel_label": "ANNULER",

@@ -14,6 +14,7 @@ import { useScenarios } from "@/hooks/use-scenarios";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import ButtonOutline from "../ui/button-outline";
+import { produce } from "immer";
 
 export const ScenarioScreen = () => {
   const t = useTranslations();
@@ -368,6 +369,7 @@ const Showcases = {
 
   const initialScenarios = useMemo(() => {
     return JSON.parse(
+      // JSON.stringify(showcaseJSON.personas[selectedCharacter].scenarios)
       JSON.stringify(scenarioData)
     );
     // return JSON.parse(
@@ -435,6 +437,29 @@ const Showcases = {
     }
   ];
 
+  const HandleCopyScenario = (index: number) => {
+    try {
+      const { scenarios } = useScenarios.getState()
+      
+      if (!scenarios[index]) return;
+
+      const StepToCopy = scenarios[index];
+
+      const newStep = JSON.parse(JSON.stringify(StepToCopy));
+      newStep.id = `${Date.now()}`; // Ensure a unique ID
+
+      useScenarios.setState(
+        produce((state) => {
+          state.scenarios.splice(index + 1,0,newStep);
+          state.selectedScenario = index + 1 
+        })
+      )
+
+    } catch (error) {
+      console.log('Error in HandleCopy scenario',error)
+    }
+  }
+
   // console.log('scenarios:', scenarios);
   return (
     <div className="bg-white dark:bg-dark-bg-secondary text-light-text dark:text-dark-text">
@@ -495,12 +520,14 @@ const Showcases = {
               key={scenario.id}
               className="pb-2 border rounded-lg dark:border-dark-border overflow-hidden flex"
             >
-              <div className="w-12 bg-[#3A3B3B] flex justify-center items-center">
+              <div 
+              onClick={() => HandleCopyScenario(index)}
+              className="w-12 bg-[#3A3B3B] flex justify-center items-center">
                 <Copy className="h-6 w-6 text-white" />
               </div>
 
               <div className="flex-1">
-                <div className="p-3 bg-light-bg dark:bg-dark-bg">
+                <div onClick={() => setStepState("editing-scenario")} className="p-3 bg-light-bg dark:bg-dark-bg">
                   <h3 className="text-xl font-bold">{selectedScenario?.name}</h3>
                 </div>
 

@@ -11,9 +11,9 @@ export const FileUploadFull = ({
   handleJSONUpdate,
 }: {
   text: string;
-  element: "headshot_image" | "body_image";
+  element: "headshot_image" | "body_image" | "banner_image"
   initialValue?: string;
-  handleJSONUpdate: (imageType: "headshot_image" | "body_image", imageData: string) => void;
+  handleJSONUpdate: (imageType: "headshot_image" | "body_image" | "banner_image", imageData: string) => void;
 }) => {
   const t = useTranslations();
   const [preview, setPreview] = useState<string | null>(initialValue || null);

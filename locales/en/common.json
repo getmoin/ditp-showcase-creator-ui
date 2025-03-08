@@ -126,7 +126,7 @@
     "edit_name_label": "Scenario Name",
     "edit_name_placeholder": "Scenario Name",
     "edit_page_title_label": "Page Title",
-    "edit_page_title_placeholder": "Enter Step Title",
+    "edit_page_title_placeholder": "Enter Scenario Description",
     "edit_page_description_label": "Page Content",
     "edit_page_description_placeholder": "Enter Step Description",
     "edit_image_label": "Image",
@@ -134,7 +134,8 @@
     "proof_attribute_placeholder": "Select attribute",
     "confirm_information_to_send_label": "Confirm the information to send",
     "basic_label":"Basic",
-    "proof_request_label":"Proof Request"
+    "proof_request_label":"Proof Request",
+    "scenario_description" : "Scenario Description"
   },
   "action": {
     "cancel_label": "CANCEL",
