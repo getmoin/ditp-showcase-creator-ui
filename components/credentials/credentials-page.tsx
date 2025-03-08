@@ -1,49 +1,65 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import ButtonOutline from "../ui/button-outline";
+import { useCredentials } from "@/hooks/use-credentials";
 import { CredentialsDisplay } from "./credentials-display";
-import { CredentialsEditor } from "./credentials-editor";
+import { CredentialsForm } from "./credentials-form";
 import { CredentialsImport } from "./credentials-import";
 import { useTranslations } from "next-intl";
+import { CredentialFormData } from "@/schemas/credential"; // Import the type
 
-// Parent component managing the state for selected credentials and modes (view/edit/import)
 export const CredentialsPage = () => {
-  const [selectedCredential, setSelectedCredential] = useState<any | null>(null); // Handles null or credential
+  const {
+
+    startImporting,
+
+  } = useCredentials();  // Get the store's state and actions
+
   const [isImporting, setIsImporting] = useState(false); // State to manage import mode
+  
 
-  const handleOpenEditor = (credential: any | null) => {
-    setSelectedCredential(credential); // Update the state with selected credential
-    setIsImporting(false); // Close import mode if a credential is selected
-  };
 
+  // Handle import mode separately
   const handleImport = () => {
-    setIsImporting(true); // Open import mode
-    setSelectedCredential(null); // Close any previously selected credential
+    console.log("Starting import...");
+    startImporting();
+    setIsImporting(true);
   };
+
+ 
 
   return (
-    <div className="flex flex-col ">
+    <div className="flex flex-col">
       <div className="flex justify-between items-center px-6 py-2 mt-4">
         <p className="font-bold text-3xl">Credential Library</p>
 
+     
         <ButtonOutline
           className="mt-4 border py-2 rounded-md font-bold"
-          onClick={handleImport} // When clicked, set import mode to true
+          onClick={handleImport} // Switch to import mode
         >
           IMPORT CREDENTIAL
         </ButtonOutline>
       </div>
 
-      <div className="flex gap-4 p-4 ">
+      <div className="flex gap-4 p-4">
+        {/* Left Panel: Credentials Display */}
         <div className="w-1/3 bg-[white] dark:bg-dark-bg-secondary border shadow-md rounded-md flex flex-col">
-          <CredentialsDisplay openEditor={handleOpenEditor} />
+          <CredentialsDisplay
+       
+          />
         </div>
 
+        {/* Right Panel: Show Details or Form */}
         <div className="w-2/3 bg-white dark:bg-dark-bg-secondary border shadow-md rounded-md flex flex-col">
+          {/* Conditionally render based on import or create mode */}
           {isImporting ? (
-            <CredentialsImport /> // Show import screen
+            <CredentialsImport /> // Show import form if importing
           ) : (
-            <CredentialsEditor credential={selectedCredential} /> // Pass selected credential to CredentialsEditor
+            <CredentialsForm
+         
+          />
           )}
         </div>
       </div>
