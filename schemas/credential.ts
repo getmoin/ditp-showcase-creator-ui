@@ -18,7 +18,7 @@ export const schemaAttributeSchema = z.object({
 export const schemaDataSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
-  attributes: z.array(schemaAttributeSchema), // Array of attributes in the schema
+  attributes: z.array(schemaAttributeSchema), 
 });
 
 
@@ -40,6 +40,17 @@ export const credentialRepresentationSchema = z.object({
   schemaId: z.string().min(1),
   ocaBundleUrl: z.string().url().optional(),
 });
+// Define the issuer schema
+export const issuerSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  type: z.string().min(1),
+  organization: z.string().optional(),
+  logo: z.string().optional(), // Reusing the icon schema
+});
+
+
 
 // Icon schema inside a credential definition
 export const credentialIconSchema = z.object({
@@ -52,7 +63,7 @@ export const credentialIconSchema = z.object({
   updatedAt: z.string().min(1),
 });
 
-// Main credential definition schema with schema and icon embedded
+// Update the credential definition schema to include issuer
 export const credentialDefinitionSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1, "Credential name is required"),
@@ -64,6 +75,8 @@ export const credentialDefinitionSchema = z.object({
   representations: z.array(credentialRepresentationSchema),
   revocation: revocationSchema,
   icon: credentialIconSchema,
+  schema: schemaDataSchema.optional(), // Embed full schema
+  issuer: issuerSchema.optional(), // ✅ Add issuer here
   createdAt: z.string().min(1),
   updatedAt: z.string().min(1),
 });
@@ -73,6 +86,6 @@ export const credentialDefinitionsListSchema = z.object({
   credentialDefinitions: z.array(credentialDefinitionSchema),
 });
 export type SchemaData = z.infer<typeof schemaDataSchema>;
-
+export type IssuerData = z.infer<typeof issuerSchema>;
 export type CredentialFormData = z.infer<typeof credentialDefinitionSchema>;
 export type CredentialDefinitionsData = z.infer<typeof credentialDefinitionsListSchema>;
