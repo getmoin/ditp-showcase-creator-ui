@@ -19,6 +19,9 @@ import StepHeader from "../step-header";
 import ButtonOutline from "../ui/button-outline";
 import DeleteModal from "../delete-modal";
 import { Link } from "@/i18n/routing";
+import apiClient from "@/lib/apiService";
+import { ErrorModal } from "../error-modal";
+import Loader from "../loader";
 
 export const BasicStepEdit = () => {
   const t = useTranslations();
@@ -29,13 +32,16 @@ export const BasicStepEdit = () => {
     updateStep,
     setStepState,
     stepState,
-    removeStep
+    removeStep,
+    scenarioId
   } = useOnboarding();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const currentStep = selectedStep !== null ? screens[selectedStep] : null;
   const isEditMode = stepState === "editing-basic";
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showErrorModal, setErrorModal] = useState(false);
   console.log('Current Step',currentStep);
 
   const defaultValues = currentStep
@@ -77,28 +83,94 @@ export const BasicStepEdit = () => {
     }
   };
 
-  const deleteStep = async (id: any) => {
+  const deleteStep = async (stepId: any) => {
     try {
-      if (!id) {
+      // issuanceScenarioId
+      if (!stepId) {
         console.error("Error: Step ID is required for deletion.");
         return;
       }
 
-      console.log("Deleting persona with ID:", id);
-      removeStep(id);
+      console.log("Deleting persona with ID:", stepId);
+      removeStep(stepId);
 
       // // Step 1: Send DELETE request to the API
-      // await apiClient.delete(`/personas/${personaId}`);
+      await apiClient.delete(`/scenarios/issuances/${'issuanceScenarioId'}/steps/${stepId}`);
 
       console.log("Persona deleted successfully!");
-
+      setLoading(false)
       // // Step 2: Update the persona list after deletion
       // GetPersona();
     } catch (error) {
       console.error("Error deleting persona:", error);
+      setLoading(false)
+      setErrorModal(true);
     }
   };
 
+  const createIssuanceStep = async (issuanceFlowId: string, stepData: any) => {
+    try {
+      console.log(`Creating issuance step for flow: ${issuanceFlowId} with data:`, stepData);
+      const response = await apiClient.post(`/scenarios/issuances/${issuanceFlowId}/steps`, stepData);
+      console.log("Issuance Step Created:", response);
+      setLoading(false)
+      return response;
+    } catch (error) {
+      console.error("Error creating issuance step:", error);
+      setLoading(false)
+      setErrorModal(true);
+    }
+  };
+  
+   const updateIssuanceStep = async (issuanceFlowId: string, stepId: string, stepData: any) => {
+    try {
+      console.log(`Updating issuance step ${stepId} for flow ${issuanceFlowId} with data:`, stepData);
+      const response = await apiClient.put(`/scenarios/issuances/${issuanceFlowId}/steps/${stepId}`, stepData);
+      console.log("Issuance Step Updated:", response);
+      setLoading(false)
+      return response;
+    } catch (error) {
+      console.error("Error updating issuance step:", error);
+      setLoading(false)
+      setErrorModal(true);
+    }
+  };
+  
+   const createIssuanceStepAction = async (issuanceFlowId: string, stepId: string, actionData: any) => {
+    try {
+      console.log(`Creating action for step ${stepId} in flow ${issuanceFlowId} with data:`, actionData);
+      const response = await apiClient.post(`/scenarios/issuances/${issuanceFlowId}/steps/${stepId}/actions`, actionData);
+      console.log("Issuance Step Action Created:", response);
+      setLoading(false)
+      return response;
+    } catch (error) {
+      console.error("Error creating issuance step action:", error);
+      setLoading(false)
+      setErrorModal(true);
+    }
+  };
+  
+   const updateIssuanceStepAction = async (
+    issuanceFlowId: string,
+    stepId: string,
+    actionId: string,
+    actionData: any
+  ) => {
+    try {
+      console.log(`Updating action ${actionId} for step ${stepId} in flow ${issuanceFlowId} with data:`, actionData);
+      const response = await apiClient.put(
+        `/scenarios/issuances/${issuanceFlowId}/steps/${stepId}/actions/${actionId}`,
+        actionData
+      );
+      console.log("Issuance Step Action Updated:", response);
+      setLoading(false)
+      return response;
+    } catch (error) {
+      console.error("Error updating issuance step action:", error);
+    }
+  };
+  
+  
   const handleCancel = () => {
     form.reset();
     setStepState("no-selection");
@@ -168,6 +240,11 @@ export const BasicStepEdit = () => {
 
   return (
     <>
+    {showErrorModal && <ErrorModal errorText="Unknown error occurred" setShowModal={setErrorModal}/>}
+    {loading ? (
+        <Loader text="Creating Step" />
+      ) : (
+       <>
       <StepHeader
         icon={<Monitor strokeWidth={3} />}
         title={t("onboarding.basic_step_header_title")}
@@ -266,6 +343,8 @@ export const BasicStepEdit = () => {
             cancelText="CANCEL"
             deleteText="DELETE"
           />
+       </>
+      )}
     </>
   );
 };

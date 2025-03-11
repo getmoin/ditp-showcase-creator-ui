@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -26,6 +26,9 @@ export const ScenarioScreen = () => {
     removeScenario,
     setStepState,
     stepState,
+    moveStep,
+    setSelectedScenario,
+    selectedScenario
   } = useScenarios();
 
   const Data = [
@@ -166,7 +169,8 @@ const Showcases = {
               {
                 "id": "123e4567-ef2d-12d3-abcd-426614174451",
                 "title": "Connect Wallet",
-                "text": "Connect your wallet to continue"
+                "text": "Connect your wallet to continue",
+                "proofRequest": null
               }
             ],
             "asset": {
@@ -218,12 +222,14 @@ const Showcases = {
               {
                 "id": "123e4567-ef2d-12d3-abcd-426614174454",
                 "title": "Connect Wallet1",
-                "text": "Connect your wallet to continue"
+                "text": "Connect your wallet to continue",
+                "proofRequest": null
               },
               {
                 "id": "123e4567-ef2d-12d3-abcd-426614174455",
                 "title": "Download Wallet1",
-                "text": "Download your wallet to continue"
+                "text": "Download your wallet to continue",
+                "proofRequest": null
               }
             ],
             "asset": {
@@ -321,7 +327,48 @@ const Showcases = {
         }
       }
     ],
-    "personas": {}
+    "personas": [
+      {
+        "id": "123e4567-e89b-12d3-a456-426614174452",
+        "name": "Ana",
+        "role": "Student",
+        "description": "Ana is a verifier for the system",
+        "headshotImage": {
+          "id": "123e4567-e89b-12d3-a456-426614174461",
+          "mediaType": "image/jpeg",
+          "content": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC",
+          "fileName": "asset.jpg",
+          "description": "A beautiful image of a cat"
+        },
+        "bodyImage": {
+          "id": "123e4567-e89b-12d3-a456-426614174462",
+          "mediaType": "image/jpeg",
+          "content": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC",
+          "fileName": "asset.jpg",
+          "description": "A beautiful image of a cat"
+        }
+      },
+      {
+        "id": "123e4567-e89b-12d3-a456-426614174456",
+        "name": "John",
+        "role": "professor",
+        "description": "John is a professor in the college",
+        "headshotImage": {
+          "id": "123e4567-e89b-12d3-a456-426614174469",
+          "mediaType": "image/jpeg",
+          "content": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC",
+          "fileName": "asset.jpg",
+          "description": "A beautiful image of a cat"
+        },
+        "bodyImage": {
+          "id": "123e4567-e89b-12d3-a456-426614174469",
+          "mediaType": "image/jpeg",
+          "content": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAADMElEQVR4nOzVwQnAIBQFQYXff81RUkQCOyDj1YOPnbXWPmeTRef+/3O/OyBjzh3CD95BfqICMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMK0CMO0TAAD//2Anhf4QtqobAAAAAElFTkSuQmCC",
+          "fileName": "asset.jpg",
+          "description": "A beautiful image of a cat"
+        }
+      }
+    ]
   }
 }
 
@@ -343,23 +390,23 @@ const Showcases = {
   console.log('selectedPersona',selectedPersona);
 
   // Find the scenario that includes this persona
-  const selectedScenario = scenarioData.find((scenario) =>
+  const SelectedScenario = scenarioData.find((scenario) =>
     scenario.personas.some((persona) => persona.id === selectedPersonaId)
   );
 
-  console.log('selectedScenario ',selectedScenario);
+  console.log('SelectedScenario ',SelectedScenario);
 
-  const Steps = selectedScenario ? selectedScenario.steps : []
+  const Steps = SelectedScenario ? SelectedScenario.steps : []
   console.log('Stepss',Steps);
 
   // Extract actions from steps in the selected scenario
-  const actions = selectedScenario ? selectedScenario.steps.flatMap((step) => step.actions) : [];
+  const actions = SelectedScenario ? SelectedScenario.steps.flatMap((step) => step.actions) : [];
 
   console.log('Actions',actions)
 
-  let STeps = Data;
+  // let STeps = Data;
   let Personas = personas
-  let Issuer = Data[0].relyingParty;
+  // let Issuer = Data[0].relyingParty;
 
   // console.log('Showcase JSON', showcaseJSON.personas[selectedCharacter].scenarios);
 
@@ -370,7 +417,8 @@ const Showcases = {
   const initialScenarios = useMemo(() => {
     return JSON.parse(
       // JSON.stringify(showcaseJSON.personas[selectedCharacter].scenarios)
-      JSON.stringify(scenarioData)
+      // JSON.stringify(scenarioData)
+      JSON.stringify([SelectedScenario])
     );
     // return JSON.parse(
     //   JSON.stringify(STeps)
@@ -412,30 +460,7 @@ const Showcases = {
     setScenarios([...scenarios, newScenario]);
   };
 
-  const characters = [
-    {
-      id: 1,
-      name: "Ana",
-      type: "Student",
-      description:
-        "Meet Ana Ana is a student at BestBC College. To help make student life easier, BestBC College is going to offer Ana a digital Student Card to put in her BC Wallet.",
-      headshot: "../../public/assets/NavBar/Joyce.png",
-      bodyImage: "../../public/assets/NavBar/Joyce.png",
-      selected: false,
-      isHidden: false,
-    },
-    {
-      id: 2,
-      name: "Joyce",
-      type: "Teacher",
-      description:
-        "Meet Joyce. Joyce is a Teacher at BestBC College. To help make teacher life easier, BestBC College is going to offer Joyce a digital Teacher Card to put in her BC Wallet.",
-      headshot: "../../public/assets/NavBar/Joyce.png",
-      bodyImage: "../../public/assets/NavBar/Joyce.png",
-      selected: false,
-      isHidden: false,
-    }
-  ];
+
 
   const HandleCopyScenario = (index: number) => {
     try {
@@ -460,9 +485,36 @@ const Showcases = {
     }
   }
 
+    const handleDragEnd = (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) return;
+    
+      // Get step index inside the scenario
+      const oldStepIndex = scenarios[0]?.steps.findIndex((item) => item.id === active.id);
+      const newStepIndex = scenarios[0]?.steps.findIndex((item) => item.id === over.id);
+        
+      if (oldStepIndex !== -1 && newStepIndex !== -1 && oldStepIndex !== newStepIndex) {
+        moveStep(Number(selectedScenario), oldStepIndex, newStepIndex);
+        setSelectedScenario(0); // Since there's only one scenario, always set it to 0
+      }
+    };
+    
+    const handleDragStart = (event: DragStartEvent) => {
+      const index = scenarios.findIndex(
+        (screen) => screen.id === event.active.id
+      );
+
+      // Find index inside nested `steps`
+      const nestedIndex = scenarios.findIndex((sce) =>
+        sce.steps.findIndex((item) => item.id === event.active.id) !== -1
+      );
+  
+      setSelectedScenario(nestedIndex);
+    };
+
   // console.log('scenarios:', scenarios);
   return (
-    <div className="bg-white dark:bg-dark-bg-secondary text-light-text dark:text-dark-text">
+    <div className="bg-white dark:bg-dark-bg-secondary text-light-text dark:text-dark-text min-h-screen flex flex-col">
       <div className="flex bg-gray-100 rounded-md border-b">
         {Personas && Personas.map((char: any, index: number) => (
           <div
@@ -492,11 +544,11 @@ const Showcases = {
               <div className="text-sm text-gray-500">{char.role}</div>
 
               {/* Status Badge */}
-              {stepState == "none-selected" && (
+              {/* {stepState == "none-selected" && (
                 <div className="w-full mt-2 px-3 py-1 bg-yellow-400 text-xs font-semibold rounded">
                   Incomplete
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         ))}
@@ -528,12 +580,17 @@ const Showcases = {
 
               <div className="flex-1">
                 <div onClick={() => setStepState("editing-scenario")} className="p-3 bg-light-bg dark:bg-dark-bg">
-                  <h3 className="text-xl font-bold">{selectedScenario?.name}</h3>
+                  <h3 className="text-xl font-bold">{SelectedScenario?.name}</h3>
                 </div>
 
                 {/* Steps Section */}
                 <div className="p-2">
-                  <DndContext key={index} collisionDetection={closestCenter}>
+                  <DndContext 
+                    key={index} 
+                    collisionDetection={closestCenter}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                  >
                     <SortableContext
                       items={scenario.steps.map((step) => step.id)}
                       strategy={verticalListSortingStrategy}
@@ -554,6 +611,16 @@ const Showcases = {
                       </div>
                     ))}
 
+                    <DragOverlay>
+                      {SelectedScenario !== null && (
+                        <div className="top-1">
+                          <p>{Steps.map((item)=>item.title)}</p>
+                          <div className="highlight-container w-full flex flex-row justify-items-center items-center rounded p-3 unselected-item backdrop-blur">
+                            <p className="text-sm">{Steps.map((item)=>item.description)}</p>
+                          </div>
+                        </div>
+                      )}
+                    </DragOverlay>
                     </SortableContext>
                   </DndContext>
 

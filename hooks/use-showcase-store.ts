@@ -13,6 +13,8 @@ interface State {
   editMode: boolean;
   activeTab: Tab;
   personaState: PersonaState;
+  showcaseId: string;
+  personaIds: string[];
 }
 
 interface Actions {
@@ -36,6 +38,10 @@ interface Actions {
   updateCredential: (credentialId: string, data: CredentialFormData) => void;
   createCredential: (credentialId: string, data: CredentialFormData) => void;
   removeCredential: (credentialId: string) => void;
+  setShowcaseId: (id: string) => void;
+  setPersonaIds: (ids: string[]) => void;
+  addPersonaId: (id: string) => void;
+  removePersonaId: (id: string) => void;
 
   reset: () => void;
 }
@@ -45,11 +51,37 @@ export const useShowcaseStore = create<State & Actions>()(
     showcaseJSON: {
       personas: [DEFAULT_JSON] as Persona[],
     },
+    showcaseId: "",
+    personaIds: [],
     selectedCharacter: 0,
     currentPage: "character",
     activeTab: "Character",
     editMode: false,
-    personaState:'no-selection',
+    personaState: "no-selection",
+
+    setShowcaseId: (id) =>
+      set((state) => {
+        state.showcaseId = id;
+      }),
+
+    setPersonaIds: (ids) =>
+      set((state) => {
+        state.personaIds = ids;
+      }),
+
+    addPersonaId: (id) =>
+      set((state) => {
+        if (!state.personaIds.includes(id)) {
+          state.personaIds.push(id);
+        }
+      }),
+
+    removePersonaId: (id) =>
+      set((state) => {
+        state.personaIds = state.personaIds.filter(
+          (personaId) => personaId !== id
+        );
+      }),
 
     setActiveTab: (tab) => {
       set((state) => {
@@ -139,6 +171,8 @@ export const useShowcaseStore = create<State & Actions>()(
         state.selectedCharacter = 0;
         state.currentPage = "character";
         state.editMode = false;
+        state.showcaseId = "";
+        state.personaIds = [];
       }),
   }))
 );

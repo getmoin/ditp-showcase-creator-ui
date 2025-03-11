@@ -26,8 +26,10 @@ export const ScenarioStep = ({
     selectedStep,
     setSelectedStep,
     setSelectedScenario,
+    selectedScenario,
     setStepState,
     removeStep,
+    scenarios
   } = useScenarios();
 
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -51,7 +53,6 @@ export const ScenarioStep = ({
   const handleCopyStep = (index: number) => {
     try {
       const { scenarios } = useScenarios.getState()
-
       if (!scenarios[index].steps[index]) return;
 
       const stepToCopy = scenarios[index].steps[index]
@@ -76,6 +77,11 @@ export const ScenarioStep = ({
     e.stopPropagation();
     removeStep(scenarioIndex, stepIndex);
   };
+
+  const currentScenario = selectedScenario !== null ? scenarios[selectedScenario] : null;
+  const currentStep = currentScenario && selectedStep !== null 
+    ? currentScenario.steps[selectedStep] 
+    : null;
 
   return (
     <div

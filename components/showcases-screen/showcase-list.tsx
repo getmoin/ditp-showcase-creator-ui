@@ -2,12 +2,15 @@
 
 import { CirclePlus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@/i18n/routing";
 import { Input } from "../ui/input";
 import ButtonOutline from "../ui/button-outline";
 import DeleteModal from "../delete-modal";
 import { Card } from "../ui/card";
+import apiClient from "@/lib/apiService";
+import Loader from "../loader";
+import { useShowcaseStore } from "@/hooks/use-showcase-store";
 
 export const ShowcaseList = () => {
   const t = useTranslations();
@@ -16,6 +19,67 @@ export const ShowcaseList = () => {
     t("showcases.header_tab_overview")
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [Showcases, setShowcases] = useState<any>([])
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [originalShowcases, setOriginalShowcases] = useState<any[]>([]);
+
+  const {setShowcaseId} = useShowcaseStore()
+
+  const listShowcases = async () => {
+    try {
+      const response:any = await apiClient.get("/showcases");
+      const res = response.showcases;
+      setShowcases(res);
+      setOriginalShowcases(res)
+      setLoading(false);
+      // return response.data; // Return the list of showcases
+    } catch (error) {
+      console.error("Error fetching showcases:", error);
+      setLoading(false);
+      throw error;
+    }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    // Always filter from the original dataset
+    const filtered = originalShowcases.filter((showcase: any) =>
+      showcase.name.toLowerCase().includes(term.toLowerCase())
+    );
+    setShowcases(filtered);
+  };
+
+  // Create new showcase
+  const createShowcase = async () => {
+    try {
+      const showcaseData = {
+        name: "Credential Showcase BCGov",
+        description: "Collection of credential usage scenarios",
+        status: "PENDING",
+        hidden: false,
+        scenarios: ["871b9ac3-f7a5-42ee-80c8-14f1587cb83d"],
+        credentialDefinitions: ["008a241c-a0c2-4897-ba59-519cd134c238"],
+        personas: ["b37a6cf7-13a6-4c81-b534-dfefd6c7c945"],
+        bannerImage: "008a241c-a0c2-4897-ba59-519cd134c238",
+        completionMessage: "You have successfully completed the showcase",
+      };
+  
+      const response:any = await apiClient.post("/showcases", showcaseData);
+      console.log("Showcase Created:", response);
+      let Id = response?.showcase?.id
+      setShowcaseId(Id);
+      return response;
+    } catch (error) {
+      console.error("Error creating showcase:", error);
+      throw error;
+    }
+  };  
+  
+  useEffect(() => {
+    listShowcases();
+  },[])
+
 
   let data = [
     {
@@ -70,6 +134,7 @@ export const ShowcaseList = () => {
   ];
 
   return (
+    <>
     <main
       className={`flex-1 bg-light-bg dark:bg-dark-bg dark:text-dark-text text-light-text `}
     >
@@ -92,6 +157,8 @@ export const ShowcaseList = () => {
             <Input
               type="text"
               placeholder={t("action.search_label")}
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
               className="bg-white dark:dark-bg w-full pl-10 pr-3 py-6 border rounded-md text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-gray-300"
             />
           </div>
@@ -107,7 +174,7 @@ export const ShowcaseList = () => {
         </div>
       </section>
 
-      <div className="container mx-auto px-5 mt-2">
+      {!loading&&<div className="container mx-auto px-5 mt-2">
         <div className="flex gap-4 text-sm font-medium">
           {tabs.map((tab, index) => (
             <button
@@ -121,51 +188,59 @@ export const ShowcaseList = () => {
             >
               <div className="font-bold text-base">{tab}</div>
               <span className="bg-light-bg-secondary dark:dark-bg-secondary text-gray-600 text-xs px-2 py-0.5 rounded-full">
-                {index === 0 ? 3 : index === 1 ? 1 : 2}
+                {index === 0 ? Showcases.length : index === 1 ? Showcases.length : 0}
               </span>
             </button>
           ))}
         </div>
-      </div>
+      </div>}
 
+      {loading &&
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            Loading Showcases
+          </div>
+        }
       <section className="container mx-auto px-4">
         <div className="grid md:grid-cols-3 gap-6 mt-6">
-          {data.map((item) => (
-            <Card key={item.id}>
+          {Showcases.map((showcase:any,index:number) => (
+            <Card key={showcase.id}>
             <div
-              key={item.id}
+              key={showcase.id}
               className="bg-white dark:bg-dark-bg shadow-md rounded-lg overflow-hidden border border-light-border dark:border-dark-border flex flex-col h-full"
             >
               <div
                 className="relative min-h-[15rem] h-auto flex items-center justify-center bg-cover bg-center"
                 style={{
-                  backgroundImage: `url('https://picsum.photos/400')`,
+                  backgroundImage: `url('${
+                    showcase?.bannerImage?.content || "https://picsum.photos/400"
+                  }')`,
                 }}
               >
                 <div
                   className={`${
-                    item.published == "Published"
+                    showcase.status == "Published"
                       ? "bg-light-yellow"
                       : "bg-dark-grey"
                   } left-0 right-0 top-4 py-2 rounded w-1/4 absolute`}
                 >
                   <p
                     className={`text-center ${
-                      item.published == "Published"
+                      showcase.status == "Published"
                         ? "text-black"
                         : "text-white"
                     }`}
                   >
-                    {item.published}
+                    {showcase.status}
                   </p>
                 </div>
                 <div className="flex justify-between absolute bottom-0 left-0 right-0 bg-[#D9D9D9E5] bg-opacity-70 p-4">
                   <div>
                     <p className="text-xs text-gray-600">
-                      {t("showcases.created_by_label",{name:item.createdBy})}
+                      {t("showcases.created_by_label",{name:'Test college'})}
                     </p>
                     <h2 className="text-xl font-bold text-gray-900">
-                      {item.title}
+                      {showcase.name}
                     </h2>
                   </div>
                   <ButtonOutline className="bg-transparent">
@@ -179,13 +254,13 @@ export const ShowcaseList = () => {
                 {t("showcases.description_label")}
                 </h3>
                 <p className="text-light-text dark:text-dark-text text-xs mt-2">
-                  {item.description}
+                  {showcase.description}
                 </p>
                 <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mt-2">
                 {t("showcases.description_version")}
                 </h3>
                 <p className="text-light-text dark:text-dark-text text-xs mt-2">
-                  {item.version}
+                  {showcase?.version || '1.0'}
                 </p>
 
                 <div className="mt-4 flex-grow mb-4">
@@ -193,22 +268,22 @@ export const ShowcaseList = () => {
                   {t("showcases.character_label")}
                   </h4>
                   <div className="mt-2 space-y-3">
-                    {item.characters.map((character, charIndex) => (
+                    {showcase?.personas?.map((persona:any, charIndex:any) => (
                       <div
-                        key={charIndex}
+                        key={persona.id}
                         className="border-[1px] border-dark-border dark:border-light-border flex items-center gap-3 p-3 rounded-md"
                       >
                         <img
-                          src={character.image}
-                          alt={character.name}
+                          src={persona.headshotImage?.content || "https://picsum.photos/200"} // Fallback image
+                          alt={persona.name}
                           className="w-[44px] h-[44px] rounded-full"
                         />
                         <div>
                           <p className="text-base font-medium text-light-text dark:text-dark-text font-semibold">
-                            {character.name}
+                            {persona.name}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {character.role}
+                            {persona.role}
                           </p>
                         </div>
                       </div>
@@ -217,25 +292,35 @@ export const ShowcaseList = () => {
                 </div>
 
                 <div className="flex gap-4 mt-auto">
-                  {item.buttons.map((button, btnIndex) => (
-                    <button
-                      key={btnIndex}
+                    <ButtonOutline className="w-1/2"
+                      onClick={() =>
+                        setIsModalOpen(true)
+                      }
+                    >
+                        {t("action.edit_label")}
+                    </ButtonOutline>
+                    <ButtonOutline className="w-1/2">
+                        {t("action.create_copy_label")}
+                    </ButtonOutline>
+                  {/* {item.buttons.map((button, btnIndex) => ( */}
+                    {/* <button
+                      // key={btnIndex}
                       className={`w-full font-bold py-2 rounded-md transition ${
-                        button.type === "primary"
+                        showcase.status === "PUBLISHED"
                           ? "border-2 border-dark-border dark:border-light-border text-light-text dark:text-dark-text hover:bg-gray-100 dark:hover:bg-gray-700"
-                          : button.type === "secondary"
+                          : showcase.status === "DRAFT"
                           ? "border-2 border-dark-border dark:border-light-border text-light-text dark:text-dark-text hover:bg-gray-100 dark:hover:bg-gray-700"
                           : "bg-gray-300 text-gray-600 cursor-not-allowed"
                       }`}
-                      disabled={button.type === "disabled"}
+                      // disabled={button.type === "disabled"}
                       onClick={() =>
                         button.label == t("action.edit_label") &&
                         setIsModalOpen(true)
                       }
                     >
                       {button.label}
-                    </button>
-                  ))}
+                    </button> */}
+                  {/* ))} */}
                 </div>
               </div>
             </div>
@@ -247,7 +332,6 @@ export const ShowcaseList = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onDelete={() => {
-          console.log("Item Deleted");
           setIsModalOpen(false);
         }}
         header="Edit Published Showcase?"
@@ -257,5 +341,7 @@ export const ShowcaseList = () => {
         deleteText="PROCEED WITH EDITING"
       />
     </main>
+
+    </>
   );
 };

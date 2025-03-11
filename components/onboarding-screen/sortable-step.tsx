@@ -110,7 +110,7 @@ export const SortableStep = ({
       console.log("Error ", error);
     }
   };
-
+console.log('myScreenmyScreen',myScreen);
   return (
     <div
       ref={setNodeRef}
@@ -176,14 +176,15 @@ export const SortableStep = ({
             )}
           </p>
           {myScreen.credentials && (
-          // {myScreen.screenId == "ACCEPT_CREDENTIAL" && (
             <>
-           {!myScreen.credentials && (
-               <div className="bg-yellow-300 p-1 font-bold rounded gap-2 flex items-center justify-center">
+           {myScreen.credentials.length <= 0 ? (
+            <>
+               <div className="bg-[#FFE6AB] p-1 font-bold rounded gap-2 flex flex-row items-center justify-center">
                <TriangleAlert fill={'#FFCB00'} size={22}/>
                Select Credential to Proceed
              </div>
-           )}
+            </>
+           ):(
             <div className="bg-white dark:bg-dark-bg-secondary p-2 flex">
               <Image
                 src={require(`../../public/assets/NavBar/${"Joyce"}.png`)}
@@ -201,6 +202,8 @@ export const SortableStep = ({
                 <div className="text-sm">3</div>
               </div>
             </div>
+           )}
+            
             </>
           )}
         </div>

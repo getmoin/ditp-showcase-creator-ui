@@ -1,21 +1,55 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "../ui/input";
 import { useTranslations } from "next-intl";
 import ButtonOutline from "../ui/button-outline";
 import { Card } from "../ui/card";
+import apiClient from "@/lib/apiService";
+import Loader from "../loader";
 
-export const LandingPage =() => {
+export const LandingPage = () => {
   const t = useTranslations();
-  const [activeTab, setActiveTab] = useState(t('home.header_tab_all'));
+  const [activeTab, setActiveTab] = useState(t("home.header_tab_all"));
+  const [Showcases, setShowcases] = useState<any>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [originalShowcases, setOriginalShowcases] = useState<any[]>([]);
 
   let tabs = [
     t("home.header_tab_all"),
     t("home.header_tab_mine"),
     t("home.header_tab_others"),
   ];
+
+  const listShowcases = async () => {
+    try {
+      const response: any = await apiClient.get("/showcases");
+      const res = response.showcases;
+      setShowcases(res);
+      setOriginalShowcases(res)
+      setLoading(false);
+      // return response.data; // Return the list of showcases
+    } catch (error) {
+      console.error("Error fetching showcases:", error);
+      setLoading(false);
+      throw error;
+    }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    // Always filter from the original dataset
+    const filtered = originalShowcases.filter((showcase: any) =>
+      showcase.name.toLowerCase().includes(term.toLowerCase())
+    );
+    setShowcases(filtered);
+  };
+
+  useEffect(() => {
+    listShowcases();
+  }, []);
 
   return (
     <div
@@ -41,16 +75,18 @@ export const LandingPage =() => {
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                 size={22}
               />
-              <Input 
+              <Input
                 type="text"
-                 placeholder={t("action.search_label")}
-                 className="bg-white dark:dark-bg w-full pl-10 pr-3 py-6 border rounded-md text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-gray-300"
+                placeholder={t("action.search_label")}
+                value={searchTerm}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="bg-white dark:dark-bg w-full pl-10 pr-3 py-6 border rounded-md text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-gray-300"
               />
             </div>
           </div>
         </section>
 
-        <div className="container mx-auto px-5 mt-2">
+        {!loading &&<div className="container mx-auto px-5 mt-2">
           <div className="flex gap-4 text-sm font-medium">
             {tabs.map((tab, index) => (
               <button
@@ -69,92 +105,91 @@ export const LandingPage =() => {
               </button>
             ))}
           </div>
-        </div>
+        </div>}
 
+        {loading &&
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            Loading Showcases
+          </div>
+        }
         <section className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-6 mt-6">
-            {[1, 2, 3].map((index) => (
-              <Card key={index}>
-              <div
-                key={index}
-                className="bg-white dark:bg-dark-bg shadow-md rounded-lg overflow-hidden border border-light-border dark:border-dark-border flex flex-col h-full"
-              >
+            {Showcases.map((showcase: any, index: number) => (
+              <Card key={showcase.id}>
                 <div
-                  className="relative min-h-[15rem] h-auto flex items-center justify-center bg-cover bg-center"
-                  style={{
-                    backgroundImage:
-                      "url('https://picsum.photos/400')",
-                  }}
+                  key={showcase.id}
+                  className="bg-white dark:bg-dark-bg shadow-md rounded-lg overflow-hidden border border-light-border dark:border-dark-border flex flex-col h-full"
                 >
-                  <div className="absolute bottom-0 left-0 right-0 bg-[#D9D9D9E5] bg-opacity-70 p-3">
-                    <p className="text-xs text-gray-600">
-                    {t("showcases.created_by_label",{name:'Test college'})}
-                    </p>
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      Campus Access
-                    </h2>
-                  </div>
-                </div>
-
-                <div className="p-5 flex flex-col flex-grow">
-                  <h3 className="text-sm font-semibold text-light-text dark:text-dark-text">
-                  {t("showcases.description_label")}
-                  </h3>
-                  <p className="text-light-text dark:text-dark-text text-xs mt-2">
-                    In this showcase, follow the journey of a student and a
-                    teacher at Test College as they navigate the process of
-                    obtaining a digital parking credential.
-                  </p>
-                  <div className="mt-4 flex-grow mb-4">
-                    <h4 className="text-sm font-semibold text-light-text dark:text-dark-text">
-                    {t("showcases.character_label")}
-                    </h4>
-                    <div className="mt-2 space-y-3">
-                      {index !== 2 && (
-                        <div className="border-[1px] border-dark-border dark:border-light-border flex items-center gap-3 p-3 rounded-md">
-                          <img
-                            src="https://picsum.photos/200"
-                            alt="Joyce"
-                            className="w-[44px] h-[44px] rounded-full"
-                          />
-                          <div>
-                            <p className="text-base font-medium text-light-text dark:text-dark-text font-semibold">
-                              Joyce
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              Teacher
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      <div className="border-[1px] border-dark-border dark:border-light-border flex items-center gap-3 p-3 rounded-md">
-                        <img
-                          src="https://picsum.photos/200"
-                          alt="Ana"
-                          className="w-[44px] h-[44px] rounded-full"
-                        />
-                        <div>
-                          <p className="text-base font-medium text-light-text dark:text-dark-text font-semibold">
-                            Ana
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Student
-                          </p>
-                        </div>
-                      </div>
+                  <div
+                    className="relative min-h-[15rem] h-auto flex items-center justify-center bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url('${
+                        showcase?.bannerImage?.content ||
+                        "https://picsum.photos/400"
+                      }')`,
+                    }}
+                  >
+                    <div className="absolute bottom-0 left-0 right-0 bg-[#D9D9D9E5] bg-opacity-70 p-3">
+                      <p className="text-xs text-gray-600">
+                        {t("showcases.created_by_label", {
+                          name: "Test college",
+                        })}
+                      </p>
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        {showcase?.name}
+                      </h2>
                     </div>
                   </div>
 
-                  <div className="flex gap-4 mt-auto">
-                  <ButtonOutline className="w-1/2">
-                    {t("action.preview_label")}
-                  </ButtonOutline>
-                  <ButtonOutline className="w-1/2">
-                    {t("action.create_copy_label")}
-                  </ButtonOutline>
+                  <div className="p-5 flex flex-col flex-grow">
+                    <h3 className="text-sm font-semibold text-light-text dark:text-dark-text">
+                      {t("showcases.description_label")}
+                    </h3>
+                    <p className="text-light-text dark:text-dark-text text-xs mt-2">
+                      {showcase?.description}
+                    </p>
+                    <div className="mt-4 flex-grow mb-4">
+                      <h4 className="text-sm font-semibold text-light-text dark:text-dark-text">
+                        {t("showcases.character_label")}
+                      </h4>
+                      <div className="mt-2 space-y-3">
+                        {showcase?.personas?.map((persona: any) => (
+                          <div
+                            key={persona.id}
+                            className="border-[1px] border-dark-border dark:border-light-border flex items-center gap-3 p-3 rounded-md"
+                          >
+                            <img
+                              src={
+                                persona.headshotImage?.content ||
+                                "https://picsum.photos/200"
+                              } // Fallback image
+                              alt={persona.name}
+                              className="w-[44px] h-[44px] rounded-full"
+                            />
+                            <div>
+                              <p className="text-base font-medium text-light-text dark:text-dark-text font-semibold">
+                                {persona.name}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {persona.role}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4 mt-auto">
+                      <ButtonOutline className="w-1/2">
+                        {t("action.preview_label")}
+                      </ButtonOutline>
+                      <ButtonOutline className="w-1/2">
+                        {t("action.create_copy_label")}
+                      </ButtonOutline>
+                    </div>
                   </div>
                 </div>
-              </div>
               </Card>
             ))}
           </div>
@@ -162,6 +197,6 @@ export const LandingPage =() => {
       </main>
     </div>
   );
-}
+};
 
 export default LandingPage;

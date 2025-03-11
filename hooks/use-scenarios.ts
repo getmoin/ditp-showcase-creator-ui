@@ -18,6 +18,7 @@ interface State {
   selectedScenario: number | null;
   selectedStep: number | null;
   stepState: ScenarioStepState;
+  relyingPartyId: string;
 }
 // move to shared
 const deepClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
@@ -38,6 +39,8 @@ interface Actions {
   updateStep: (scenarioIndex: number, stepIndex: number, step: ScenarioStep) => void;
   removeStep: (scenarioIndex: number, stepIndex: number) => void;
   moveStep: (scenarioIndex: number, oldIndex: number, newIndex: number) => void;
+
+  setRelyingPartyId: (id: string) => void;
   
   reset: () => void;
 }
@@ -62,8 +65,11 @@ export const useScenarios = create<State & Actions>((set, get) => ({
   selectedScenario: null,
   selectedStep: null,
   stepState: null,
+  relyingPartyId: "",
 
   setScenarios: (scenarios) => set({ scenarios }),
+
+  setRelyingPartyId: (id) => set({ relyingPartyId: id }),
 
   setSelectedScenario: (index) => set({ selectedScenario: index }),
 

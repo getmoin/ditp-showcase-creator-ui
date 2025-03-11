@@ -2,128 +2,44 @@
 
 import { useShowcaseStore } from "@/hooks/use-showcase-store";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 import {
   CircleAlert,
-  CirclePlus,
-  Delete,
-  Download,
-  EllipsisVertical,
-  Eye,
-  EyeClosed,
   EyeOff,
-  FileWarning,
   Monitor,
-  Pencil,
-  RefreshCcw,
-  RotateCw,
-  Search,
-  Trash,
-  Trash2,
-  User,
 } from "lucide-react";
 // import { useRouter } from "next/router";
-import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
-import { Locale, usePathname, useRouter, Link } from "@/i18n/routing";
+import { useRouter } from "@/i18n/routing";
 import { FileUploadFull } from "../file-upload";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { FormTextInput, FormTextArea } from "../text-input";
 import { characterSchema } from "@/schemas/character";
 import { useTranslations } from "next-intl";
-import Onboarding from "@/app/[locale]/onboarding/page";
-import { PageParams } from "@/types";
-import Scenario from "@/app/[locale]/scenarios/page";
-import Credentials from "@/app/[locale]/credentials/page";
-import { P } from "pino";
-import { OnboardingScreen } from "../onboarding-screen/onboarding-screen";
-import { ScenarioScreen } from "../scenario-screen/scenario-screen";
-import { CredentialsDisplay } from "../credentials/credentials-display";
-import { OnboardingMain } from "../onboarding-screen";
 import StepHeader from "../step-header";
 import ButtonOutline from "../ui/button-outline";
 import DeleteModal from "../delete-modal";
 import apiClient from "@/lib/apiService";
+import Loader from "../loader";
 
-const characters = [
-  {
-    id: 1,
-    name: "Ana",
-    type: "Student",
-    description:
-      "Meet ABC Ana is a student at BestBC College. To help make student life easier, BestBC College is going to offer Ana a digital Student Card to put in her BC Wallet.",
-    headshot: "../../public/assets/NavBar/Joyce.png",
-    bodyImage: "../../public/assets/NavBar/Joyce.png",
-    selected: false,
-    isHidden: false,
-  },
-  {
-    id: 2,
-    name: "Joyce",
-    type: "Teacher",
-    description:
-      "Meet BCD Joyce is a Teacher at BestBC College. To help make teacher life easier, BestBC College is going to offer Joyce a digital Teacher Card to put in her BC Wallet.",
-    headshot: "../../public/assets/NavBar/Joyce.png",
-    bodyImage: "../../public/assets/NavBar/Joyce.png",
-    selected: false,
-    isHidden: false,
-  },
-  {
-    id: 3,
-    name: "Bob",
-    type: "Director",
-    description: "Director at BestBC College.",
-    headshot: "../../public/assets/NavBar/Joyce.png",
-    bodyImage: "../../public/assets/NavBar/Joyce.png",
-    selected: false,
-    isHidden: true,
-  },
-];
-
-let data = [
-  {
-    id: "123e4567-e89b-12d3-a456-426614174456",
-    name: "John Doe",
-    role: "Verifier",
-    description: "John Doe is a verifier for the system",
-    headshotImage: {
-      id: "123e4567-e89b-12d3-a456-426614174469",
-      mediaType: "image/jpeg",
-      content:
-        "data:image/png;base64,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",
-      fileName: "asset.jpg",
-      description: "A beautiful image of a cat",
-    },
-    bodyImage: {
-      id: "123e4567-e89b-12d3-a456-426614174469",
-      mediaType: "image/jpeg",
-      content:
-        "data:image/png;base64,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",
-      fileName: "asset.jpg",
-      description: "A beautiful image of a cat",
-    },
-  },
-];
 
 type CharacterFormData = z.infer<typeof characterSchema>;
 
 export default function NewCharacterPage() {
-  //   const [selectedCharacters, setSelectedCharacters] = useState(characters);
 
   const t = useTranslations();
   const router = useRouter();
 
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = useState<any[]>([]);
   const [hiddenIds, setHiddenIds] = useState<number[]>([]);
   const [isHidden, setIsHidden] = useState(false);
   const [activeTab, setActiveTab] = useState("Character");
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [headshotImage, setHeadshotImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isHeadShotImageEdited, setHeadShotImageEdited] = useState<
     boolean | null
   >(null);
@@ -237,7 +153,7 @@ export default function NewCharacterPage() {
     },
   };
 
-  const { showcaseJSON, setEditMode, editMode, personaState,setStepState } =
+  const { showcaseJSON, setEditMode, editMode, personaState, setStepState, setPersonaIds, addPersonaId, showcaseId } =
     useShowcaseStore();
 
   const form = useForm<CharacterFormData>({
@@ -248,19 +164,19 @@ export default function NewCharacterPage() {
       description: "",
       hidden: false,
     },
-    values: {
-      name: selectedIds.length > 0 ? Persona[selectedCharacter].name : "",
-      role: selectedIds.length > 0 ? Persona[selectedCharacter].role : "",
-      description:
-        selectedIds.length > 0 ? Persona[selectedCharacter].description : "",
-      hidden:
-        selectedIds.length > 0 ? Persona[selectedCharacter].hidden : false,
-    },
+    // values: {
+    //   name: selectedIds.length > 0 ? Persona[selectedCharacter].name : "",
+    //   role: selectedIds.length > 0 ? Persona[selectedCharacter].role : "",
+    //   description:
+    //     selectedIds.length > 0 ? Persona[selectedCharacter].description : "",
+    //   hidden:
+    //     selectedIds.length > 0 ? Persona[selectedCharacter].hidden : false,
+    // },
     mode: "onChange",
     shouldFocusError: true,
   });
 
-  const isEdited = !!Object.keys(form.formState.dirtyFields).length;
+
 
   // console.log('isEdited',isEdited);
   const createAssetAndPersona = async (
@@ -272,24 +188,13 @@ export default function NewCharacterPage() {
       const isEditing = selectedCharacter !== -1;
       const existingPersona = isEditing ? Persona[selectedCharacter] : null;
       const personaId = existingPersona?.id;
-      console.log("isHidden", hiddenCharacters[selectedCharacter]);
-
-      // console.log('Existing Persona',existingPersona);
 
       let headshotAssetId = existingPersona?.headshotImage?.id ?? undefined;
       let bodyAssetId = existingPersona?.bodyImage?.id ?? undefined;
 
-      // ✅ Correctly detect removal
       const isHeadshotRemoved = isHeadShotImageEdited === false;
       const isBodyRemoved = isbodyImageEdited === false;
 
-      console.log("isHeadShotImageEdited", isHeadShotImageEdited);
-      console.log("isbodyImageEdited", isbodyImageEdited);
-      console.log("isHeadshotRemoved", isHeadshotRemoved);
-      console.log("isBodyRemoved", isBodyRemoved);
-      console.log("Persona", persona);
-
-      // ✅ Upload new images if edited
       if (isHeadShotImageEdited === true && headshotBase64) {
         const headshotPayload = {
           mediaType: "image/jpeg",
@@ -300,7 +205,7 @@ export default function NewCharacterPage() {
         const headshotResponse: any = await apiClient.post<{ id: string }>("/assets", headshotPayload);
         headshotAssetId = headshotResponse.asset.id;
       } else if (isHeadshotRemoved) {
-        headshotAssetId = null; // ✅ Mark as removed
+        headshotAssetId = null;
       }
 
       if (isbodyImageEdited === true && bodyBase64) {
@@ -313,10 +218,9 @@ export default function NewCharacterPage() {
         const bodyResponse: any = await apiClient.post<{ id: string }>("/assets", bodyPayload);
         bodyAssetId = bodyResponse.asset.id;
       } else if (isBodyRemoved) {
-        bodyAssetId = null; // ✅ Mark as removed
+        bodyAssetId = null;
       }
 
-      // ✅ Correctly handle when no change is made (null state)
       const personaData: any = {
         name: persona.name,
         role: persona.role,
@@ -326,15 +230,15 @@ export default function NewCharacterPage() {
         bodyImage: isbodyImageEdited === null ? bodyAssetId : bodyAssetId,
       };
 
-      console.log("Final personaData:", personaData);
-
-      let personaResponse;
+      let personaResponse:any;
       if (isEditing && personaId) {
         personaResponse = await apiClient.put(`/personas/${personaId}`, personaData);
         console.log("Persona Updated:", personaResponse);
       } else {
         personaResponse = await apiClient.post("/personas", personaData);
         console.log("Persona Created:", personaResponse);
+        setSelectedIds((prevIds) => [...prevIds, personaResponse?.personas?.id].filter(Boolean));
+        addPersonaId(personaResponse?.personas?.id);
       }
 
       GetPersona();
@@ -353,32 +257,6 @@ export default function NewCharacterPage() {
     }
   };
 
-  const createShowcase = async (
-    name: string | null,
-    description: string | null,
-    selectedPersonas: any
-  ) => {
-    try {
-      const showcaseData = {
-        name,
-        description,
-        status: "PENDING",
-        hidden: false,
-        scenarios: [""], // Empty array as per requirement
-        credentialDefinitions: [""], // Empty array as per requirement
-        personas: selectedPersonas, // Extracting only persona IDs
-      };
-      console.log("selectedPersonas", selectedPersonas);
-      console.log("Creating Showcase with data:", showcaseData);
-
-      const response = await apiClient.post("/showcases", showcaseData);
-
-      console.log("Showcase Created:", response);
-      return response;
-    } catch (error) {
-      console.error("Error creating showcase:", error);
-    }
-  };
 
   const deletePersona = async (personaId: string) => {
     try {
@@ -401,20 +279,60 @@ export default function NewCharacterPage() {
     }
   };
 
+  //Update a showcase
+  const updateShowcase = async () => {
+    try {
+      const showcaseData = {
+        name: "Credential Showcase BCGov",
+        description: "Collection of credential usage scenarios",
+        status: "PENDING",
+        hidden: false,
+        scenarios: ["871b9ac3-f7a5-42ee-80c8-14f1587cb83d"],
+        credentialDefinitions: ["008a241c-a0c2-4897-ba59-519cd134c238"],
+        personas: selectedIds,
+        bannerImage: "008a241c-a0c2-4897-ba59-519cd134c238",
+        completionMessage: "You have successfully completed the showcase",
+      };
+  
+      const response:any = await apiClient.put(`/showcases/${showcaseId}`, showcaseData);
+      console.log("Showcase Updated:", response);
+      let Id = response?.showcase?.id
+      // setShowcaseId(Id);
+      return response;
+    } catch (error) {
+      console.error("Error updating showcase:", error);
+      throw error;
+    }
+  };  
+
   const GetPersona = async () => {
     try {
       const data: any = await apiClient.get<any[]>("/personas");
       setPersona(data.personas);
+      setLoading(false)
     } catch (err) {
       console.log("Error :", err);
+      setLoading(false)
     }
   };
 
   useEffect(() => {
-    console.log("selectedCharacter", selectedCharacter);
     GetPersona();
   }, []);
 
+  
+  useEffect(() => {
+    if (selectedCharacter !== null && Persona.length > 0) {
+      const selectedPersona = Persona[selectedCharacter];
+  
+      form.setValue("name", selectedPersona?.name || "");
+      form.setValue("role", selectedPersona?.role || "");
+      form.setValue("description", selectedPersona?.description || "");
+      form.setValue("hidden", selectedIds.length > 0 ? selectedPersona.hidden : false);
+  
+    }
+  }, [selectedCharacter, Persona]);
+  
   const handleFormSubmit = async (data: CharacterFormData) => {
     // Check if the form is edited BEFORE resetting the form
     const isFormEdited = form.formState.isDirty;
@@ -425,17 +343,13 @@ export default function NewCharacterPage() {
       bodyImage: bodyImage ?? "",
     };
 
-    console.log("Obj", obj);
-    console.log("hiddenCharacters", hiddenCharacters);
-    console.log('isFormEdited:',isFormEdited);
-    // Call API only if the form was edited
     if (isFormEdited) {
       console.log("called");
       await createAssetAndPersona(headshotImage ?? "", bodyImage ?? "", obj);
     }
 
-    console.log("is Edit Mode", editMode);
     setEditMode(false);
+    setPersonaIds(selectedIds);
     // setHeadshotImage(null); // Reset images after submission
     // setBodyImage(null);
 
@@ -443,12 +357,12 @@ export default function NewCharacterPage() {
     // form.reset();
 
     // // Redirect after 500ms
-    // setTimeout(() => {
-    //   router.push({
-    //     pathname: "/onboarding",
-    //     query: { personaIds: selectedIds },
-    //   });
-    // }, 500);
+    setTimeout(() => {
+      router.push({
+        pathname: "/onboarding",
+        query: { personaIds: selectedIds },
+      });
+    }, 500);
   };
 
   // const handleFormSubmit = async (data: CharacterFormData) => {
@@ -498,6 +412,7 @@ export default function NewCharacterPage() {
         selectedCharacter === Persona.findIndex((c: any) => c.id === id)
       ) {
         setSelectedCharacter(0); // Reset to default (first character)
+        setStepState('no-selection');
       } else {
         // Find the index of the selected character in Persona
         const selectedIndex = Persona.findIndex((c: any) => c.id === id);
@@ -536,8 +451,16 @@ export default function NewCharacterPage() {
               </p>
             </div>
 
-            {/* Character List */}
-            <div className="flex-grow overflow-y-auto">
+            {loading ? (
+              <>
+              {/* <Loader text="Fetching persona" /> */}
+              <div className="flex flex-col items-center">
+              <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                Loading characters
+              </div>
+              </>
+            ) : (
+              <div className="flex-grow overflow-y-auto">
               {Persona &&
                 Persona.map((char: any, index: number) => (
                   <div
@@ -557,7 +480,7 @@ export default function NewCharacterPage() {
                         <div className="absolute left-0 top-4 bg-light-yellow text-light-text dark:text-dark-text px-4 py-2 text-sm font-medium rounded-tr-lg rounded-br-lg">
                           {t("character.selected_label")}
                         </div>
-                        {isHidden && (
+                        {char.hidden && (
                           <div className="flex gap-2 items-center absolute top-4 left-24 bg-[#D9D9D9] text-light-text dark:text-dark-text px-4 py-2 text-sm font-medium rounded">
                             <EyeOff size={22} />
                             {t("character.hidden_label")}
@@ -573,7 +496,7 @@ export default function NewCharacterPage() {
                   )} */}
                     <div
                       className={`shrink-0 ${
-                        selectedIds.includes(char.id) ? "mb-4 mt-10" : "mr-4"
+                        selectedIds.includes(char.id) ? "mb-4 mt-12" : "mr-4"
                       }`}
                     >
                       <Image
@@ -584,7 +507,7 @@ export default function NewCharacterPage() {
                         alt={char.name}
                         width={selectedIds.includes(char.id) ? 100 : 50}
                         height={selectedIds.includes(char.id) ? 100 : 50}
-                        className="rounded-full"
+                        className="rounded-full aspect-square object-cover"
                       />
                     </div>
 
@@ -620,8 +543,8 @@ export default function NewCharacterPage() {
                     </div>
                   </div>
                 ))}
-            </div>
-
+              </div>
+            )}
             {/* Create New Character Button (Stuck to Bottom) */}
             <div className="p-4 mt-auto">
               <ButtonOutline
@@ -714,28 +637,29 @@ export default function NewCharacterPage() {
 
                           <div className="flex mt-4">
                             <button
-                              //  onClick={() => {
-                              //   const currentHiddenValue = form.getValues("hidden"); // Get current value
-                              //   console.log("Current hidden value:", currentHiddenValue);
-
-                              //   const newHiddenValue = !currentHiddenValue; // Toggle value
-                              //   console.log("New hidden value:", newHiddenValue);
-
-                              //   form.setValue("hidden", newHiddenValue, { shouldDirty: true }); // Update form state
-                              // }}
-                              //  onClick={() => toggleHidden(selectedCharacter)}
+                              type="button"
                               onClick={() => {
-                                setIsHidden(!isHidden);
+                                if (selectedCharacter === null || selectedCharacter >= Persona.length) return;
+                            
+                                const personaId = Persona[selectedCharacter].id;
+                                const newHiddenValue = !form.getValues("hidden");
+                                form.setValue("hidden", newHiddenValue, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+                                setPersona((prev:any) =>
+                                  prev.map((char:any) =>
+                                    char.id === personaId ? { ...char, hidden: newHiddenValue } : char
+                                  )
+                                );
                               }}
+                                    
                               className={`mt-1 relative min-w-10 h-6 flex items-center ${
-                                isHidden
+                                form.watch("hidden")
                                   ? "bg-[#008BE6] dark:bg-gray-600"
                                   : "bg-gray-300 dark:bg-gray-600"
                               } rounded-full p-[1] transition-all flex-shrink-0`}
                             >
                               <div
                                 className={`w-5 h-5 bg-white dark:bg-gray-900 rounded-full shadow-md transition-all transform ${
-                                  isHidden ? "translate-x-5" : "translate-x-0"
+                                  form.watch("hidden") ? "translate-x-5" : "translate-x-0"
                                 }`}
                               />
                             </button>
@@ -749,7 +673,7 @@ export default function NewCharacterPage() {
                             </div>
                           </div>
 
-                          {isHidden && (
+                          {form.watch("hidden") && (
                             <div className="w-full bg-[#FDF6EA] dark:bg-[#F9DAAC] p-6 mt-4 border-[1px] border-[#F9DAAC] rounded-md flex gap-2">
                               <CircleAlert size={22} />
                               <div>
@@ -823,6 +747,7 @@ export default function NewCharacterPage() {
                           </ButtonOutline>
                           {/* <Link href="/onboarding"> */}
                           <ButtonOutline
+                            type="submit"
                           // disabled={!isEdited}
                           >
                             {t("action.next_label")}

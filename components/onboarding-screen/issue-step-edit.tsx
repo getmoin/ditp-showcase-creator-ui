@@ -18,6 +18,9 @@ import { useTranslations } from "next-intl";
 import StepHeader from "../step-header";
 import ButtonOutline from "../ui/button-outline";
 import DeleteModal from "../delete-modal";
+import apiClient from "@/lib/apiService";
+import { ErrorModal } from "../error-modal";
+import Loader from "../loader";
 
 export function IssueStepEdit() {
   const t = useTranslations();
@@ -27,6 +30,9 @@ export function IssueStepEdit() {
   const [searchResults, setSearchResults] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showErrorModal, setErrorModal] = useState(false);
+  const [credential,setCredentials] = useState([]);
   const currentStep = selectedStep !== null ? screens[selectedStep] : null;
 
   const form = useForm<IssueStepFormData>({
@@ -45,6 +51,31 @@ export function IssueStepEdit() {
     }
   }, [currentStep, form.reset]);
 
+  useEffect(() => {
+    // listCredentialDefinitions();
+  },[])
+
+  // const searchCredential = (searchText: string) => {
+  //   setSearchResults([]);
+  
+  //   if (!searchText) return;
+  
+  //   const searchUpper = searchText.toUpperCase();
+  
+  //   // Ensure `credential` is an array before filtering
+  //   if (!Array.isArray(credential)) {
+  //     console.error("Invalid credential data format");
+  //     return;
+  //   }
+  
+  //   const results = credential.filter((cred: any) =>
+  //     cred.name.toUpperCase().includes(searchUpper)
+  //   );
+  
+  //   console.log("Search Results:", results);
+  //   setSearchResults(results);
+  // };
+  
   const searchCredential = (searchText: string) => {
     setSearchResults([]);
     if (!searchText) return;
@@ -72,6 +103,7 @@ export function IssueStepEdit() {
         shouldValidate: true,
       });
     }
+    // setIssuerId() // set issuer id here to send in issuance flow
     setSearchResults([]);
   };
 
@@ -88,6 +120,69 @@ export function IssueStepEdit() {
     );
   };
 
+  const createIssuanceStep = async (issuanceFlowId: string, stepData: any) => {
+    try {
+      console.log(`Creating issuance step for flow: ${issuanceFlowId} with data:`, stepData);
+      const response = await apiClient.post(`/scenarios/issuances/${issuanceFlowId}/steps`, stepData);
+      console.log("Issuance Step Created:", response);
+      setLoading(false)
+      return response;
+    } catch (error) {
+      console.error("Error creating issuance step:", error);
+      setLoading(false)
+      setErrorModal(true);
+    }
+  };
+  
+  const updateIssuanceStep = async (issuanceFlowId: string, stepId: string, stepData: any) => {
+    try {
+      console.log(`Updating issuance step ${stepId} for flow ${issuanceFlowId} with data:`, stepData);
+      const response = await apiClient.put(`/scenarios/issuances/${issuanceFlowId}/steps/${stepId}`, stepData);
+      console.log("Issuance Step Updated:", response);
+      setLoading(false)
+      return response;
+    } catch (error) {
+      console.error("Error updating issuance step:", error);
+      setLoading(false)
+      setErrorModal(true);
+    }
+  };
+  
+  const createIssuanceStepAction = async (issuanceFlowId: string, stepId: string, actionData: any) => {
+    try {
+      console.log(`Creating action for step ${stepId} in flow ${issuanceFlowId} with data:`, actionData);
+      const response = await apiClient.post(`/scenarios/issuances/${issuanceFlowId}/steps/${stepId}/actions`, actionData);
+      console.log("Issuance Step Action Created:", response);
+      setLoading(false)
+      return response;
+    } catch (error) {
+      console.error("Error creating issuance step action:", error);
+      setLoading(false)
+      setErrorModal(true);
+    }
+  };
+  
+  const updateIssuanceStepAction = async (
+    issuanceFlowId: string,
+    stepId: string,
+    actionId: string,
+    actionData: any
+  ) => {
+    try {
+      console.log(`Updating action ${actionId} for step ${stepId} in flow ${issuanceFlowId} with data:`, actionData);
+      const response = await apiClient.put(
+        `/scenarios/issuances/${issuanceFlowId}/steps/${stepId}/actions/${actionId}`,
+        actionData
+      );
+      console.log("Issuance Step Action Updated:", response);
+      setLoading(false)
+      return response;
+    } catch (error) {
+      console.error("Error updating issuance step action:", error);
+    }
+  };
+  
+
   const onSubmit = (data: IssueStepFormData) => {
     if (selectedStep === null) return;
 
@@ -102,25 +197,45 @@ export function IssueStepEdit() {
     setSelectedStep(null);
   };
 
-  const deleteStep = async (id: any) => {
+  const listCredentialDefinitions = async () => {
     try {
-      if (!id) {
+      setLoading(true)
+      const response:any = await apiClient.get("/credentials/definitions");
+      console.log("Credential Definitions:", response);
+      setCredentials(response?.credentialDefinitions);
+      setLoading(false)
+      return response; // Return the list of credential definitions
+    } catch (error) {
+      console.error("Error fetching credential definitions:", error);
+      setLoading(false)
+      setErrorModal(true);
+      throw error;
+    }
+  };
+  
+
+  const deleteStep = async (stepId:any) => {
+    try {
+      // issuanceScenarioId
+      if (!stepId) {
         console.error("Error: Step ID is required for deletion.");
         return;
       }
 
-      console.log("Deleting persona with ID:", id);
-      removeStep(id);
+      console.log("Deleting persona with ID:", stepId);
+      removeStep(stepId);
 
       // // Step 1: Send DELETE request to the API
-      // await apiClient.delete(`/personas/${personaId}`);
+      await apiClient.delete(`/scenarios/issuances/${'issuanceScenarioId'}/steps/${stepId}`);
 
       console.log("Persona deleted successfully!");
-
+      setLoading(false)
       // // Step 2: Update the persona list after deletion
       // GetPersona();
     } catch (error) {
       console.error("Error deleting persona:", error);
+      setLoading(false)
+      setErrorModal(true);
     }
   };
 
@@ -141,7 +256,12 @@ export function IssueStepEdit() {
   };
 
   return (
-    <Form {...form}>
+    <>
+    {showErrorModal && <ErrorModal errorText="Unknown error occurred" setShowModal={setErrorModal}/>}
+    {loading ? (
+        <Loader text="Creating Step" />
+      ) : (
+      <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <StepHeader
           icon={<Monitor strokeWidth={3} />}
@@ -272,5 +392,7 @@ export function IssueStepEdit() {
         deleteText="DELETE"
       />
     </Form>
+      )}
+    </>
   );
 }

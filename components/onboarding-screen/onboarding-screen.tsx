@@ -19,10 +19,12 @@ import { useOnboarding } from "@/hooks/use-onboarding";
 import Image from "next/image";
 import ButtonOutline from "../ui/button-outline";
 import apiClient from "@/lib/apiService";
+import Loader from "../loader";
+import { ErrorModal } from "../error-modal";
 
 export const OnboardingScreen = () => {
   const t = useTranslations();
-  const { showcaseJSON, selectedCharacter } = useShowcaseStore();
+  const { showcaseJSON, selectedCharacter,personaIds } = useShowcaseStore();
   const {
     screens,
     selectedStep,
@@ -32,6 +34,7 @@ export const OnboardingScreen = () => {
     removeStep,
     setStepState,
     stepState,
+    setScenarioId
   } = useOnboarding();
 
 
@@ -362,8 +365,11 @@ export const OnboardingScreen = () => {
   }
 
   const [IsOnboarding,setIsOnboarding] = useState(Data);
+  const [loading, setLoading] = useState(false);
+  const [showErrorModal, setErrorModal] = useState(false);
+  const [Scenarios, SetScenarios] = useState<any>();
 
-
+  console.log('personaIds ====',personaIds);
 
   const Maindata = Showcases.showcase;
   const scenarios = Maindata.scenarios;
@@ -397,12 +403,9 @@ export const OnboardingScreen = () => {
 
   console.log('Actions',actions)
 
-  let STeps = IsOnboarding.issuanceFlow.steps;
+  // let STeps = IsOnboarding.issuanceFlow.steps;
   let Personas = personas
-  // console.log("Personas:", personas);
-  // console.log("Old persoma:", Personas);
-  // let Personas = IsOnboarding.issuanceFlow.personas;
-  let Issuer = IsOnboarding.issuanceFlow.issuer;
+  // let Issuer = IsOnboarding.issuanceFlow.issuer;
 
   const initialScreens = useMemo(() => {
     return JSON.parse(
@@ -435,6 +438,21 @@ export const OnboardingScreen = () => {
       return null;
     }
   };
+
+  const getAllScenarios = async() => {
+    try {
+      setLoading(true);
+      console.log(`Fetching issuance flow`);
+      const response = await apiClient.get(`/scenarios/issuances`);
+      console.log("Issuance Flow Data:", response);
+      setLoading(false)
+      return response;
+    } catch (error) {
+      console.error("Error fetching issuance flow:", error);
+      setLoading(false)
+      setErrorModal(true);
+    }
+  }
   
 
   useEffect(() => {
@@ -443,6 +461,9 @@ export const OnboardingScreen = () => {
 
 
   useEffect(() => {
+    getIssuanceFlow('871b9ac3-f7a5-42ee-80c8-14f1587cb83d');
+    // getAllScenarios();
+    // createScenario();
     // let Maindata = Showcases.showcase
     // let scenarios = Maindata.scenarios
     // let abc = scenarios.map((item) => {
@@ -459,15 +480,64 @@ export const OnboardingScreen = () => {
     // }
   },[])
 
+  const createScenario = async () => {
+    try {
+      setLoading(true);
+      const scenarioData = {
+        name: "Credential Issuance",
+        description: "This scenario issues credentials to users",
+        steps: [
+          {
+            title: "Verify Identity",
+            description: "Verify the user's identity",
+            order: 1,
+            type: "HUMAN_TASK",
+            subScenario: "123e4567-e89b-12d3-a456-434314174000",
+            actions: [
+              {
+                title: "Download Wallet",
+                text: "Download your wallet to continue",
+                actionType: "ARIES_OOB"
+              },
+            ],
+            asset: "456e4567-e89b-12d3-a456-426614174000",
+          },
+        ],
+        personas: personaIds,
+        hidden: false,
+        issuer: "313e4567-e89b-12d3-a456-426614174469",
+      };
+  
+      const response:any = await apiClient.post("/scenarios/issuances", scenarioData);
+      console.log("Scenario Created:", response);
+      let Id = response?.issuanceScenarios?.id
+      setScenarioId(Id)
+      getIssuanceFlow(Id);
+      setLoading(false)
+      return response;
+    } catch (error) {
+      console.error("Error creating scenario:", error);
+      setLoading(false)
+      setErrorModal(true);
+      // throw error;
+    }
+  };
+  
+
   
  const getIssuanceFlow = async (issuanceFlowId: string) => {
   try {
+    setLoading(true);
     console.log(`Fetching issuance flow: ${issuanceFlowId}`);
-    const response = await apiClient.get(`/scenarios/issuances/${issuanceFlowId}`);
+    const response:any = await apiClient.get(`/scenarios/issuances/${issuanceFlowId}`);
     console.log("Issuance Flow Data:", response);
+    SetScenarios(response?.issuanceScenarios);
+    setLoading(false)
     return response;
   } catch (error) {
     console.error("Error fetching issuance flow:", error);
+    setLoading(false)
+    setErrorModal(true);
   }
 };
 
@@ -476,9 +546,12 @@ export const OnboardingScreen = () => {
     console.log(`Updating issuance flow: ${issuanceFlowId} with data:`, data);
     const response = await apiClient.put(`/scenarios/issuances/${issuanceFlowId}`, data);
     console.log("Issuance Flow Updated:", response);
+    setLoading(false)
     return response;
   } catch (error) {
     console.error("Error updating issuance flow:", error);
+    setLoading(false)
+    setErrorModal(true);
   }
 };
 
@@ -487,9 +560,12 @@ export const OnboardingScreen = () => {
     console.log(`Creating issuance step for flow: ${issuanceFlowId} with data:`, stepData);
     const response = await apiClient.post(`/scenarios/issuances/${issuanceFlowId}/steps`, stepData);
     console.log("Issuance Step Created:", response);
+    setLoading(false)
     return response;
   } catch (error) {
     console.error("Error creating issuance step:", error);
+    setLoading(false)
+    setErrorModal(true);
   }
 };
 
@@ -498,9 +574,12 @@ export const OnboardingScreen = () => {
     console.log(`Updating issuance step ${stepId} for flow ${issuanceFlowId} with data:`, stepData);
     const response = await apiClient.put(`/scenarios/issuances/${issuanceFlowId}/steps/${stepId}`, stepData);
     console.log("Issuance Step Updated:", response);
+    setLoading(false)
     return response;
   } catch (error) {
     console.error("Error updating issuance step:", error);
+    setLoading(false)
+    setErrorModal(true);
   }
 };
 
@@ -509,9 +588,12 @@ export const OnboardingScreen = () => {
     console.log(`Creating action for step ${stepId} in flow ${issuanceFlowId} with data:`, actionData);
     const response = await apiClient.post(`/scenarios/issuances/${issuanceFlowId}/steps/${stepId}/actions`, actionData);
     console.log("Issuance Step Action Created:", response);
+    setLoading(false)
     return response;
   } catch (error) {
     console.error("Error creating issuance step action:", error);
+    setLoading(false)
+    setErrorModal(true);
   }
 };
 
@@ -528,6 +610,7 @@ export const OnboardingScreen = () => {
       actionData
     );
     console.log("Issuance Step Action Updated:", response);
+    setLoading(false)
     return response;
   } catch (error) {
     console.error("Error updating issuance step action:", error);
@@ -550,42 +633,24 @@ export const OnboardingScreen = () => {
   };
 
   const handleDragStart = (event: DragStartEvent) => {
-    console.log('start...')
     const index = screens.findIndex(
       (screen) => screen.id === event.active.id
     );
     setSelectedStep(index);
   };
-  console.log('Screens',screens)
 
-  const characters = [
-    {
-      id: 1,
-      name: "Ana",
-      type: "Student",
-      description:
-        "Meet Ana Ana is a student at BestBC College. To help make student life easier, BestBC College is going to offer Ana a digital Student Card to put in her BC Wallet.",
-      headshot: "../../public/assets/NavBar/Joyce.png",
-      bodyImage: "../../public/assets/NavBar/Joyce.png",
-      selected: false,
-      isHidden: false,
-    },
-    {
-      id: 2,
-      name: "Joyce",
-      type: "Teacher",
-      description:
-        "Meet Joyce Joyce is a Teacher at BestBC College. To help make teacher life easier, BestBC College is going to offer Joyce a digital Teacher Card to put in her BC Wallet.",
-      headshot: "../../public/assets/NavBar/Joyce.png",
-      bodyImage: "../../public/assets/NavBar/Joyce.png",
-      selected: false,
-      isHidden: false,
-    }
-  ];
-
+ 
   return (
     <>
-      <div className="bg-white dark:bg-dark-bg-secondary text-light-text dark:text-dark-text h-screen">
+    {showErrorModal && <ErrorModal errorText="Unknown error occurred" setShowModal={setErrorModal}/>}
+       <>
+       {loading &&
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            Loading Scenario
+          </div>
+        }
+       <div className="bg-white dark:bg-dark-bg-secondary text-light-text dark:text-dark-text h-screen">
         <div className="flex bg-gray-100 rounded-md border-b">
           {/* {Data && Data.issuanceFlow.personas?.map((char: any, index: number) => ( */}
           {Personas && Personas?.map((char: any, index: number) => (
@@ -683,6 +748,7 @@ export const OnboardingScreen = () => {
           {t("onboarding.add_step_label")}
         </ButtonOutline>
       </div>
+       </>
     </>
   );
 };
