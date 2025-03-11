@@ -10,7 +10,7 @@ export default async function Showcases({ params }: { params: PageParams }) {
 
   return (
     <div
-      className={`flex bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text`}
+      className={`flex bg-light-bg  text-light-text dark:bg-dark-bg dark:text-dark-text`}
     >
       <ShowcaseList />
     </div>

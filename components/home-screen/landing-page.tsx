@@ -8,6 +8,7 @@ import ButtonOutline from "../ui/button-outline";
 import { Card } from "../ui/card";
 import apiClient from "@/lib/apiService";
 import Loader from "../loader";
+import { Share2 } from "lucide-react";
 
 export const LandingPage = () => {
   const t = useTranslations();
@@ -17,11 +18,11 @@ export const LandingPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [originalShowcases, setOriginalShowcases] = useState<any[]>([]);
 
-  let tabs = [
-    t("home.header_tab_all"),
-    t("home.header_tab_mine"),
-    t("home.header_tab_others"),
-  ];
+	let tabs = [
+		t("home.header_tab_all"),
+		t("home.header_tab_mine"),
+		t("home.header_tab_others"),
+	];
 
   const listShowcases = async () => {
     try {
@@ -136,9 +137,21 @@ export const LandingPage = () => {
                           name: "Test college",
                         })}
                       </p>
+                      <div className="flex justify-between">
                       <h2 className="text-2xl font-bold text-gray-900">
                         {showcase?.name}
                       </h2>
+                      <div className="flex-shrink-0">
+                          {" "}
+                          {/* Prevent button from shrinking */}
+                          <button className="border border-black rounded px-3 py-1 hover:bg-gray-400 dark:hover:bg-gray-700">
+                            <Share2
+                              size={18}
+                              className="cursor-pointer text-white"
+                            />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
 

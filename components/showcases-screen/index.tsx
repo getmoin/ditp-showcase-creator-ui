@@ -188,7 +188,7 @@ useEffect(() => {
   return (
     <div className="flex bg-light-bg dark:bg-dark-bg flex-col h-full w-full bg-gray-100">
       {/* Main Container with Header & Content in One Row */}
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col">
         {/* Header Section - Integrated into Left & Right Containers */}
         <div className="flex justify-between items-center px-6 py-2 mt-4">
           {/* Left Header Section */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { CirclePlus, Search } from "lucide-react";
+import { CirclePlus, Search, Share2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/routing";
@@ -13,7 +13,7 @@ import Loader from "../loader";
 import { useShowcaseStore } from "@/hooks/use-showcase-store";
 
 export const ShowcaseList = () => {
-  const t = useTranslations();
+	const t = useTranslations();
 
   const [activeTab, setActiveTab] = useState(
     t("showcases.header_tab_overview")
@@ -81,57 +81,57 @@ export const ShowcaseList = () => {
   },[])
 
 
-  let data = [
-    {
-      id: 1,
-      title: "Campus Access",
-      createdBy: "Test College",
-      published: "Published",
-      version: "1.0",
-      description:
-        "In this showcase, follow the journey of a student and a teacher at Test College as they navigate the process of obtaining a digital parking credential.",
-      characters: [
-        {
-          name: "Joyce",
-          role: "Teacher",
-          image: "https://yavuzceliker.github.io/sample-images/image-1.jpg",
-        },
-        {
-          name: "Ana",
-          role: "Student",
-          image: "https://yavuzceliker.github.io/sample-images/image-1.jpg",
-        },
-      ],
-      buttons: [
-        { label: t("action.edit_label"), type: "secondary" },
-        { label: t("action.create_copy_label"), type: "primary" },
-      ],
-    },
-    {
-      id: 3,
-      title: "Campus Access Copy",
-      createdBy: "Test College",
-      published: "Draft",
-      version: "1.0",
-      description:
-        "In this showcase, follow the journey of a student and a teacher at Test College as they navigate the process of obtaining a digital parking credential.",
-      characters: [
-        {
-          name: "Ana",
-          role: "Student",
-          image: "https://yavuzceliker.github.io/sample-images/image-1.jpg",
-        },
-      ],
-      buttons: [{ label: t("action.edit_label"), type: "primary" }],
-    },
-  ];
+	let data = [
+		{
+			id: 1,
+			title: "Campus Access",
+			createdBy: "Test College",
+			published: "Published",
+			version: "1.0",
+			description:
+				"In this showcase, follow the journey of a student and a teacher at Test College as they navigate the process of obtaining a digital parking credential.",
+			characters: [
+				{
+					name: "Joyce",
+					role: "Teacher",
+					image: "https://yavuzceliker.github.io/sample-images/image-1.jpg",
+				},
+				{
+					name: "Ana",
+					role: "Student",
+					image: "https://yavuzceliker.github.io/sample-images/image-1.jpg",
+				},
+			],
+			buttons: [
+				{ label: t("action.preview_label"), type: "primary" },
+				{ label: t("action.edit_label"), type: "secondary" },
+			],
+		},
+		{
+			id: 3,
+			title: "Campus Access Copy",
+			createdBy: "Test College",
+			published: "Draft",
+			version: "1.0",
+			description:
+				"In this showcase, follow the journey of a student and a teacher at Test College as they navigate the process of obtaining a digital parking credential.",
+			characters: [
+				{
+					name: "Ana",
+					role: "Student",
+					image: "https://yavuzceliker.github.io/sample-images/image-1.jpg",
+				},
+			],
+			buttons: [{ label: t("action.edit_label"), type: "primary" }],
+		},
+	];
 
-  let tabs = [
-    t("showcases.header_tab_overview"),
-    t("showcases.header_tab_draft"),
-    t("showcases.header_tab_under_review"),
-    t("showcases.header_tab_published"),
-  ];
+	let tabs = [
+		t("showcases.header_tab_overview"),
+		t("showcases.header_tab_draft"),
+		t("showcases.header_tab_under_review"),
+		t("showcases.header_tab_published"),
+	];
 
   return (
     <>
@@ -163,16 +163,14 @@ export const ShowcaseList = () => {
             />
           </div>
 
-          <Link href={"/showcases/character"}>
-            <button
-              className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 h-12 flex items-center gap-4 shadow-md"
-            >
-              {t("showcases.create_new_showcase_label")}
-              <CirclePlus size={22} />
-            </button>
-          </Link>
-        </div>
-      </section>
+					<Link href={"/showcases/character"}>
+						<button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 h-12 flex items-center gap-4 shadow-md">
+							{t("showcases.create_new_showcase_label")}
+							<CirclePlus size={22} />
+						</button>
+					</Link>
+				</div>
+			</section>
 
       {!loading&&<div className="container mx-auto px-5 mt-2">
         <div className="flex gap-4 text-sm font-medium">
@@ -234,19 +232,52 @@ export const ShowcaseList = () => {
                     {showcase.status}
                   </p>
                 </div>
-                <div className="flex justify-between absolute bottom-0 left-0 right-0 bg-[#D9D9D9E5] bg-opacity-70 p-4">
-                  <div>
+                <div className="absolute bg-black bottom-0 left-0 right-0 bg-opacity-70 p-3">
+										<div className="flex justify-between">
+											<div className="flex-1">
+												{" "}
+												{/* Allow the text container to grow */}
+												<p className="text-xs text-gray-300 break-words">
+                        {t("showcases.created_by_label",{name:'Test college'})}
+												</p>
+												<h2 className="text-lg font-bold text-white break-words">
+													{showcase.name}
+												</h2>
+											</div>
+											{/* Updated Share Button */}
+											<div className="flex-shrink-0 self-center">
+												{" "}
+												{/* Prevent button from shrinking */}
+												<button className="border rounded px-3 py-1 hover:bg-gray-400 dark:hover:bg-gray-700">
+													<Share2
+														size={18}
+														className="cursor-pointer text-white"
+													/>
+												</button>
+											</div>
+										</div>
+									</div>
+                {/* <div className="flex justify-between absolute bottom-0 left-0 right-0 bg-[#D9D9D9E5] bg-opacity-70">
+                  <div className="p-4">
                     <p className="text-xs text-gray-600">
                       {t("showcases.created_by_label",{name:'Test college'})}
                     </p>
-                    <h2 className="text-xl font-bold text-gray-900">
-                      {showcase.name}
-                    </h2>
+                    <div className="flex justify-between">
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        {showcase?.name}
+                      </h2>
+                      <div className="flex-shrink-0">
+                          {" "}
+                          <button className="border border-black rounded px-3 py-1 hover:bg-gray-400 dark:hover:bg-gray-700">
+                            <Share2
+                              size={18}
+                              className="cursor-pointer text-white"
+                            />
+                          </button>
+                        </div>
+                      </div>
                   </div>
-                  <ButtonOutline className="bg-transparent">
-                    {t("action.preview_label")}
-                  </ButtonOutline>
-                </div>
+                </div> */}
               </div>
 
               <div className="p-5 flex flex-col flex-grow">
