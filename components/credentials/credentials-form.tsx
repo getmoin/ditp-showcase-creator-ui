@@ -15,69 +15,152 @@ import { FormTextInput } from "../text-input";
 import { FileUploadFull } from "../file-upload";
 import { CredentialAttributes } from "./components/credential-attribute";
 import ButtonOutline from "../ui/button-outline";
-import { credentialDefinitionSchema } from "@/schemas/credential"; // Importing the Zod schema
+import { credentialDefinition } from "@/schemas/credential";
+import { Monitor } from "lucide-react";
+import StepHeaderCredential from "../showcases-screen/step-header-credential";
+import apiClient from "@/lib/apiService";
 
 export const CredentialsForm = () => {
 	const {
 		selectedCredential,
-		selectedSchema,
-		setIssuer,
 		mode,
-		updateCredentialImage,
+		isCreating,
+		startCreating,
+		issuers,
+		fetchIssuers,
 	} = useCredentials();
 	const t = useTranslations();
 	const [formData, setFormData] = useState({
 		name: "",
-		version: "",
 		revocation: false,
 	});
-	const [errors, setErrors] = useState<Record<string, string>>({});
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isOpen, setIsOpen] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [isDirty, setIsDirty] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const form = useForm<CredentialFormData>({
-		resolver: zodResolver(credentialDefinitionSchema), // Use the schema here, not the type
+		resolver: zodResolver(credentialDefinition), // Use the schema here, not the type
 		mode: "onChange",
 	});
 
 	useEffect(() => {
-		if (mode === "create" && selectedSchema) {
-			form.reset({
-				id: "",
-				name: "",
-				version: "",
-				icon: {},
-				representations: [],
-				revocation: {},
-				createdAt: "",
-				updatedAt: "",
-				schemaId: selectedSchema.id,
-			});
-		}
-	}, [selectedSchema, mode, form]);
-
-	const onSubmit = (data: CredentialFormData) => {
-		if (mode === "create") {
-			console.log("Creating credential", data);
-			// Add creation logic here (merge schema and credential data to create the credential)
-		}
+		console.log("Fetching issuers...");
+		useCredentials.getState().fetchIssuers();
+	}, []);
+	const handleFileUpload = async (file: File) => {
+		await useCredentials.getState().uploadAsset(file);
 	};
+	useEffect(() => {
+		console.log("Fetching issuers...");
+		useCredentials.getState().fetchIssuers();
+		console.log("Current issuers:", useCredentials.getState().issuers);
+	}, []);
 
 	const handleCancel = () => {
 		// Add cancel logic (e.g., resetting the form or switching mode)
 	};
+	const createSchemaAndThenDefinition = async () => {
+		try {
+			// Step 1: Create Schema
+			const schemaResponse = await apiClient.post<any>("/credentials/schemas", {
+				name: formData.name || "example_name",
+				version: formData.version || "example_version",
+				identifierType: "DID",
+				identifier: "did:sov:XUeUZauFLeBNofY3NhaZCB",
+				attributes: [
+					{
+						name: "example_attribute_name1",
+						value: "example_attribute_value1",
+						type: "STRING",
+					},
+				],
+			});
 
-	// If mode is "view" and a credential is selected, show details
+			const schemaId = schemaResponse.data.id;
+			console.log(":white_check_mark: Schema Created:", schemaResponse.data);
+
+			// Step 2: Upload Asset (if file provided) using the store's createAsset
+			let assetId = "";
+			if (formData.icon?.imageFile) {
+				// Convert the file to base64 if needed (or use your existing conversion function)
+				const base64Content = await convertBase64(formData.icon.imageFile);
+				const asset = await useCredentials.getState().createAsset({
+					mediaType: "image/png", // or the correct media type for your file
+					content: base64Content,
+					fileName: formData.icon.imageFile.name,
+					description: "Credential icon image",
+				});
+				assetId = asset ? asset.id : "";
+				console.log(":white_check_mark: Asset Uploaded, assetId:", assetId);
+			}
+
+			// Step 3: Create Credential Definition with Schema ID and Asset ID
+			const credentialDefinitionResponse =
+				await apiClient.post<CredentialFormData>("/credentials/definitions", {
+					name: formData.name || "example_name",
+					version: formData.version || "example_version",
+					icon: assetId ? assetId : "",
+					identifierType: "DID",
+					identifier: "did:sov:XUeUZauFLeBNofY3NhaZCB",
+					type: "ANONCRED",
+					credentialSchema: schemaId,
+					revocation: formData.revocation
+						? {
+								title: "example_revocation_title",
+								description: "example_revocation_description",
+						  }
+						: null,
+				});
+
+			console.log(
+				":white_check_mark: Credential Definition Created:",
+				credentialDefinitionResponse
+			);
+
+			return credentialDefinitionResponse;
+		} catch (error) {
+			console.error(
+				":x: Error creating schema, uploading asset, or credential definition:",
+				error
+			);
+			throw error;
+		}
+	};
+
+	const handleCreateCredential = async () => {
+		try {
+			setIsSubmitting(true);
+			setError(null);
+			await createSchemaAndThenDefinition();
+			// Handle success (e.g., reset form, show success message)
+		} catch (error) {
+			console.error("Error during create:", error);
+			setError("There was an error while creating the credential.");
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+	useEffect(() => {
+		if (mode === "create") {
+			form.reset(); // Reset the form fields when switching to create mode
+		}
+	}, [mode, form]);
+
+	useEffect(() => {
+		if (mode === "create" && issuers.length === 0) {
+			fetchIssuers();
+		}
+	}, [mode, issuers, fetchIssuers]);
+
 	if (mode === "view" && selectedCredential) {
 		const credentialDefinition = selectedCredential;
-		console.log("Selected Credential in View Mode:", selectedCredential);
 
 		const formattedDate = new Date(
 			selectedCredential?.createdAt
 		).toLocaleDateString("en-US", {
-			weekday: "long", // "Monday"
-			year: "numeric", // "2025"
-			month: "long", // "March"
-			day: "numeric", // "8"
+			year: "numeric",
+			month: "long",
+			day: "numeric",
 		});
 
 		const formattedTime = new Date(
@@ -85,87 +168,63 @@ export const CredentialsForm = () => {
 		).toLocaleTimeString("en-US", {
 			hour: "numeric",
 			minute: "numeric",
-			second: "numeric",
 		});
-		const handleChange = (e) => {
-			const { name, value, type, checked } = e.target;
-			setFormData((prev) => ({
-				...prev,
-				[name]: type === "checkbox" ? checked : value,
-			}));
-			setIsDirty(true);
-		};
 
-		const handleSubmit = (e) => {
-			e.preventDefault();
-			setIsSubmitting(true);
-
-			// Perform validation using Zod
-			const result = credentialDefinitionSchema.safeParse(formData);
-
-			if (result.success) {
-				console.log("Form Submitted Successfully:", formData);
-				// Continue with submission logic (e.g., API call)
-			} else {
-				const newErrors: Record<string, string> = result.error.errors.reduce(
-					(acc, error) => {
-						acc[error.path[0]] = error.message;
-						return acc;
-					},
-					{}
-				);
-				setErrors(newErrors);
-				setIsSubmitting(false);
-			}
-		};
 		return (
 			<div className=" my-4">
-				{/* Header */}
-				<div className="flex items-center gap-x-2 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-					<h3 className="text-lg font-bold text-foreground">
-						{t("credentials.view_header_title")}
-					</h3>
+				<div className="px-4">
+					<StepHeaderCredential
+						icon={<Monitor strokeWidth={3} />}
+						title={t("credentials.view_header_title")}
+						onActionClick={(action) => {
+							switch (action) {
+								case "delete":
+									console.log("Delete Page clicked");
+									setIsModalOpen(true);
+									setIsOpen(false);
+									break;
+								default:
+									console.log("Unknown action");
+							}
+						}}
+					/>
 				</div>
-
 				<div className="space-y-6">
 					{/* Basic Information */}
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 p-6 bg-gray-100 dark:bg-dark-bg shadow-md">
+					<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 px-6  dark:bg-dark-bg">
 						{/* Icon (if available) */}
 						{credentialDefinition.icon && (
-							<div className="px-4 py-3">
-								<h6 className="text-md font-bold">
-									{t("credentials.icon_label")}
-								</h6>
+							<div className="px-2 py-2">
 								<img
-									src={`data:${credentialDefinition.icon.mediaType};base64,${credentialDefinition.icon.content}`}
-									alt={
-										credentialDefinition.icon.description || "Credential Icon"
-									}
-									className="w-24 h-24 rounded-lg shadow"
+									src={`data:${credentialDefinition.icon};base64,${credentialDefinition.icon.content}`}
+									className="w-24 h-24 rounded-full shadow"
 								/>
 							</div>
 						)}
 						{[
 							{
-								label: "Created At:",
-								value: `${formattedDate} at ${formattedTime}`,
-							},
-							{
 								label: t("credentials.credential_name_label"),
 								value: credentialDefinition?.name,
 							},
 							{
-								label: t("credentials.issuer_name_label"),
-								value: credentialDefinition?.issuer?.name,
+								label: "Created At:",
+								value: `${formattedDate} at ${formattedTime}`,
 							},
 
+							{
+								label: t("credentials.issuer_name_label"),
+								value:
+									issuers && issuers.length > 0
+										? issuers[0].name
+										: "Loading...",
+							},
 							{
 								label: t("credentials.version_label"),
 								value: credentialDefinition?.version,
 							},
 							{
 								label: t("credentials.schema_id_label"),
-								value: credentialDefinition?.schemaId,
+								value: credentialDefinition?.id,
 							},
 							{
 								label: t("credentials.identifier_type_label"),
@@ -186,7 +245,7 @@ export const CredentialsForm = () => {
 						].map((item, index) => (
 							<div
 								key={index}
-								className="flex flex-col p-4 bg-white rounded-lg dark:bg-dark-bg-secondary shadow-sm space-y-2"
+								className="flex flex-col p-4  dark:bg-dark-bg-secondary space-y-2"
 							>
 								<h6 className="text-md font-semibold dark:text-white text-black">
 									{item.label}
@@ -196,32 +255,23 @@ export const CredentialsForm = () => {
 								</p>
 							</div>
 						))}
-
+					</div>
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6 px-6 ">
 						{/* Displaying Attributes */}
-						{credentialDefinition?.schema &&
-							credentialDefinition.schema.attributes?.length > 0 && (
-								<div className="col-span-2 space-y-4">
-									<h6 className="text-md font-bold">
-										{t("credentials.attributes_label")}
-									</h6>
-									{credentialDefinition.schema.attributes.map(
-										(attribute, index) => (
-											<div
-												key={index}
-												className="flex flex-col p-4 bg-white dark:bg-dark-bg-secondary rounded-lg shadow-sm space-y-2"
-											>
-												<h6 className="text-md font-semibold dark:text-white text-black">
-													{attribute.name || `Attribute ${index + 1}`}
-												</h6>
-												<p className="text-sm font-medium dark:text-white text-gray-900 break-words">
-													{attribute.value || "—"}
-												</p>
-											</div>
-										)
-									)}
+						{credentialDefinition?.credentialSchema &&
+							credentialDefinition.credentialSchema.attributes?.length > 0 && (
+								<div className="space-y-4">
+									<CredentialAttributes
+										mode="view"
+										form={form}
+										attributes={
+											credentialDefinition.credentialSchema.attributes
+										}
+									/>
 								</div>
 							)}
 					</div>
+
 					<div
 						className=" mx-4 flex items-center bg-[#F7F9FC] dark:bg-[#202223] dark:border-dark-border  border border-gray-300 rounded text-white text-sm font-bold px-4 py-3"
 						role="alert"
@@ -248,11 +298,10 @@ export const CredentialsForm = () => {
 		);
 	}
 
-	// Otherwise, render the form for "create" mode
 	return (
 		<Form {...form}>
 			<form
-				onSubmit={form.handleSubmit(onSubmit)}
+				onSubmit={form.handleSubmit(handleCreateCredential)}
 				className="my-4 flex flex-col"
 			>
 				<div className="flex items-center gap-x-2 px-4 py-3 border-b border-gray-200">
@@ -300,8 +349,8 @@ export const CredentialsForm = () => {
 								<div className="text-start">
 									<FileUploadFull
 										text={t("credentials.image_label")}
-										name="Logo"
-										handleJSONUpdate={updateCredentialImage}
+										element="headshot_image"
+										handleFileUpload={handleFileUpload}
 									/>
 								</div>
 							</div>
@@ -315,21 +364,10 @@ export const CredentialsForm = () => {
 						{t("action.cancel_label")}
 					</ButtonOutline>
 					<ButtonOutline
-						type="submit"
-						disabled={
-							mode === "create"
-								? !form.formState.isDirty || !form.formState.isValid
-								: false
-						}
-						className={`${
-							form.formState.isDirty && form.formState.isValid
-								? "cursor-pointer"
-								: "cursor-not-allowed opacity-50"
-						}`}
+						onClick={handleCreateCredential}
+						disabled={isSubmitting} // Disable the button while submitting
 					>
-						{mode === "create"
-							? t("action.create_label")
-							: t("action.save_label")}
+						{isSubmitting ? "Creating..." : "Create Credential"}
 					</ButtonOutline>
 				</div>
 			</form>

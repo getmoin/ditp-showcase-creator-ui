@@ -14,6 +14,7 @@ export interface Attribute {
   name: string;
   value: string;
   type?: string;
+  
 }
 
 export interface Credential {
