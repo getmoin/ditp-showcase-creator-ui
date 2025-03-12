@@ -1,28 +1,45 @@
-'use client'
+"use client";
 
 import { useMounted } from "@/hooks/use-mounted";
-import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
+import { Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
+import { Skeleton } from "./ui/skeleton";
 
-export const DarkModeToggle = () => {
-  const { theme, setTheme } = useTheme();
-  const isMounted = useMounted();
+export const DarkModeToggle = ({ isExpanded }: any) => {
+	const { theme, setTheme } = useTheme();
+	const isMounted = useMounted();
 
-  if (!isMounted) return null;
-  
-  const toggleDarkMode = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
+	const toggleDarkMode = () => {
+		setTheme(theme === "dark" ? "light" : "dark");
+	};
 
-  return (
-    <button onClick={toggleDarkMode} className="w-12">
-      <div className="rounded-full p-1 transition-all border-2 w-16 bg-light-bg dark:bg-dark-bg">
-        {theme === "dark" ? (
-          <SunIcon className="h-6 w-6 text-yellow-300  ml-8" />
-        ) : (
-          <MoonIcon className="h-6 w-6 text-gray-700" />
-        )}
-      </div>
-    </button>
-  );
-}
+	if (!isMounted) {
+		return (
+			<Skeleton className="border-2 w-16 h-9 bg-transparent rounded-full" />
+		);
+	}
+
+	return (
+		<button onClick={toggleDarkMode}>
+			<div
+				className={`rounded-full p-1 px-2 transition-all border  border-gray-200 dark:border-dark-border ${
+					isExpanded ? "w-18" : "w-8"
+				} bg-light-bg dark:bg-dark-bg flex items-center`}
+			>
+				{theme === "dark" ? (
+					<Sun
+						className={`transition-all text-yellow-300 ${
+							isExpanded ? "w-6 h-6 ml-7" : "w-5 h-5"
+						}`}
+					/>
+				) : (
+					<Moon
+						className={`transition-all ${
+							isExpanded ? "w-6 h-6 mr-6" : "w-5 h-5"
+						}`}
+					/>
+				)}
+			</div>
+		</button>
+	);
+};

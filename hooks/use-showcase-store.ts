@@ -1,20 +1,24 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { DEFAULT_JSON } from "@/lib/fixtures";
-import { ShowcaseJSON } from "@/types";
+import { Persona, ShowcaseJSON } from "@/types";
 import { CredentialFormData } from "@/schemas/credential";
+
+type Tab = "Character" | "Onboarding" | "Scenario" | "Publish";
 
 interface State {
   showcaseJSON: ShowcaseJSON;
   selectedCharacter: number;
   currentPage: string;
   editMode: boolean;
+  activeTab: Tab;
 }
 
 interface Actions {
   setShowcaseJSON: (json: ShowcaseJSON) => void;
   setSelectedCharacter: (index: number) => void;
   setEditMode: (mode: boolean) => void;
+  setActiveTab: (tab: Tab) => void;
   updateCharacterDetails: (data: {
     name: string;
     type: string;
@@ -37,11 +41,18 @@ interface Actions {
 export const useShowcaseStore = create<State & Actions>()(
   immer((set) => ({
     showcaseJSON: {
-      personas: [DEFAULT_JSON],
+      personas: [DEFAULT_JSON] as Persona[],
     },
     selectedCharacter: 0,
     currentPage: "character",
+    activeTab: "Character",
     editMode: false,
+
+    setActiveTab: (tab) => {
+      set((state) => {
+        state.activeTab = tab;
+      });
+    },
 
     setShowcaseJSON: (json) =>
       set((state) => {
@@ -116,7 +127,7 @@ export const useShowcaseStore = create<State & Actions>()(
 
     reset: () =>
       set((state) => {
-        state.showcaseJSON = { personas: [DEFAULT_JSON] };
+        state.showcaseJSON = { personas: [DEFAULT_JSON] as Persona[] };
         state.selectedCharacter = 0;
         state.currentPage = "character";
         state.editMode = false;

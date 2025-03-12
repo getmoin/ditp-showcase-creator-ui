@@ -6,8 +6,10 @@ import { IssueStepEdit } from "./issue-step-edit";
 import { CreateNewStep } from "./create-step";
 import { NoSelection } from "../credentials/no-selection";
 import { useOnboarding } from "@/hooks/use-onboarding";
+import { useTranslations } from 'next-intl';
 
 export const OnboardingSteps = () => {
+  const t = useTranslations()
   const {
     selectedStep,
     stepState,
@@ -27,11 +29,11 @@ export const OnboardingSteps = () => {
   return (
     <div
       id="editStep"
-      className="w-3/5 two-column-col bg-light-bg-secondary dark:bg-dark-bg-secondary text-light-text dark:text-dark-text p-6 rounded-md right-col"
+      className="w-full two-column-col bg-white dark:bg-dark-bg-secondary text-light-text dark:text-dark-text p-6 rounded-md right-col"
     >
       {stepState === "no-selection" && (
         <div className="">
-          <NoSelection text={"No Step Selected"} />
+          <NoSelection text={t('onboarding.no_step_selected_message')} />
         </div>
       )}
 
