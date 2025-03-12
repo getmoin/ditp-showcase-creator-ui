@@ -9,6 +9,7 @@ import { Card } from "../ui/card";
 import apiClient from "@/lib/apiService";
 import Loader from "../loader";
 import { Share2 } from "lucide-react";
+import { ensureBase64HasPrefix } from "@/lib/utils";
 
 export const LandingPage = () => {
   const t = useTranslations();
@@ -81,7 +82,7 @@ export const LandingPage = () => {
                 placeholder={t("action.search_label")}
                 value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="bg-white dark:dark-bg w-full pl-10 pr-3 py-6 border rounded-md text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-gray-300"
+                className="bg-white dark:dark-bg w-full pl-10 pr-3 py-4 border rounded-md text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-gray-300"
               />
             </div>
           </div>
@@ -131,20 +132,20 @@ export const LandingPage = () => {
                       }')`,
                     }}
                   >
-                    <div className="absolute bottom-0 left-0 right-0 bg-[#D9D9D9E5] bg-opacity-70 p-3">
-                      <p className="text-xs text-gray-600">
+                    <div className="absolute bg-black bottom-0 left-0 right-0 bg-opacity-70 p-3">
+                    <p className="text-xs text-gray-300 break-words">
                         {t("showcases.created_by_label", {
                           name: "Test college",
                         })}
                       </p>
                       <div className="flex justify-between">
-                      <h2 className="text-2xl font-bold text-gray-900">
+                      <h2 className="text-lg font-bold text-white break-words">
                         {showcase?.name}
                       </h2>
                       <div className="flex-shrink-0">
                           {" "}
                           {/* Prevent button from shrinking */}
-                          <button className="border border-black rounded px-3 py-1 hover:bg-gray-400 dark:hover:bg-gray-700">
+                          <button className="border border rounded px-3 py-1 hover:bg-gray-400 dark:hover:bg-gray-700">
                             <Share2
                               size={18}
                               className="cursor-pointer text-white"
@@ -159,8 +160,14 @@ export const LandingPage = () => {
                     <h3 className="text-sm font-semibold text-light-text dark:text-dark-text">
                       {t("showcases.description_label")}
                     </h3>
-                    <p className="text-light-text dark:text-dark-text text-xs mt-2">
+                    <p className="text-light-text dark:text-dark-text text-xs">
                       {showcase?.description}
+                    </p>
+                    <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mt-2">
+                    {t("showcases.description_version")}
+                    </h3>
+                    <p className="text-light-text dark:text-dark-text text-xs">
+                      {showcase?.version || '1.0'}
                     </p>
                     <div className="mt-4 flex-grow mb-4">
                       <h4 className="text-sm font-semibold text-light-text dark:text-dark-text">
@@ -174,9 +181,13 @@ export const LandingPage = () => {
                           >
                             <img
                               src={
-                                persona.headshotImage?.content ||
+                                ensureBase64HasPrefix(persona.headshotImage?.content) ||
                                 "https://picsum.photos/200"
-                              } // Fallback image
+                              } 
+                              // src={
+                              //   persona.headshotImage?.content ||
+                              //   "https://picsum.photos/200"
+                              // } 
                               alt={persona.name}
                               className="w-[44px] h-[44px] rounded-full"
                             />

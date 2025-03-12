@@ -19,6 +19,7 @@ import { credentialDefinition } from "@/schemas/credential";
 import { Monitor } from "lucide-react";
 import StepHeaderCredential from "../showcases-screen/step-header-credential";
 import apiClient from "@/lib/apiService";
+import { ensureBase64HasPrefix } from "@/lib/utils";
 
 export const CredentialsForm = () => {
 	const {
@@ -37,6 +38,7 @@ export const CredentialsForm = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [credentialLogo,setCredentialLogo] = useState<string>()
 	const [error, setError] = useState<string | null>(null);
 	const form = useForm<CredentialFormData>({
 		resolver: zodResolver(credentialDefinition), // Use the schema here, not the type
@@ -61,44 +63,47 @@ export const CredentialsForm = () => {
 	};
 	const createSchemaAndThenDefinition = async () => {
 		try {
+			let Credentials:any = form.getValues();
 			// Step 1: Create Schema
-			const schemaResponse = await apiClient.post<any>("/credentials/schemas", {
-				name: formData.name || "example_name",
-				version: formData.version || "example_version",
+			let payload = {
+				name: Credentials.name || "example_name",
+				version: Credentials.version || "example_version",
 				identifierType: "DID",
 				identifier: "did:sov:XUeUZauFLeBNofY3NhaZCB",
-				attributes: [
-					{
-						name: "example_attribute_name1",
-						value: "example_attribute_value1",
-						type: "STRING",
-					},
-				],
-			});
+				attributes: Credentials.attributes.map((item: any) => ({
+				  name: item.name,
+				  value: item.value,
+				  type: item.type.toUpperCase(),
+				})),
+			  };
+			  
+			const schemaResponse = await apiClient.post<any>("/credentials/schemas", payload);
 
-			const schemaId = schemaResponse.data.id;
-			console.log(":white_check_mark: Schema Created:", schemaResponse.data);
+			const schemaId = schemaResponse.credentialSchema.id;
+			console.log(":white_check_mark: Schema Created:", schemaResponse);
 
 			// Step 2: Upload Asset (if file provided) using the store's createAsset
 			let assetId = "";
-			if (formData.icon?.imageFile) {
+			if (credentialLogo) {
 				// Convert the file to base64 if needed (or use your existing conversion function)
-				const base64Content = await convertBase64(formData.icon.imageFile);
-				const asset = await useCredentials.getState().createAsset({
+				const base64Content = credentialLogo
+				// const base64Content = await convertBase64(formData.icon.imageFile);
+				const asset:any = {
 					mediaType: "image/png", // or the correct media type for your file
 					content: base64Content,
-					fileName: formData.icon.imageFile.name,
+					fileName: 'CredentialLogo.png',
 					description: "Credential icon image",
-				});
-				assetId = asset ? asset.id : "";
+				};
+				const bodyResponse: any = await apiClient.post<{ id: string }>("/assets", asset);
+				assetId = bodyResponse ?  bodyResponse.asset.id : "";
 				console.log(":white_check_mark: Asset Uploaded, assetId:", assetId);
 			}
 
 			// Step 3: Create Credential Definition with Schema ID and Asset ID
 			const credentialDefinitionResponse =
 				await apiClient.post<CredentialFormData>("/credentials/definitions", {
-					name: formData.name || "example_name",
-					version: formData.version || "example_version",
+					name: Credentials.name || "example_name",
+					version: Credentials.version || "example_version",
 					icon: assetId ? assetId : "",
 					identifierType: "DID",
 					identifier: "did:sov:XUeUZauFLeBNofY3NhaZCB",
@@ -196,7 +201,8 @@ export const CredentialsForm = () => {
 						{credentialDefinition.icon && (
 							<div className="px-2 py-2">
 								<img
-									src={`data:${credentialDefinition.icon};base64,${credentialDefinition.icon.content}`}
+									// src={`data:${credentialDefinition.icon};base64,${credentialDefinition.icon.content}`}
+									src={ensureBase64HasPrefix(credentialDefinition?.icon?.content)|| ""}
 									className="w-24 h-24 rounded-full shadow"
 								/>
 							</div>
@@ -240,7 +246,7 @@ export const CredentialsForm = () => {
 							},
 							{
 								label: t("credentials.revocation_label"),
-								value: credentialDefinition?.revocation?.description,
+								value: credentialDefinition?.revocation?.description ? 'Yes' : 'No',
 							},
 						].map((item, index) => (
 							<div
@@ -350,7 +356,10 @@ export const CredentialsForm = () => {
 									<FileUploadFull
 										text={t("credentials.image_label")}
 										element="headshot_image"
-										handleFileUpload={handleFileUpload}
+										// handleFileUpload={handleFileUpload}
+										handleJSONUpdate={(imageType, imageData) => {
+											setCredentialLogo(imageData)
+										  }}
 									/>
 								</div>
 							</div>

@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { useCredentials } from "@/hooks/use-credentials";
 import { CredentialFormData, schemaAttribute } from "@/schemas/credential";
 import apiClient from "@/lib/apiService"; // Import the API client
+import Image from "next/image";
+import { ensureBase64HasPrefix } from "@/lib/utils";
 
 export const CredentialsDisplay = () => {
 	const { setSelectedCredential, startCreating, viewCredential } =
@@ -95,7 +97,7 @@ export const CredentialsDisplay = () => {
 
 			{!loading &&
 				!error &&
-				credentials.map((item) => (
+				credentials.map((item:any) => (
 					<div
 						key={item.id}
 						className="border-b dark:border-dark-border hover:bg-gray-100"
@@ -104,8 +106,13 @@ export const CredentialsDisplay = () => {
 							<div className="p-3 bg-light-bg flex flex-col dark:bg-dark-bg items-center text-center">
 								<div className="flex flex-col py-2 w-full items-center">
 									{/* Assuming item.icon is an object, render the relevant property */}
-									<img
-										src={`data:${item.icon};base64,${item.icon?.content}`}
+									<Image
+									    alt={item?.icon?.fileName}
+										src={ensureBase64HasPrefix(item?.icon?.content)|| ""}
+										// src={item?.icon?.content}
+										width={14}
+										height={14}
+										// src={`data:${item.icon};base64,${item.icon?.content}`}
 										className="w-14 h-14 rounded-full shadow mb-4"
 									/>
 
@@ -150,7 +157,8 @@ export const CredentialsDisplay = () => {
 									{/* Render item.icon correctly if it's an object */}
 									<div className="flex items-center gap-3">
 										<img
-											src={`data:${item.icon};base64,${item.icon?.content}`}
+											src={ensureBase64HasPrefix(item?.icon?.content)|| ""}
+											// src={`data:${item.icon};base64,${item.icon?.content}`}
 											className="w-10 h-10 rounded-full shadow "
 										/>
 									</div>

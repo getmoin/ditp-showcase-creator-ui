@@ -461,7 +461,7 @@ export const OnboardingScreen = () => {
 
 
   useEffect(() => {
-    getIssuanceFlow('871b9ac3-f7a5-42ee-80c8-14f1587cb83d');
+    // getIssuanceFlow('871b9ac3-f7a5-42ee-80c8-14f1587cb83d');
     // getAllScenarios();
     // createScenario();
     // let Maindata = Showcases.showcase
@@ -492,20 +492,36 @@ export const OnboardingScreen = () => {
             description: "Verify the user's identity",
             order: 1,
             type: "HUMAN_TASK",
-            subScenario: "123e4567-e89b-12d3-a456-434314174000",
+            asset: "456e4567-e89b-12d3-a456-426614174000",
+            // subScenario: "123e4567-e89b-12d3-a456-434314174000",
             actions: [
               {
                 title: "Download Wallet",
                 text: "Download your wallet to continue",
-                actionType: "ARIES_OOB"
+                actionType: "ARIES_OOB",
+                proofRequest: {
+                                "attributes": {
+                                    "attribute1": {
+                                        "attributes": ["attribute1", "attribute2"],
+                                        "restrictions": ["restriction1", "restriction2"]
+                                    }
+                                },
+                                "predicates": {
+                                    "predicate1": {
+                                        "name": "example_name",
+                                        "type": "example_type",
+                                        "value":"example_value",
+                                        "restrictions": ["restriction1","restriction2"]
+                                    }
+                                }
+                            }
               },
-            ],
-            asset: "456e4567-e89b-12d3-a456-426614174000",
+            ]
           },
         ],
         personas: personaIds,
         hidden: false,
-        issuer: "313e4567-e89b-12d3-a456-426614174469",
+        issuer: "70692d76-319e-493b-b585-01e7f7b9cae4",
       };
   
       const response:any = await apiClient.post("/scenarios/issuances", scenarioData);

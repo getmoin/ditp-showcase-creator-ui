@@ -11,6 +11,7 @@ import { Card } from "../ui/card";
 import apiClient from "@/lib/apiService";
 import Loader from "../loader";
 import { useShowcaseStore } from "@/hooks/use-showcase-store";
+import { ensureBase64HasPrefix } from "@/lib/utils";
 
 export const ShowcaseList = () => {
 	const t = useTranslations();
@@ -58,10 +59,10 @@ export const ShowcaseList = () => {
         description: "Collection of credential usage scenarios",
         status: "PENDING",
         hidden: false,
-        scenarios: ["871b9ac3-f7a5-42ee-80c8-14f1587cb83d"],
-        credentialDefinitions: ["008a241c-a0c2-4897-ba59-519cd134c238"],
-        personas: ["b37a6cf7-13a6-4c81-b534-dfefd6c7c945"],
-        bannerImage: "008a241c-a0c2-4897-ba59-519cd134c238",
+        scenarios: ["d9c2afd7-c040-4948-b1ec-599aa8c61aff","fee9c14d-b39b-460e-b4c7-20fb5ddc5c46"],
+        credentialDefinitions: ["133447db-d94a-4ef8-9a36-5b781bde4888"],
+        personas: ["40b29cdf-1ea5-435f-ac77-699b646d7cb6"],
+        bannerImage: "345c45f0-c2d1-462c-981f-68c32bdb31c8",
         completionMessage: "You have successfully completed the showcase",
       };
   
@@ -159,7 +160,7 @@ export const ShowcaseList = () => {
               placeholder={t("action.search_label")}
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
-              className="bg-white dark:dark-bg w-full pl-10 pr-3 py-6 border rounded-md text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="bg-white dark:dark-bg w-full pl-10 pr-3 py-4 border rounded-md text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-gray-300"
             />
           </div>
 
@@ -284,13 +285,13 @@ export const ShowcaseList = () => {
                 <h3 className="text-sm font-semibold text-light-text dark:text-dark-text">
                 {t("showcases.description_label")}
                 </h3>
-                <p className="text-light-text dark:text-dark-text text-xs mt-2">
+                <p className="text-light-text dark:text-dark-text text-xs">
                   {showcase.description}
                 </p>
                 <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mt-2">
                 {t("showcases.description_version")}
                 </h3>
-                <p className="text-light-text dark:text-dark-text text-xs mt-2">
+                <p className="text-light-text dark:text-dark-text text-xs">
                   {showcase?.version || '1.0'}
                 </p>
 
@@ -305,7 +306,11 @@ export const ShowcaseList = () => {
                         className="border-[1px] border-dark-border dark:border-light-border flex items-center gap-3 p-3 rounded-md"
                       >
                         <img
-                          src={persona.headshotImage?.content || "https://picsum.photos/200"} // Fallback image
+                          src={
+                             ensureBase64HasPrefix(persona.headshotImage?.content) ||
+                            "https://picsum.photos/200"
+                            } 
+                          // src={persona.headshotImage?.content || "https://picsum.photos/200"} // Fallback image
                           alt={persona.name}
                           className="w-[44px] h-[44px] rounded-full"
                         />
