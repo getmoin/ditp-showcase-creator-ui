@@ -49,27 +49,23 @@ export const CredentialAttributes = ({
 	if (mode === "view" && attributes) {
 		return (
 			<div className="space-y-4 mb-">
-		
-        <div className="flex items-center gap-x-2 mx-4 py-3 border-b border-gray-200">
+				<div className="flex items-center  gap-x-2 mx-4 py-3 border-b border-gray-200">
 					<h3 className="text-md font-semibold text-foreground">
-          {t("credentials.attributes_label")}
+						{t("credentials.attributes_label")}
 					</h3>
 				</div>
-				<Table className="w-full gap-x-2 px-4 py-3">
-					<TableHeader>
-				
-							<TableHead>{t("credentials.attribute_name_label")}</TableHead>
-							<TableHead>{t("credentials.attribute_value_label")}</TableHead>
-							<TableHead>{t("credentials.attribute_type_label")}</TableHead>
-		
+				<Table className="w-full hover:bg-gray-50 dark:bg-dark-bg-tertiary dark:bg-dark-bg dark:hover:bg-dark-bg-tertiary gap-x-2 px-4 py-3">
+					<TableHeader className="bg-gray-100 dark:bg-dark-bg-tertiary border-b border-gray-200 uppercase dark:border-dark-border">
+						<TableHead>{t("credentials.attribute_name_label")}</TableHead>
+
+						<TableHead>{t("credentials.attribute_type_label")}</TableHead>
 					</TableHeader>
-					<TableBody>
+					<TableBody className="bg-white dark:bg-dark-bg-secondary border-b border-gray-200  dark:border-dark-border">
 						{attributes.map((attr, index) => (
 							<TableRow key={attr.name || index}>
 								{" "}
 								{/* Use attr.name or index as key */}
-								<TableCell className="font-medium ">{attr.name}</TableCell>
-								<TableCell>{attr.value}</TableCell>
+								<TableCell className="font-semibold ">{attr.name}</TableCell>
 								<TableCell>{attr.type || "string"}</TableCell>
 							</TableRow>
 						))}
@@ -82,14 +78,23 @@ export const CredentialAttributes = ({
 	return (
 		<div>
 			<div className="flex justify-between items-center mb-4">
-				<label className="text-md font-bold">
+				<label className="text-lg font-bold">
 					{t("credentials.attributes_label")}
 				</label>
 				<Button
 					type="button"
 					variant="outline"
 					size="sm"
-					onClick={() => append({ name: "", value: "", type: "string" })}
+					onClick={() =>
+						append({
+							id: "",
+							name: "",
+							value: "",
+							type: "string",
+							createdAt: new Date().toISOString(),
+							updatedAt: new Date().toISOString(),
+						})
+					}
 				>
 					<Plus className="w-4 h-4 mr-2" />
 					{t("credentials.attributes_add_attribute_label")}
@@ -99,7 +104,7 @@ export const CredentialAttributes = ({
 			<div className="space-y-4">
 				{fields.map((field, index) => (
 					<div key={field.id} className="grid grid-cols-12 gap-2 items-start">
-						<div className="col-span-4">
+						<div className="w-full col-span-8">
 							<FormTextInput
 								name={`attributes.${index}.name`}
 								label={t("credentials.attribute_name_label")}
@@ -108,19 +113,9 @@ export const CredentialAttributes = ({
 								placeholder={t("credentials.attribute_name_placeholder")}
 							/>
 						</div>
-						<div className="col-span-4">
-							<FormTextInput
-								name={`attributes.${index}.value`}
-								register={form.register}
-								error={
-									form.formState.errors.attributes?.[index]?.value?.message
-								}
-								label={t("credentials.attribute_value_label")}
-								placeholder={t("credentials.attribute_value_placeholder")}
-							/>
-						</div>
+
 						<div className="col-span-3">
-							<label className="text-sm font-medium mb-2 block">
+							<label className="text-md font-bold mb-2 block">
 								{t("credentials.attribute_type_label")}
 							</label>
 							<Select
