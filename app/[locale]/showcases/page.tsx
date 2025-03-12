@@ -1,10 +1,9 @@
 import React from "react";
 import { PageParams } from "@/types";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 import { ShowcaseList } from "@/components/showcases-screen/showcase-list";
 
 export default async function Showcases({ params }: { params: PageParams }) {
-
   const { locale } = await params
   setRequestLocale(locale);
 

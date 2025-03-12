@@ -16,7 +16,6 @@ class ApiService {
       headers: {
         "Content-Type": "application/json",
       },
-      redirect: "follow",
     };
   
     if (data && method !== "GET") {

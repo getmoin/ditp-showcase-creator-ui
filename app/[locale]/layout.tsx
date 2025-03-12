@@ -1,9 +1,7 @@
 import React, { PropsWithChildren } from "react";
 import { Montserrat } from "next/font/google";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { NavBar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { JSONPreview } from "@/components/json-preview";
 import i18nConfig from "@/i18n.config";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
@@ -13,6 +11,7 @@ import { Locale, PageParams } from "@/types";
 
 import "./globals.css";
 import Sidebar from "@/components/sidebar";
+import { QueryProviders } from "@/providers/query-provider";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -64,17 +63,17 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NextIntlClientProvider messages={messages}>
-            <div className="flex flex-col h-screen bg-light-bg dark:bg-dark-bg text-light-text">
-              <div className="flex flex-grow">
+          <QueryProviders>
+            <NextIntlClientProvider messages={messages}>
+              <div className="flex flex-col h-screen bg-light-bg dark:bg-dark-bg text-light-text">
+                <div className="flex flex-grow">
                 <Sidebar />
                 <main className="flex-1 overflow-auto">{children}</main>
               </div>
               <Footer />
-              {process.env.NODE_ENV === "development" && <JSONPreview />}
-            </div>
-      
-          </NextIntlClientProvider>
+              </div>
+            </NextIntlClientProvider>
+          </QueryProviders>
         </ThemeProvider>
       </body>
     </html>
