@@ -10,21 +10,19 @@ import {
 // import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/routing";
-import { FileUploadFull } from "../file-upload";
+import { FileUploadFull } from "../../../../components/file-upload";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
-import { FormTextInput, FormTextArea } from "../text-input";
+import { FormTextInput, FormTextArea } from "../../../../components/text-input";
 import { characterSchema } from "@/schemas/character";
 import { useTranslations } from "next-intl";
-import StepHeader from "../step-header";
-import ButtonOutline from "../ui/button-outline";
-import DeleteModal from "../delete-modal";
+import StepHeader from "../../../../components/step-header";
+import ButtonOutline from "../../../../components/ui/button-outline";
+import DeleteModal from "../../../../components/delete-modal";
 import apiClient from "@/lib/apiService";
-import Loader from "../loader";
 import { ensureBase64HasPrefix } from "@/lib/utils";
-
 
 type CharacterFormData = z.infer<typeof characterSchema>;
 
@@ -176,8 +174,6 @@ export default function NewCharacterPage() {
     }
   }, [form.formState.isDirty, isHeadShotImageEdited, isbodyImageEdited]);
   
-
-  // console.log('isEdited',isEdited);
   const createAssetAndPersona = async (
     headshotBase64: string | null | undefined,
     bodyBase64: string | null | undefined,
@@ -187,7 +183,7 @@ export default function NewCharacterPage() {
       const isEditing = selectedCharacter !== -1;
       const existingPersona = isEditing ? Persona[selectedCharacter] : null;
       const personaId = existingPersona?.slug;
-      console.log('personaID',personaId);
+
       let headshotAssetId = existingPersona?.headshotImage?.id ?? undefined;
       let bodyAssetId = existingPersona?.bodyImage?.id ?? undefined;
 
@@ -256,7 +252,6 @@ export default function NewCharacterPage() {
     }
   };
 
-
   const deletePersona = async (personaId: string) => {
     try {
       if (!personaId) {
@@ -265,12 +260,9 @@ export default function NewCharacterPage() {
       }
 
       console.log("Deleting persona with ID:", personaId);
-
       // Step 1: Send DELETE request to the API
       await apiClient.delete(`/personas/${personaId}`);
-
       console.log("Persona deleted successfully!");
-
       // Step 2: Update the persona list after deletion
       GetPersona();
     } catch (error) {

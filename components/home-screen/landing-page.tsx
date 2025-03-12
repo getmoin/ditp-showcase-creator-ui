@@ -62,10 +62,10 @@ export const LandingPage = () => {
       >
         <section
           className="w-full px-0 py-2 bg-cover bg-center bg:light-bg dark:bg-dark-bg"
-          style={{
-            backgroundImage:
-              "url('https://s3-alpha-sig.figma.com/img/84d2/7817/695f4b324b28bca3dafeea1ce4e868b0?Expires=1740960000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=W03Hk36YdEAmq3EuDffGTsV24WmDhdE3KNHJu6-oIwgqDPrSWZp-tJliZHBU3UDcJ1-m6l6WDumpSy~17VaZZqGsRrMnImTmIWvEFPmBH8NHs31qTecPEobw6UKkIfiMW9lAYCaYSAp-2Z3Eslk~ZA4VcgTNOqifQJc4CEnQdm~G1BA6R-9v8odvfAopWHRTM04EcOSO1u9Qk89jnxb-RfNcwvAoamvTD9ZRl5xHWMX-MAyr7TWGZTgkbW~K5YogtrYpzQYd5eYF4WbbNBtUe3BVtxX7suh6Jwrf9-3js~sq1dmFpTAHXMfrOCFxeFwQSmWfcZiVcS89D9RfrhFjQg__')",
-          }}
+          // style={{
+          //   backgroundImage:
+          //     "url('https://s3-alpha-sig.figma.com/img/84d2/7817/695f4b324b28bca3dafeea1ce4e868b0?Expires=1740960000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=W03Hk36YdEAmq3EuDffGTsV24WmDhdE3KNHJu6-oIwgqDPrSWZp-tJliZHBU3UDcJ1-m6l6WDumpSy~17VaZZqGsRrMnImTmIWvEFPmBH8NHs31qTecPEobw6UKkIfiMW9lAYCaYSAp-2Z3Eslk~ZA4VcgTNOqifQJc4CEnQdm~G1BA6R-9v8odvfAopWHRTM04EcOSO1u9Qk89jnxb-RfNcwvAoamvTD9ZRl5xHWMX-MAyr7TWGZTgkbW~K5YogtrYpzQYd5eYF4WbbNBtUe3BVtxX7suh6Jwrf9-3js~sq1dmFpTAHXMfrOCFxeFwQSmWfcZiVcS89D9RfrhFjQg__')",
+          // }}
         >
           <div className="container mx-auto px-4 mt-12 mb-6">
             <h1 className="text-4xl font-bold">{t("home.header_title")}</h1>
@@ -128,7 +128,7 @@ export const LandingPage = () => {
                     style={{
                       backgroundImage: `url('${
                         showcase?.bannerImage?.content ||
-                        "https://picsum.photos/400"
+                        "https://fastly.picsum.photos/id/506/400/400.jpg?hmac=YUuTQH9RPqWbrpNVNTOj4Yicxuv0Eu62QUy3T11KgJA"
                       }')`,
                     }}
                   >

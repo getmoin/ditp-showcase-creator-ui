@@ -1,50 +1,18 @@
 "use client";
 
 import { useShowcaseStore } from "@/hooks/use-showcase-store";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
 import {
-  CircleAlert,
-  CirclePlus,
-  Delete,
-  Download,
-  EllipsisVertical,
-  Eye,
-  FileWarning,
-  Monitor,
   Pencil,
-  RefreshCcw,
-  RotateCw,
-  Search,
-  Trash,
-  Trash2,
-  User,
 } from "lucide-react";
-// import { useRouter } from "next/router";
-import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
-import { Locale, usePathname, useRouter, Link } from "@/i18n/routing";
-import { FileUploadFull } from "../file-upload";
+import { useRouter } from "@/i18n/routing";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import { FormTextInput, FormTextArea } from "../text-input";
 import { characterSchema } from "@/schemas/character";
 import { useTranslations } from "next-intl";
-import Onboarding from "@/app/[locale]/onboarding/page";
 import { PageParams } from "@/types";
-import Scenario from "@/app/[locale]/scenarios/page";
-import Credentials from "@/app/[locale]/credentials/page";
-import { P } from "pino";
-import { OnboardingScreen } from "../onboarding-screen/onboarding-screen";
-import { ScenarioScreen } from "../scenario-screen/scenario-screen";
-import { CredentialsDisplay } from "../credentials/credentials-display";
-import { OnboardingMain } from "../onboarding-screen";
-import NewCharacterPage from "./new-character";
-import ScenarioMain from "../scenario-screen";
-import PublishPage from "@/app/[locale]/publish/page";
+import NewCharacterPage from "../../app/[locale]/showcases/[slug]/new-character";
 import TabsComponent from "../Tabs-component";
 
 const characters = [
