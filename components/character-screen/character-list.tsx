@@ -4,8 +4,10 @@ import { useShowcaseStore } from "@/hooks/use-showcase-store";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { User } from "lucide-react";
+import { usePersonas } from "@/hooks/use-personas";
 
 export const CharacterList = () => {
+  const { data } = usePersonas();
   const { showcaseJSON, selectedCharacter, setEditMode, setSelectedCharacter } = useShowcaseStore();
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -15,7 +17,7 @@ export const CharacterList = () => {
 
   return (
     <div className="grid grid-cols-1">
-      {showcaseJSON.personas.map((person, index) => (
+      {data?.personas?.map((person, index) => (
         <button value={index} key={index} onClick={handleClick}>
           <div className="flex flex-col items-center justify-center">
             <div

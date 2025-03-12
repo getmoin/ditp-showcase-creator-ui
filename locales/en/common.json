@@ -116,7 +116,6 @@
     "step4_details": "Enter the Schema ID (and the Credential Definition ID if applicable) into the provided fields.",
     "identifier_type_label": "Identifier Type",
     "identifier_label": "Identifier",
-    "schema_id_label": "Schema ID",
     "revocation_label": "Is this credential revocable?",
     "revocation_checkbox_label": "Yes",
     "type_label": "Credential Type",

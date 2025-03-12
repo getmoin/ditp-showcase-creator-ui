@@ -1,9 +1,7 @@
 "use client";
 
 import { useShowcaseStore } from "@/hooks/use-showcase-store";
-import {
-  Pencil,
-} from "lucide-react";
+import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/routing";
 import { useForm } from "react-hook-form";
@@ -12,8 +10,8 @@ import { z } from "zod";
 import { characterSchema } from "@/schemas/character";
 import { useTranslations } from "next-intl";
 import { PageParams } from "@/types";
-import NewCharacterPage from "../../app/[locale]/showcases/[slug]/new-character";
 import TabsComponent from "../Tabs-component";
+import NewCharacterPage from "@/components/character-screen/new-character";
 
 const characters = [
   {
@@ -54,14 +52,12 @@ type CharacterFormData = z.infer<typeof characterSchema>;
 
 export default function MyShowcaseMain({ params }: { params: PageParams }) {
   const t = useTranslations();
-  //   const [selectedCharacters, setSelectedCharacters] = useState(characters);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [hiddenIds, setHiddenIds] = useState<number[]>([]);
-  const [isHidden, setIsHidden] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>(t("navigation.character_label"));
-  // const { activeTab, setActiveTab } = useShowcaseStore();
+  const [activeTab, setActiveTab] = useState<string>(
+    t("navigation.character_label")
+  );
   const [isOpen, setIsOpen] = useState(false);
-  const router:any = useRouter();
+  const router: any = useRouter();
 
   const {
     updateCharacterImage,
@@ -71,7 +67,6 @@ export default function MyShowcaseMain({ params }: { params: PageParams }) {
     updateCharacterDetails,
     setSelectedCharacter,
   } = useShowcaseStore();
-  
 
   const form = useForm<CharacterFormData>({
     resolver: zodResolver(characterSchema),
@@ -132,58 +127,47 @@ export default function MyShowcaseMain({ params }: { params: PageParams }) {
   const [hideCharacter, setHideCharacter] = useState(false);
   type Tab = "Character" | "Onboarding" | "Scenario" | "Publish";
 
-  let tabs:any = [
+  const tabs = [
     t("navigation.character_label"),
     t("navigation.onboarding_label"),
     t("navigation.scenario_label"),
-    t("navigation.publish_label")
-]
+    t("navigation.publish_label"),
+  ];
 
-useEffect(() => {
-  if (!router.isReady) return; // Prevent accessing undefined query
-  const { tab } = router.query;
+  useEffect(() => {
+    if (!router.isReady) return; // Prevent accessing undefined query
+    const { tab } = router.query;
 
-  if (tab && tabs.includes(tab)) {
-    setActiveTab(tab);
-  }
-}, [router.isReady, router.query]);
+    if (tab && tabs.includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [router.isReady, router.query]);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab as any);
-    // router.push({ query: { tab } }, undefined, { shallow: true });
   };
 
   return (
-    <div className="flex bg-light-bg dark:bg-dark-bg flex-col h-full w-full bg-gray-100">
-      {/* Main Container with Header & Content in One Row */}
+    <div className="flex bg-light-bg dark:bg-dark-bg flex-col h-full w-full">
       <div className="flex flex-col">
-        {/* Header Section - Integrated into Left & Right Containers */}
         <div className="flex justify-between items-center px-6 py-2 mt-4">
-          {/* Left Header Section */}
-           <div className="flex items-center space-x-4">
-               <span className="text-light-text dark:text-dark-text font-medium text-sm">
-                 Showcase1{" "}
-               </span>
-               <Pencil size={16} />
-               <span className="rounded-[5px] bg-gray-500 px-3 py-1 min-w-24 text-center min-h-4 text-sm text-white">
-                 {t('showcases.header_tab_draft')}
-               </span>
-             </div>
+          <div className="flex items-center space-x-4">
+            <span className="text-light-text dark:text-dark-text font-medium text-sm">
+              Showcase1{" "}
+            </span>
+            <Pencil size={16} />
+            <span className="rounded-[5px] bg-gray-500 px-3 py-1 min-w-24 text-center min-h-4 text-sm text-white">
+              {t("showcases.header_tab_draft")}
+            </span>
+          </div>
 
-          {/* Tabs Section */}
           <div className="flex space-x-1 text-lg font-semibold justify-start mr-[305px]">
-           <TabsComponent />
+            <TabsComponent />
           </div>
           <button className="text-gray-500 hover:text-gray-700"></button>
         </div>
 
-
         <NewCharacterPage />
-        {/* {activeTab === t("navigation.character_label") && <NewCharacterPage />}
-        {activeTab === t("navigation.onboarding_label") && <OnboardingMain />}
-        {activeTab === t("navigation.scenario_label") && <ScenarioMain params={params} />}
-        {activeTab === t("navigation.publish_label") && <PublishPage params={params} />} */}
-
       </div>
     </div>
   );

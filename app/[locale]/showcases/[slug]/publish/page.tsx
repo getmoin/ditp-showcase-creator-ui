@@ -12,7 +12,7 @@ export default async function PublishPage({ params }: { params: PageParams }) {
   const t = await getTranslations();
 
   return (
-    <div className="flex bg-light-bg dark:bg-dark-bg flex-col h-full w-full bg-gray-100">
+    <div className="flex bg-light-bg dark:bg-dark-bg flex-col h-full w-full">
       <div className="flex flex-col h-full">
         <div className="flex justify-between items-center px-6 py-2 mt-4">
           {/* Left Header Section */}
