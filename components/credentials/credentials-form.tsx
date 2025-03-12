@@ -19,14 +19,16 @@ import { credentialDefinition } from "@/schemas/credential";
 import { Monitor } from "lucide-react";
 import StepHeaderCredential from "../showcases-screen/step-header-credential";
 import apiClient from "@/lib/apiService";
+import { ErrorModal } from "../error-modal";
+import DeleteModal from "../delete-modal";
 import { ensureBase64HasPrefix } from "@/lib/utils";
 
 export const CredentialsForm = () => {
 	const {
 		selectedCredential,
 		mode,
-		isCreating,
-		startCreating,
+
+		deleteCredential,
 		issuers,
 		fetchIssuers,
 	} = useCredentials();
@@ -38,8 +40,10 @@ export const CredentialsForm = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [credentialLogo,setCredentialLogo] = useState<string>()
+	const [credentialLogo, setCredentialLogo] = useState<string>();
 	const [error, setError] = useState<string | null>(null);
+	const [loading, setLoading] = useState(false);
+	const [showErrorModal, setErrorModal] = useState(false);
 	const form = useForm<CredentialFormData>({
 		resolver: zodResolver(credentialDefinition), // Use the schema here, not the type
 		mode: "onChange",
@@ -49,21 +53,13 @@ export const CredentialsForm = () => {
 		console.log("Fetching issuers...");
 		useCredentials.getState().fetchIssuers();
 	}, []);
-	const handleFileUpload = async (file: File) => {
-		await useCredentials.getState().uploadAsset(file);
-	};
-	useEffect(() => {
-		console.log("Fetching issuers...");
-		useCredentials.getState().fetchIssuers();
-		console.log("Current issuers:", useCredentials.getState().issuers);
-	}, []);
 
 	const handleCancel = () => {
 		// Add cancel logic (e.g., resetting the form or switching mode)
 	};
 	const createSchemaAndThenDefinition = async () => {
 		try {
-			let Credentials:any = form.getValues();
+			let Credentials: any = form.getValues();
 			// Step 1: Create Schema
 			let payload = {
 				name: Credentials.name || "example_name",
@@ -71,31 +67,37 @@ export const CredentialsForm = () => {
 				identifierType: "DID",
 				identifier: "did:sov:XUeUZauFLeBNofY3NhaZCB",
 				attributes: Credentials.attributes.map((item: any) => ({
-				  name: item.name,
-				  value: item.value,
-				  type: item.type.toUpperCase(),
+					name: item.name,
+					value: item.value,
+					type: item.type.toUpperCase(),
 				})),
-			  };
-			  
-			const schemaResponse = await apiClient.post<any>("/credentials/schemas", payload);
+			};
+
+			const schemaResponse = await apiClient.post<any>(
+				"/credentials/schemas",
+				payload
+			);
 
 			const schemaId = schemaResponse.credentialSchema.id;
 			console.log(":white_check_mark: Schema Created:", schemaResponse);
 
-			// Step 2: Upload Asset (if file provided) using the store's createAsset
+			// Step 2: Upload Asset using the store's createAsset
 			let assetId = "";
 			if (credentialLogo) {
 				// Convert the file to base64 if needed (or use your existing conversion function)
-				const base64Content = credentialLogo
+				const base64Content = credentialLogo;
 				// const base64Content = await convertBase64(formData.icon.imageFile);
-				const asset:any = {
+				const asset: any = {
 					mediaType: "image/png", // or the correct media type for your file
 					content: base64Content,
-					fileName: 'CredentialLogo.png',
+					fileName: "CredentialLogo.png",
 					description: "Credential icon image",
 				};
-				const bodyResponse: any = await apiClient.post<{ id: string }>("/assets", asset);
-				assetId = bodyResponse ?  bodyResponse.asset.id : "";
+				const bodyResponse: any = await apiClient.post<{ id: string }>(
+					"/assets",
+					asset
+				);
+				assetId = bodyResponse ? bodyResponse.asset.id : "";
 				console.log(":white_check_mark: Asset Uploaded, assetId:", assetId);
 			}
 
@@ -145,9 +147,10 @@ export const CredentialsForm = () => {
 			setIsSubmitting(false);
 		}
 	};
+
 	useEffect(() => {
 		if (mode === "create") {
-			form.reset(); // Reset the form fields when switching to create mode
+			form.reset();
 		}
 	}, [mode, form]);
 
@@ -184,7 +187,7 @@ export const CredentialsForm = () => {
 						onActionClick={(action) => {
 							switch (action) {
 								case "delete":
-									console.log("Delete Page clicked");
+									setIsOpen(true);
 									setIsModalOpen(true);
 									setIsOpen(false);
 									break;
@@ -196,13 +199,18 @@ export const CredentialsForm = () => {
 				</div>
 				<div className="space-y-6">
 					{/* Basic Information */}
-					<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 px-6  dark:bg-dark-bg">
+					<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 px-6  ">
 						{/* Icon (if available) */}
 						{credentialDefinition.icon && (
 							<div className="px-2 py-2">
 								<img
 									// src={`data:${credentialDefinition.icon};base64,${credentialDefinition.icon.content}`}
-									src={ensureBase64HasPrefix(credentialDefinition?.icon?.content)|| ""}
+									src={
+										ensureBase64HasPrefix(
+											credentialDefinition?.icon?.content
+										) || ""
+									}
+									alt="Credential Icon"
 									className="w-24 h-24 rounded-full shadow"
 								/>
 							</div>
@@ -246,7 +254,9 @@ export const CredentialsForm = () => {
 							},
 							{
 								label: t("credentials.revocation_label"),
-								value: credentialDefinition?.revocation?.description ? 'Yes' : 'No',
+								value: credentialDefinition?.revocation?.description
+									? "Yes"
+									: "No",
 							},
 						].map((item, index) => (
 							<div
@@ -300,6 +310,25 @@ export const CredentialsForm = () => {
 						</p>
 					</div>
 				</div>
+				<DeleteModal
+					isOpen={isModalOpen}
+					onClose={() => setIsModalOpen(false)}
+					onDelete={async () => {
+						if (selectedCredential) {
+							try {
+								await deleteCredential(selectedCredential.id); // Call delete action
+								setIsModalOpen(false); // Close the modal
+							} catch (error) {
+								setErrorModal(true); // Show error modal if deletion fails
+							}
+						}
+					}}
+					header="Are you sure you want to delete this credential?"
+					description="Are you sure you want to delete this credential?"
+					subDescription="<b>This action cannot be undone.</b>"
+					cancelText="CANCEL"
+					deleteText="DELETE"
+				/>
 			</div>
 		);
 	}
@@ -358,8 +387,8 @@ export const CredentialsForm = () => {
 										element="headshot_image"
 										// handleFileUpload={handleFileUpload}
 										handleJSONUpdate={(imageType, imageData) => {
-											setCredentialLogo(imageData)
-										  }}
+											setCredentialLogo(imageData);
+										}}
 									/>
 								</div>
 							</div>
@@ -379,7 +408,7 @@ export const CredentialsForm = () => {
 						{isSubmitting ? "Creating..." : "Create Credential"}
 					</ButtonOutline>
 				</div>
-			</form>
+			</form>{" "}
 		</Form>
 	);
 };

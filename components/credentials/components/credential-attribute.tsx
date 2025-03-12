@@ -48,17 +48,18 @@ export const CredentialAttributes = ({
 
 	if (mode === "view" && attributes) {
 		return (
-			<div className="space-y-4 mb-">
+			<div className="space-y-4">
 				<div className="flex items-center  gap-x-2 mx-4 py-3 border-b border-gray-200">
 					<h3 className="text-md font-semibold text-foreground">
 						{t("credentials.attributes_label")}
 					</h3>
 				</div>
-				<Table className="w-full hover:bg-gray-50 dark:bg-dark-bg-tertiary dark:bg-dark-bg dark:hover:bg-dark-bg-tertiary gap-x-2 px-4 py-3">
+				<Table className="w-full  gap-x-2 px-4 py-3">
 					<TableHeader className="bg-gray-100 dark:bg-dark-bg-tertiary border-b border-gray-200 uppercase dark:border-dark-border">
-						<TableHead>{t("credentials.attribute_name_label")}</TableHead>
-
-						<TableHead>{t("credentials.attribute_type_label")}</TableHead>
+						<TableRow >
+							<TableHead>{t("credentials.attribute_name_label")}</TableHead>
+							<TableHead>{t("credentials.attribute_type_label")}</TableHead>
+						</TableRow>
 					</TableHeader>
 					<TableBody className="bg-white dark:bg-dark-bg-secondary border-b border-gray-200  dark:border-dark-border">
 						{attributes.map((attr, index) => (
