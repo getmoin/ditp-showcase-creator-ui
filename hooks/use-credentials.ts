@@ -21,6 +21,7 @@ interface State {
 	loadingIssuers: boolean;
 	loadingAssets: boolean;
 	isSubmitting: boolean; // Track submission state
+	isDeleting: boolean;
 }
 
 interface Actions {
@@ -46,6 +47,7 @@ interface Actions {
 	// Add submission state actions
 	startSubmitting: () => void; // Set submitting state to true
 	stopSubmitting: () => void; // Set submitting state to false
+	deleteCredential: (credentialId: string) => void;
 }
 
 export const useCredentials = create<State & Actions>()(
@@ -59,7 +61,7 @@ export const useCredentials = create<State & Actions>()(
 		loadingIssuers: false,
 		loadingAssets: false,
 		isSubmitting: false, // Initialize isSubmitting to false
-
+		isDeleting: false,
 		// Implement the missing setIssuer function
 		setIssuer: (issuer) =>
 			set((state) => {
@@ -90,6 +92,26 @@ export const useCredentials = create<State & Actions>()(
 				});
 			}
 		},
+ deleteCredential: async (credentialId: string) => {
+	  set((state) => { 
+				state.isDeleting = true; // Set isDeleting to true
+			});
+			try {
+				// Send DELETE request to delete the credential
+				await apiClient.delete(`/credentials/${credentialId}`);
+				set((state) => {
+					// Remove the deleted credential from the list
+					state.selectedCredential = null;
+					state.isCreating = false;
+					state.isDeleting = false; // Set isDeleting back to false
+				});
+			} catch (error) {
+				console.error("Error deleting credential:", error);
+				set((state) => {
+					state.isDeleting = false; // Set isDeleting back to false
+				});
+			}
+		},	
 
 		fetchAssets: async () => {
 			set((state) => {
