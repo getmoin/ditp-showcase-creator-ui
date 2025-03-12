@@ -19,7 +19,7 @@ export const useShowcase = (slug  : string) => {
   return useQuery({
     queryKey: ['showcase', slug],
     queryFn: async () => {
-      const response = await apiClient.get(`/showcases/${slug}`) as typeof ShowcasesResponse._type;
+      const response = await apiClient.get(`/showcases/${slug}`) as typeof ShowcaseResponse._type;
       return response;
     },
     staleTime,
