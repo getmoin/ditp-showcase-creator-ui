@@ -18,6 +18,7 @@ interface State {
   selectedScenario: number | null;
   selectedStep: number | null;
   stepState: ScenarioStepState;
+  relyingPartyId: string;
 }
 // move to shared
 const deepClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
@@ -34,10 +35,12 @@ interface Actions {
   updateScenario: (index: number, scenario: Scenario) => void;
   removeScenario: (index: number) => void;
   
-  addStep: (scenarioIndex: number, step: Omit<ScenarioStep, 'screenId'>) => void;
+  addStep: (scenarioIndex: number, step: Omit<ScenarioStep, 'id'>) => void;
   updateStep: (scenarioIndex: number, stepIndex: number, step: ScenarioStep) => void;
   removeStep: (scenarioIndex: number, stepIndex: number) => void;
   moveStep: (scenarioIndex: number, oldIndex: number, newIndex: number) => void;
+
+  setRelyingPartyId: (id: string) => void;
   
   reset: () => void;
 }
@@ -62,8 +65,11 @@ export const useScenarios = create<State & Actions>((set, get) => ({
   selectedScenario: null,
   selectedStep: null,
   stepState: null,
+  relyingPartyId: "",
 
   setScenarios: (scenarios) => set({ scenarios }),
+
+  setRelyingPartyId: (id) => set({ relyingPartyId: id }),
 
   setSelectedScenario: (index) => set({ selectedScenario: index }),
 
@@ -129,7 +135,7 @@ export const useScenarios = create<State & Actions>((set, get) => ({
     const newScenarios = [...scenarios];
     const newStep = {
       ...step,
-      screenId: Date.now().toString(),
+      id: Date.now().toString(),
     };
     
     newScenarios[scenarioIndex] = {
@@ -156,7 +162,7 @@ export const useScenarios = create<State & Actions>((set, get) => ({
       ...newScenarios[scenarioIndex],
       steps: newSteps,
     };
-    
+    console.log('newScenariosnewScenarios',newScenarios);
     set({ scenarios: newScenarios });
     updateShowcaseStore(newScenarios);
   },
@@ -214,10 +220,10 @@ export const useScenarios = create<State & Actions>((set, get) => ({
 
 export const createEmptyStep = (
   type: StepType
-): Omit<ScenarioStep, "screenId"> => ({
+): Omit<ScenarioStep, "id"> => ({
   type: type,
   title: "",
-  text: "",
+  description: "",
   requestOptions: type === StepType.CONNECT_AND_VERIFY
     ? {
         type: RequestType.OOB,

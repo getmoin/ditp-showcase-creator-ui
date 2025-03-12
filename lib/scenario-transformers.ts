@@ -32,9 +32,9 @@ const transformStep = (step: ScenarioStep): ScenarioFormData['steps'][number] =>
     });
 
     return {
-      screenId: step.screenId,
+      id: step.id,
       title: step.title,
-      text: step.text,
+      description: step.description,
       type: StepType.CONNECT_AND_VERIFY as const,
       requestOptions: {
         title: step.requestOptions.title,
@@ -49,13 +49,13 @@ const transformStep = (step: ScenarioStep): ScenarioFormData['steps'][number] =>
   }
   
   return {
-    screenId: step.screenId,
+    id: step.id,
     title: step.title,
-    text: step.text,
-    type: StepType.BASIC as const,
+    description: step.description,
+    type: StepType.HUMAN_TASK as const,
     requestOptions: {
-      title: step.requestOptions.title,
-      text: step.requestOptions.text,
+      title: step?.requestOptions?.title,
+      text: step?.requestOptions?.text,
       type: RequestType.BASIC as const,
       proofRequest: {
         attributes: {},
@@ -70,14 +70,14 @@ export const scenarioToFormData = (scenario: Scenario): ScenarioFormData => ({
   name: scenario.name,
   status: scenario.status,
   overview: {
-    title: scenario.overview.title,
-    text: scenario.overview.text,
-    image: scenario.overview.image || '',
+    title: scenario?.overview?.title ?? '',
+    text: scenario?.overview?.text ?? '',
+    image: scenario?.overview?.image || '',
   },
   summary: {
-    title: scenario.summary.title,
-    text: scenario.summary.text,
-    image: scenario.summary.image || '',
+    title: scenario?.summary?.title ?? '',
+    text: scenario?.summary?.text ?? '',
+    image: scenario?.summary?.image || '',
   },
   steps: scenario.steps.map(transformStep)
 });

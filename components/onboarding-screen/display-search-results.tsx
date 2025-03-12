@@ -27,7 +27,7 @@ export const DisplaySearchResults = ({
           {t("credentials.result_label")}
         </Label>
       )}
-      {visibleResults.map((result) => {
+      {visibleResults.map((result:any) => {
         const credential =
           showcaseJSON.personas[selectedCharacter].credentials[result];
 
@@ -55,7 +55,7 @@ export const DisplaySearchResults = ({
                 <div className="space-y-1 ml-4 text-start">
                   <p className="font-semibold">{credential.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    {credential.issuer_name}
+                    {credential.issuer_name ?? 'Test college'}
                   </p>
                 </div>
               </div>

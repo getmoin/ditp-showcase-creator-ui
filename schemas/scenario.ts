@@ -32,10 +32,10 @@ const basicRequestOptionsSchema = z.object({
 });
 
 export const basicStepSchema = z.object({
-  screenId: z.string(),
-  type: z.literal(StepType.BASIC),
+  id: z.string(),
+  type: z.literal(StepType.HUMAN_TASK),
   title: z.string().min(1, "Title is required"),
-  text: z.string().min(1, "Description is required"),
+  description: z.string().min(1, "Description is required"),
   requestOptions: basicRequestOptionsSchema,
 });
 
@@ -47,10 +47,10 @@ const proofRequestOptionsSchema = z.object({
 });
 
 export const proofStepSchema = z.object({
-  screenId: z.string(),
+  id: z.string(),
   type: z.literal(StepType.CONNECT_AND_VERIFY),
   title: z.string().min(1, "Title is required"),
-  text: z.string().min(1, "Description is required"),
+  description: z.string().min(1, "Description is required"),
   requestOptions: proofRequestOptionsSchema,
 });
 

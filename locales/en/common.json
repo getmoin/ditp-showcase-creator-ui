@@ -16,10 +16,10 @@
     "header_tab_under_review": "Under Review",
     "header_tab_published": "Published",
     "create_new_showcase_label": "CREATE NEW SHOWCASE",
-    "created_by_label": "Created By",
+    "created_by_label": "Created By {name}",
     "description_label": "Description",
     "character_label": "Character(s)",
-    "description_version" : "Version"
+    "description_version": "Version"
   },
   "character": {
     "header_title": "Create your Character",
@@ -59,7 +59,7 @@
     "no_credential_selected_message": "You have no credential selected.",
     "item_attribute_count_label": "Attributes: {attributeCount}",
     "section_title": " Create Credentials",
-    "edit_header_title": "Edit a Credential",
+    "view_header_title": "Credential Details",
     "add_header_title": "Create New Credential",
     "details_header_title": "Details Credential",
     "credential_name_label": "Credential Name",
@@ -75,6 +75,8 @@
     "attribute_value_label": "Value",
     "attribute_value_placeholder": "Attribute Value",
     "attribute_type_label": "Type",
+    "image_label": "Image",
+    "image_placeholder": "Upload Image",
     "card_issuer_name_label": "issuer: {issuerName}",
     "card_attributes_label": "{count, plural, =0 {No Attributes} =1 {One Attribute} other {# Attributes}}",
     "result_label": "Results",
@@ -111,7 +113,16 @@
     "step4_title": "Step 4",
     " step3_credential_id_format": "Format: TxID:3:<schema-name>:<definition>",
     "step4_description": "Copy and Enter the IDs in the Import Input Fields",
-    "step4_details": "Enter the Schema ID (and the Credential Definition ID if applicable) into the provided fields."
+    "step4_details": "Enter the Schema ID (and the Credential Definition ID if applicable) into the provided fields.",
+    "identifier_type_label": "Identifier Type",
+    "identifier_label": "Identifier",
+    "schema_id_label": "Schema ID",
+    "revocation_label": "Is this credential revocable?",
+    "revocation_checkbox_label": "Yes",
+    "type_label": "Credential Type",
+    "representations_label": "Representations",
+    "icon_label": "Icon",
+    "timestamps_label": "Timestamps"
   },
   "onboarding": {
     "header_title": "Add Steps",
@@ -163,15 +174,16 @@
     "edit_name_label": "Scenario Name",
     "edit_name_placeholder": "Scenario Name",
     "edit_page_title_label": "Page Title",
-    "edit_page_title_placeholder": "Enter Step Title",
+    "edit_page_title_placeholder": "Enter Scenario Description",
     "edit_page_description_label": "Page Content",
     "edit_page_description_placeholder": "Enter Step Description",
     "edit_image_label": "Image",
     "edit_summary_label": "Summary",
     "proof_attribute_placeholder": "Select attribute",
     "confirm_information_to_send_label": "Confirm the information to send",
-    "basic_label": "Basic",
-    "proof_request_label": "Proof Request"
+    "basic_label":"Basic",
+    "proof_request_label":"Proof Request",
+    "scenario_description" : "Scenario Description"
   },
   "action": {
     "cancel_label": "CANCEL",

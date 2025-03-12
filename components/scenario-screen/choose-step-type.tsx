@@ -10,7 +10,7 @@ import { useTranslations } from "next-intl";
 import StepHeader from "../step-header";
 
 interface StepTypeOption {
-  type: StepType.BASIC | StepType.CONNECT_AND_VERIFY;
+  type: StepType.BASIC | StepType.CONNECT_AND_VERIFY | StepType.HUMAN_TASK
   title: string;
   subtitle: string;
   features: string[];
@@ -25,7 +25,7 @@ export const ChooseStepType = ({
 
   const STEP_TYPES: StepTypeOption[] = [
     {
-      type: StepType.BASIC,
+      type: StepType.HUMAN_TASK,
       title: t("scenario.basic_label"),
       subtitle: "A simple step with title and description",
       features: [

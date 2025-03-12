@@ -16,6 +16,8 @@ interface State {
   selectedStep: number | null
   stepState: OnboardingStepState
   screens: OnboardingStep[]
+  scenarioId: string;
+  issuerId: string;
 }
 
 interface Actions {
@@ -26,6 +28,8 @@ interface Actions {
   removeStep: (index: number) => void
   createStep: (step: OnboardingStep) => void
   updateStep: (index: number, step: OnboardingStep) => void
+  setScenarioId: (id: string) => void;
+  setIssuerId: (id: string) => void;
   reset: () => void
 }
 
@@ -35,8 +39,20 @@ export const useOnboarding = create<State & Actions>()(
   immer((set) => ({
     selectedStep: null,
     stepState: 'no-selection',
+    scenarioId: "",
+    issuerId: "",
     screens: [],
+    
+    setScenarioId: (id) =>
+      set((state)=> {
+        state.scenarioId = id
+      }),
 
+    setIssuerId: (id) =>
+      set((state)=> {
+        state.issuerId = id
+      }),
+  
     setSelectedStep: (index) =>
       set((state) => {
         state.selectedStep = index
@@ -142,9 +158,9 @@ export const useCreateStep = () => {
 
   const onSubmit = (data: OnboardingStepFormData) => {
     const newStep = {
-      screenId: `${Date.now()}`,
+      id: `${Date.now()}`,
       title: data.title,
-      text: data.text,
+      description: data.text,
       image: data.image || '',
       ...(data.type === 'issue' && { credentials: data.credentials || [] }),
     };

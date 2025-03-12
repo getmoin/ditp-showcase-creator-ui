@@ -31,7 +31,7 @@ export const SortableStep = ({
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: myScreen.screenId,
+      id: myScreen.id,
     });
 
   const style = {
@@ -44,6 +44,44 @@ export const SortableStep = ({
     setStepState(myScreen.credentials ? "editing-issue" : "editing-basic");
   };
 
+  // const handleCopyStep = (index: number) => {
+  //   try {
+  //     const { screens, selectedStep } = useOnboarding.getState();
+  
+  //     if (!screens || !screens[index]) return;
+  
+  //     const stepToCopy = screens[index];
+  //     console.log('stepToCopy', stepToCopy);
+  
+  //     // Deep clone the step
+  //     const newStep = JSON.parse(JSON.stringify(stepToCopy));
+      
+  //     // Ensure a unique screenId
+  //     newStep.screenId = `${Date.now()}`;
+  
+  //     useOnboarding.setState(
+  //       produce((state) => {
+  //         state.screens.splice(index + 1, 0, newStep);
+  //         state.selectedStep = index + 1;
+  
+  //         // Update showcaseJSON
+  //         const { selectedCharacter } = useShowcaseStore.getState();
+  //         useShowcaseStore.setState(
+  //           produce((draft) => {
+  //             if (draft.showcaseJSON.personas[selectedCharacter].screens) {
+  //               draft.showcaseJSON.personas[selectedCharacter].screens = JSON.parse(
+  //                 JSON.stringify(state.screens)
+  //               );
+  //             }
+  //           })
+  //         );
+  //       })
+  //     );
+  //   } catch (error) {
+  //     console.log("Error ", error);
+  //   }
+  // };
+  
   const handleCopyStep = (index: number) => {
     try {
       const { screens, selectedStep } = useOnboarding.getState();
@@ -53,7 +91,7 @@ export const SortableStep = ({
       const stepToCopy = screens[index];
 
       const newStep = JSON.parse(JSON.stringify(stepToCopy));
-      newStep.screenId = `${Date.now()}`; // Ensure a unique ID
+      newStep.id = `${Date.now()}`; // Ensure a unique ID
 
       useOnboarding.setState(
         produce((state) => {
@@ -72,7 +110,7 @@ export const SortableStep = ({
       console.log("Error ", error);
     }
   };
-
+console.log('myScreenmyScreen',myScreen);
   return (
     <div
       ref={setNodeRef}
@@ -81,7 +119,7 @@ export const SortableStep = ({
     >
       <div
         className={`cursor-default h-full flex-shrink-0 flex items-center ${
-          myScreen.screenId == "ACCEPT_CREDENTIAL"
+          myScreen.credentials
             ? "bg-light-yellow"
             : "bg-[#898A8A]"
         } px-3 py-5 rounded-l`}
@@ -126,25 +164,27 @@ export const SortableStep = ({
 
           <span className="font-semibold">{myScreen.title}</span>
           <p>
-            {myScreen.text.length > MAX_CHARS ? (
+            {myScreen.description.length > MAX_CHARS ? (
               <>
                 <span className="text-xs">
-                  {myScreen.text.slice(0, MAX_CHARS)}...{" "}
+                  {myScreen.description.slice(0, MAX_CHARS)}...{" "}
                 </span>
                 <span className="text-xs">{t("action.see_more_label")}</span>
               </>
             ) : (
-              myScreen.text
+              myScreen.description
             )}
           </p>
-          {myScreen.screenId == "ACCEPT_CREDENTIAL" && (
+          {myScreen.credentials && (
             <>
-           {!myScreen.credentials && (
-               <div className="bg-yellow-300 p-1 font-bold rounded gap-2 flex items-center justify-center">
+           {myScreen.credentials.length <= 0 ? (
+            <>
+               <div className="bg-[#FFE6AB] p-1 font-bold rounded gap-2 flex flex-row items-center justify-center">
                <TriangleAlert fill={'#FFCB00'} size={22}/>
                Select Credential to Proceed
              </div>
-           )}
+            </>
+           ):(
             <div className="bg-white dark:bg-dark-bg-secondary p-2 flex">
               <Image
                 src={require(`../../public/assets/NavBar/${"Joyce"}.png`)}
@@ -157,11 +197,13 @@ export const SortableStep = ({
                 <div className="font-semibold">Student card</div>
                 <div className="text-sm">Test college</div>
               </div>
-              <div className="ml-24">
+              <div className="align-middle ml-auto">
                 <div className="font-semibold">Attributes</div>
                 <div className="text-sm">3</div>
               </div>
             </div>
+           )}
+            
             </>
           )}
         </div>

@@ -6,8 +6,9 @@ import { useScenarios } from "@/hooks/use-scenarios";
 import { Copy, GripVertical, Monitor, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { produce } from "immer";
 
-const MAX_CHARS = 50;
+const MAX_CHARS = 10;
 
 export const ScenarioStep = ({
   step,
@@ -25,13 +26,15 @@ export const ScenarioStep = ({
     selectedStep,
     setSelectedStep,
     setSelectedScenario,
+    selectedScenario,
     setStepState,
     removeStep,
+    scenarios
   } = useScenarios();
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: step.screenId,
+      id: step.id,
     });
 
   const style = {
@@ -47,11 +50,38 @@ export const ScenarioStep = ({
     );
   };
 
+  const handleCopyStep = (index: number) => {
+    try {
+      const { scenarios } = useScenarios.getState()
+      if (!scenarios[index].steps[index]) return;
+
+      const stepToCopy = scenarios[index].steps[index]
+
+      const newStep = JSON.parse(JSON.stringify(stepToCopy));
+      newStep.id = `${Date.now()}`; // Ensure a unique ID
+
+
+      useScenarios.setState(
+        produce((state) => {
+          state.scenarios[index].steps.splice(index + 1, 0, newStep);
+          state.selectedStep = index + 1;
+        })
+      )
+    } catch (error) {
+      console.log('Error in Copy Step',error)
+    }
+  }
+
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     removeStep(scenarioIndex, stepIndex);
   };
+
+  const currentScenario = selectedScenario !== null ? scenarios[selectedScenario] : null;
+  const currentStep = currentScenario && selectedStep !== null 
+    ? currentScenario.steps[selectedStep] 
+    : null;
 
   return (
     <div
@@ -78,6 +108,7 @@ export const ScenarioStep = ({
           <div
             onClick={(e) => {
               e.stopPropagation(); // Prevent drag interference
+              handleCopyStep(stepIndex)
             }}
             className="text-white text-2xl flex flex-col gap-2 cursor-pointer"
           >
@@ -103,18 +134,18 @@ export const ScenarioStep = ({
         >
           <span className="font-semibold">{step.title}</span>
           <p>
-            {step.text.length > MAX_CHARS ? (
+            {step.description.length > MAX_CHARS ? (
               <>
                 <span className="text-xs">
-                  {step.text.slice(0, MAX_CHARS)}...{" "}
+                  {step.description.slice(0, MAX_CHARS)}...{" "}
                 </span>
                 <span className="text-xs">{t("action.see_more_label")}</span>
               </>
             ) : (
-              step.text
+              step.description
             )}
           </p>
-          {step.screenId == "testClothesOnlineStep1" && (
+          {step.id == "testClothesOnlineStep1" && (
             <div className="bg-white dark:bg-dark-bg-secondary p-2 flex">
               <Image
                 src={require(`../../public/assets/NavBar/${"Joyce"}.png`)}

@@ -45,6 +45,7 @@ import { OnboardingMain } from "../onboarding-screen";
 import NewCharacterPage from "./new-character";
 import ScenarioMain from "../scenario-screen";
 import PublishPage from "@/app/[locale]/publish/page";
+import TabsComponent from "../Tabs-component";
 
 const characters = [
   {
@@ -108,12 +109,12 @@ export default function MyShowcaseMain({ params }: { params: PageParams }) {
     resolver: zodResolver(characterSchema),
     defaultValues: {
       name: "",
-      type: "",
+      role: "",
       description: "",
     },
     values: {
       name: selectedIds.length > 0 ? characters[selectedCharacter].name : "",
-      type: selectedIds.length > 0 ? characters[selectedCharacter].type : "",
+      role: selectedIds.length > 0 ? characters[selectedCharacter].type : "",
       description:
         selectedIds.length > 0 ? characters[selectedCharacter].description : "",
     },
@@ -142,7 +143,7 @@ export default function MyShowcaseMain({ params }: { params: PageParams }) {
   const handleCancel = () => {
     form.reset({
       name: showcaseJSON.personas[selectedCharacter].name,
-      type: showcaseJSON.personas[selectedCharacter].type,
+      role: showcaseJSON.personas[selectedCharacter].type,
       description: showcaseJSON.personas[selectedCharacter].description,
     });
     setEditMode(false);
@@ -191,46 +192,29 @@ useEffect(() => {
         {/* Header Section - Integrated into Left & Right Containers */}
         <div className="flex justify-between items-center px-6 py-2 mt-4">
           {/* Left Header Section */}
-          <div className="flex items-center space-x-4">
-            <span className="text-light-text dark:text-dark-text font-medium text-sm">
-              Showcase1{" "}
-            </span>
-            <Pencil size={16} />
-            <span className="rounded-[5px] bg-gray-500 px-3 py-1 min-w-24 text-center min-h-4 text-sm text-white">
-              {t('showcases.header_tab_draft')}
-            </span>
-          </div>
+           <div className="flex items-center space-x-4">
+               <span className="text-light-text dark:text-dark-text font-medium text-sm">
+                 Showcase1{" "}
+               </span>
+               <Pencil size={16} />
+               <span className="rounded-[5px] bg-gray-500 px-3 py-1 min-w-24 text-center min-h-4 text-sm text-white">
+                 {t('showcases.header_tab_draft')}
+               </span>
+             </div>
 
           {/* Tabs Section */}
           <div className="flex space-x-1 text-lg font-semibold justify-start mr-[305px]">
-            {tabs.map((tab:any) => (
-              <button
-                key={tab}
-                // onClick={() => setActiveTab(tab)}
-                onClick={() => handleTabChange(tab)}
-                className={`py-1 px-2 inline-block w-fit ${
-                  activeTab === tab
-                    ? "border-b-2 border-light-blue dark:border-white dark:text-dark-text text-light-text font-bold cursor-pointer"
-                    : "text-gray-400"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
+           <TabsComponent />
           </div>
-
           <button className="text-gray-500 hover:text-gray-700"></button>
         </div>
 
-        {/* {activeTab === "Character" && <NewCharacterPage />}
-        {activeTab === "Onboarding" && <OnboardingMain />}
-        {activeTab === "Scenario" && <ScenarioMain params={params} />}
-        {activeTab === "Publish" && <CredentialsDisplay />} */}
 
-        {activeTab === t("navigation.character_label") && <NewCharacterPage />}
+        <NewCharacterPage />
+        {/* {activeTab === t("navigation.character_label") && <NewCharacterPage />}
         {activeTab === t("navigation.onboarding_label") && <OnboardingMain />}
         {activeTab === t("navigation.scenario_label") && <ScenarioMain params={params} />}
-        {activeTab === t("navigation.publish_label") && <PublishPage params={params} />}
+        {activeTab === t("navigation.publish_label") && <PublishPage params={params} />} */}
 
       </div>
     </div>

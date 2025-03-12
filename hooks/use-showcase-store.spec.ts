@@ -53,7 +53,7 @@ describe('useShowcaseStore', () => {
       it('should update character details', () => {
         const newDetails = {
           name: 'New Name',
-          type: 'New Type',
+          role: 'New Type',
           description: 'New Description'
         }
 
@@ -62,7 +62,7 @@ describe('useShowcaseStore', () => {
         const character = state.showcaseJSON.personas[state.selectedCharacter]
         
         expect(character.name).toBe(newDetails.name)
-        expect(character.type).toBe(newDetails.type)
+        expect(character.type).toBe(newDetails.role)
         expect(character.description).toBe(newDetails.description)
       })
     })
