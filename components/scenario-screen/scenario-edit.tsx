@@ -219,13 +219,13 @@ export const ScenarioEdit = () => {
               // disabled={!form.formState.isDirty || !form.formState.isValid}
             >
               {t("action.save_label")}
-            </ButtonOutline>
-            {/* <Button
+            </ButtonOutline> 
+            <Button
             type="submit"
             disabled={!form.formState.isDirty || !form.formState.isValid}
           >
             {t('action.save_label')}
-          </Button> */}
+          </Button> 
           </div>
         </form>
       </Form>

@@ -40,6 +40,7 @@ export default function NewCharacterPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [headshotImage, setHeadshotImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFormEdited, setIsFormEdited] = useState(false);
   const [isHeadShotImageEdited, setHeadShotImageEdited] = useState<
     boolean | null
   >(null);
@@ -164,19 +165,16 @@ export default function NewCharacterPage() {
       description: "",
       hidden: false,
     },
-    // values: {
-    //   name: selectedIds.length > 0 ? Persona[selectedCharacter].name : "",
-    //   role: selectedIds.length > 0 ? Persona[selectedCharacter].role : "",
-    //   description:
-    //     selectedIds.length > 0 ? Persona[selectedCharacter].description : "",
-    //   hidden:
-    //     selectedIds.length > 0 ? Persona[selectedCharacter].hidden : false,
-    // },
     mode: "onChange",
     shouldFocusError: true,
   });
 
-
+  useEffect(() => {
+    if (form.formState.isDirty || isHeadShotImageEdited || isbodyImageEdited) {
+      setIsFormEdited(true);
+    }
+  }, [form.formState.isDirty, isHeadShotImageEdited, isbodyImageEdited]);
+  
 
   // console.log('isEdited',isEdited);
   const createAssetAndPersona = async (
@@ -187,8 +185,8 @@ export default function NewCharacterPage() {
     try {
       const isEditing = selectedCharacter !== -1;
       const existingPersona = isEditing ? Persona[selectedCharacter] : null;
-      const personaId = existingPersona?.id;
-
+      const personaId = existingPersona?.slug;
+      console.log('personaID',personaId);
       let headshotAssetId = existingPersona?.headshotImage?.id ?? undefined;
       let bodyAssetId = existingPersona?.bodyImage?.id ?? undefined;
 
@@ -335,17 +333,30 @@ export default function NewCharacterPage() {
   
   const handleFormSubmit = async (data: CharacterFormData) => {
     // Check if the form is edited BEFORE resetting the form
-    const isFormEdited = form.formState.isDirty;
-
+    // const isFormEdited = form.formState.isDirty;
+    console.log('data',data)
+    console.log('is form ',isFormEdited);
     let obj = {
       ...data,
       headshotImage: headshotImage ?? "",
       bodyImage: bodyImage ?? "",
     };
-
+    console.log('bodyimage',bodyImage)
+    console.log('head',headshotImage)
+    console.log('obj',obj);
     if (isFormEdited) {
       console.log("called");
       await createAssetAndPersona(headshotImage ?? "", bodyImage ?? "", obj);
+
+      // form.reset(); 
+      setIsFormEdited(false);
+    }else{
+      // setTimeout(() => {
+      //   router.push({
+      //     pathname: "/onboarding",
+      //     query: { personaIds: selectedIds },
+      //   });
+      // }, 500);
     }
 
     setEditMode(false);
@@ -357,12 +368,7 @@ export default function NewCharacterPage() {
     // form.reset();
 
     // // Redirect after 500ms
-    setTimeout(() => {
-      router.push({
-        pathname: "/onboarding",
-        query: { personaIds: selectedIds },
-      });
-    }, 500);
+
   };
 
   // const handleFormSubmit = async (data: CharacterFormData) => {
@@ -436,6 +442,33 @@ export default function NewCharacterPage() {
     }));
   };
 
+  // useEffect(() => {
+  //   console.log("isDirty changed:", form.formState.isDirty);
+  // }, [form.formState.isDirty]);
+
+  function ensureBase64HasPrefix(base64String:any) {
+    if (!base64String) return ""; // Return empty if it's undefined or null
+  
+    // Check if it already contains the data URI prefix
+    if (base64String.startsWith("data:image/")) {
+      return base64String;
+    }
+  
+    // Detect if it's a valid Base64-encoded image (PNG, JPEG, GIF, etc.)
+    if (base64String.startsWith("iVBORw0KGgoAAAANSUhEU")) {
+      return `data:image/png;base64,${base64String}`;
+    } else if (base64String.startsWith("/9j/")) {
+      return `data:image/jpeg;base64,${base64String}`;
+    } else if (base64String.startsWith("R0lGOD")) {
+      return `data:image/gif;base64,${base64String}`;
+    } else if (base64String.startsWith("UklGR")) {
+      return `data:image/webp;base64,${base64String}`;
+    }
+  
+    // Default fallback (if format is unknown)
+    return `data:image/png;base64,${base64String}`;
+  }
+  
   return (
     <div className="flex bg-light-bg dark:bg-dark-bg dark:text-dark-text text-light-text flex-col h-full w-full bg-gray-100">
       <div className="flex flex-col h-screen">
@@ -501,9 +534,14 @@ export default function NewCharacterPage() {
                     >
                       <Image
                         src={
-                          char.headshotImage?.content ||
-                          "/assets/NavBar/Joyce.png"
+                          char.headshotImage?.content
+                            ? ensureBase64HasPrefix(char.headshotImage.content)
+                            : "/assets/NavBar/Joyce.png"
                         }
+                        // src={
+                        //   char.headshotImage?.content ||
+                        //   "/assets/NavBar/Joyce.png"
+                        // }
                         alt={char.name}
                         width={selectedIds.includes(char.id) ? 100 : 50}
                         height={selectedIds.includes(char.id) ? 100 : 50}
@@ -692,17 +730,25 @@ export default function NewCharacterPage() {
                               <FileUploadFull
                                 text={t("character.headshot_image_label")}
                                 element={"headshot_image"}
+                                // initialValue={
+                                //   selectedIds.includes(
+                                //     Persona[selectedCharacter]?.id
+                                //   )
+                                //     ? Persona[selectedCharacter]?.headshotImage
+                                //         ?.content || ""
+                                //     : ""
+                                // }
                                 initialValue={
                                   selectedIds.includes(
                                     Persona[selectedCharacter]?.id
                                   )
-                                    ? Persona[selectedCharacter]?.headshotImage
-                                        ?.content || ""
+                                    ? ensureBase64HasPrefix(Persona[selectedCharacter]?.headshotImage.content)|| ""
                                     : ""
                                 }
                                 handleJSONUpdate={(imageType, imageData) => {
                                   console.log("Edited");
                                   setHeadshotImage(imageData);
+                                  setIsFormEdited(true);
                                   setHeadShotImageEdited(
                                     imageData === null || imageData === ""
                                       ? false
@@ -719,12 +765,20 @@ export default function NewCharacterPage() {
                                   selectedIds.includes(
                                     Persona[selectedCharacter]?.id
                                   )
-                                    ? Persona[selectedCharacter]?.bodyImage
-                                        ?.content || ""
+                                    ? ensureBase64HasPrefix(Persona[selectedCharacter]?.bodyImage.content)|| ""
                                     : ""
                                 }
+                                // initialValue={
+                                //   selectedIds.includes(
+                                //     Persona[selectedCharacter]?.id
+                                //   )
+                                //     ? Persona[selectedCharacter]?.bodyImage
+                                //         ?.content || ""
+                                //     : ""
+                                // }
                                 handleJSONUpdate={(imageType, imageData) => {
                                   setBodyImage(imageData);
+                                  setIsFormEdited(true);
                                   setbodyImageEdited(
                                     imageData === null || imageData === ""
                                       ? false

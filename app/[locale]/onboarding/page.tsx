@@ -5,7 +5,7 @@ import { PageParams } from "@/types";
 import { Pencil } from "lucide-react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 
-export default async function Onboarding({ params,searchParams }: { params: PageParams,searchParams: { personaIds?: string } }) {
+export default async function Onboarding({ params }: { params: PageParams }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations();
