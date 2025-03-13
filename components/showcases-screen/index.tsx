@@ -161,7 +161,7 @@ export default function MyShowcaseMain({ params }: { params: PageParams }) {
             </span>
           </div>
 
-          <div className="flex space-x-1 text-lg font-semibold justify-start mr-[305px]">
+          <div className="flex space-x-1 text-lg font-semibold justify-start">
             <TabsComponent />
           </div>
           <button className="text-gray-500 hover:text-gray-700"></button>
