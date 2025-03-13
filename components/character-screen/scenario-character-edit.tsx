@@ -12,7 +12,7 @@ import { usePersonas } from "@/hooks/use-personas";
 import { toast } from "sonner";
 import { Link } from "@/i18n/routing";
 
-export default function CreateCharacterList() {
+export default function EditScenarioCharacterPage({ slug }: { slug: string }) {
   const t = useTranslations();
 
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
@@ -126,7 +126,7 @@ export default function CreateCharacterList() {
             <ButtonOutline onClick={() => setSelectedPersonaIds([])}>
               {t("action.clear_selection_label")}
             </ButtonOutline>
-            <Link href={`/showcases/create/onboarding`}>
+            <Link href={`/showcases/${slug}/onboarding`}>
               <ButtonOutline 
                 onClick={handleProceed}
                 className={selectedPersonaIds.length === 0 ? "opacity-50 cursor-not-allowed" : ""}
