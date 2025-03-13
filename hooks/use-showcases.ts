@@ -43,7 +43,7 @@ export const useCreateShowcase = () => {
       const response = await apiClient.post(`/showcases`, data);
       return response;
     },
-    onSettled: (data) => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['showcases'] });
     }
   })
