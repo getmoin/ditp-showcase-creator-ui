@@ -77,6 +77,16 @@ export default function Sidebar() {
 						isActive={pathname.startsWith("/credentials")}
 					/>
 				</Link>
+
+				<Link href="/characters">
+					<SidebarItem
+						// icon={<Wallet size={22}/>}
+						icon="/assets/NavBar/credentials_library.svg"
+						text={t("character_library_label")}
+						expanded={isExpanded}
+						isActive={pathname.startsWith("/characters")}
+					/>
+				</Link>
 			</nav>
 			{isExpanded && (
 				<div className="mx-6">

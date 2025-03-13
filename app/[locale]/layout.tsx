@@ -8,6 +8,7 @@ import { getMessages, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import { Locale, PageParams } from "@/types";
+import { Toaster } from "@/components/ui/sonner"
 
 import "./globals.css";
 import Sidebar from "@/components/sidebar";
@@ -69,6 +70,7 @@ export default async function RootLayout({
                 <div className="flex flex-grow">
                 <Sidebar />
                 <main className="flex-1 overflow-auto">{children}</main>
+                <Toaster />
               </div>
               <Footer />
               </div>

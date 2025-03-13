@@ -271,7 +271,7 @@ export const BasicStepEdit = () => {
       />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-6 h-screen">
+          <div className="space-y-6">
             <FormTextInput
               label={t("onboarding.page_title_label")}
               name="title"

@@ -15,7 +15,6 @@ export const StepTypeEnum = z.enum(['HUMAN_TASK', 'SERVICE', 'SCENARIO']);
 export const AssetSchema: z.ZodType<any> = z.lazy(() => Asset);
 export const StepSchema: z.ZodType<any> = z.lazy(() => Step);
 export const StepActionSchema: z.ZodType<any> = z.lazy(() => StepAction);
-export const PersonaSchema: z.ZodType<any> = z.lazy(() => Persona);
 export const IssuerSchema: z.ZodType<any> = z.lazy(() => Issuer);
 export const RelyingPartySchema: z.ZodType<any> = z.lazy(() => RelyingParty);
 export const CredentialDefinitionSchema: z.ZodType<any> = z.lazy(() => CredentialDefinition);
@@ -139,7 +138,7 @@ export const StepActionResponse = z.object({
 });
 
 // Persona schemas
-export const Persona = z.object({
+export const PersonaSchema = z.object({
   id: z.string(),
   name: z.string(),
   slug: z.string(),
@@ -162,11 +161,11 @@ export const PersonaRequest = z.object({
 });
 
 export const PersonasResponse = z.object({
-  personas: z.array(Persona),
+  personas: z.array(PersonaSchema),
 });
 
 export const PersonaResponse = z.object({
-  persona: Persona,
+  persona: PersonaSchema,
 });
 
 // Credential related schemas
@@ -344,7 +343,7 @@ export const Scenario = z.object({
   description: z.string(),
   type: ScenarioTypeEnum,
   steps: z.array(Step),
-  personas: z.array(Persona),
+  personas: z.array(PersonaSchema),
   hidden: z.boolean().optional(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
@@ -434,3 +433,4 @@ export const ErrorResponse = z.object({
 });
 
 export type Showcase = z.infer<typeof ShowcaseSchema>;
+export type Persona = z.infer<typeof PersonaSchema>;
