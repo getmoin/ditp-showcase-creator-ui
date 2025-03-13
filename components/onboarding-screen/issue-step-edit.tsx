@@ -38,9 +38,13 @@ export function IssueStepEdit() {
   const form = useForm<IssueStepFormData>({
     resolver: zodResolver(issueStepSchema),
     mode: "all",
+    defaultValues: {
+      credentials:['student_card']
+    }
   });
 
   useEffect(() => {
+    console.log('current Step',currentStep);
     if (currentStep) {
       form.reset({
         title: currentStep.title,
@@ -52,43 +56,23 @@ export function IssueStepEdit() {
   }, [currentStep, form.reset]);
 
   useEffect(() => {
-    // listCredentialDefinitions();
+    listCredentialDefinitions();
   },[])
 
-  // const searchCredential = (searchText: string) => {
-  //   setSearchResults([]);
-  
-  //   if (!searchText) return;
-  
-  //   const searchUpper = searchText.toUpperCase();
-  
-  //   // Ensure `credential` is an array before filtering
-  //   if (!Array.isArray(credential)) {
-  //     console.error("Invalid credential data format");
-  //     return;
-  //   }
-  
-  //   const results = credential.filter((cred: any) =>
-  //     cred.name.toUpperCase().includes(searchUpper)
-  //   );
-  
-  //   console.log("Search Results:", results);
-  //   setSearchResults(results);
-  // };
-  
   const searchCredential = (searchText: string) => {
     setSearchResults([]);
     if (!searchText) return;
-
-    const credentials = showcaseJSON.personas[selectedCharacter].credentials;
+  
     const searchUpper = searchText.toUpperCase();
-
-    const results = Object.keys(credentials).filter(
-      (credentialId) =>
-        credentials[credentialId].issuer_name
-          .toUpperCase()
-          .includes(searchUpper) ||
-        credentials[credentialId].name.toUpperCase().includes(searchUpper)
+  
+    // Ensure `credential` is an array before filtering
+    if (!Array.isArray(credential)) {
+      console.error("Invalid credential data format");
+      return;
+    }
+  
+    const results = credential.filter((cred: any) =>
+      cred.name.toUpperCase().includes(searchUpper)
     );
 
     setSearchResults(results);
@@ -96,6 +80,7 @@ export function IssueStepEdit() {
 
   const addCredential = (credentialId: string) => {
     const currentCredentials = form.getValues("credentials") || [];
+    console.log('currentCredentials',currentCredentials);
     if (!currentCredentials.includes(credentialId)) {
       form.setValue("credentials", [...currentCredentials, credentialId], {
         shouldDirty: true,
@@ -183,7 +168,8 @@ export function IssueStepEdit() {
   };
   
 
-  const onSubmit = (data: IssueStepFormData) => {
+  const onSubmit = (data) => {
+    console.log('data',data);
     if (selectedStep === null) return;
 
     const updatedStep = {
@@ -199,7 +185,7 @@ export function IssueStepEdit() {
 
   const listCredentialDefinitions = async () => {
     try {
-      setLoading(true)
+      // setLoading(true)
       const response:any = await apiClient.get("/credentials/definitions");
       console.log("Credential Definitions:", response);
       setCredentials(response?.credentialDefinitions);
@@ -216,7 +202,6 @@ export function IssueStepEdit() {
 
   const deleteStep = async (stepId:any) => {
     try {
-      // issuanceScenarioId
       if (!stepId) {
         console.error("Error: Step ID is required for deletion.");
         return;
@@ -226,12 +211,10 @@ export function IssueStepEdit() {
       removeStep(stepId);
 
       // // Step 1: Send DELETE request to the API
-      await apiClient.delete(`/scenarios/issuances/${'issuanceScenarioId'}/steps/${stepId}`);
+      await apiClient.delete(`/scenarios/issuances/${'credential-issuance-flow'}/steps/${stepId}`);
 
       console.log("Persona deleted successfully!");
       setLoading(false)
-      // // Step 2: Update the persona list after deletion
-      // GetPersona();
     } catch (error) {
       console.error("Error deleting persona:", error);
       setLoading(false)
@@ -318,7 +301,7 @@ export function IssueStepEdit() {
                   shouldValidate: true,
                 })
               }
-              localJSON={localJSON}
+              localJSON={{ image: form.watch("image") || currentStep?.asset?.content || "" }}
             />
           </div>
 
@@ -370,7 +353,7 @@ export function IssueStepEdit() {
           <ButtonOutline onClick={handleCancel}>
             {t("action.cancel_label")}
           </ButtonOutline>
-          <ButtonOutline disabled={!form.formState.isDirty}>
+          <ButtonOutline onClick={handleCancel} disabled={!form.formState.isDirty}>
             {t("action.next_label")}
           </ButtonOutline>
         </div>
