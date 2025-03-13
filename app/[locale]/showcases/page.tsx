@@ -8,9 +8,7 @@ export default async function Showcases({ params }: { params: PageParams }) {
   setRequestLocale(locale);
 
   return (
-    <div
-      className={`flex bg-light-bg  text-light-text dark:bg-dark-bg dark:text-dark-text`}
-    >
+    <div className="flex bg-light-bg  text-light-text dark:bg-dark-bg dark:text-dark-text">
       <ShowcaseList />
     </div>
   );

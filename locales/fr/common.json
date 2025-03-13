@@ -111,7 +111,6 @@
     "step4_details": "Entrez l'identifiant du schéma (et l'identifiant de définition du justificatif si applicable) dans les champs fournis.",
     "identifier_type_label": "Identifier Type",
     "identifier_label": "Identifier",
-    "schema_id_label": "Schema ID",
     "image_label": "Image",
     "image_placeholder": "Telecharger Image",
     "revocation_label": "Est-ce que ce justificatif peut être révoqué?",

@@ -2,43 +2,32 @@
 
 import { useShowcaseStore } from "@/hooks/use-showcase-store";
 import Image from "next/image";
-import {
-  CircleAlert,
-  EyeOff,
-  Monitor,
-} from "lucide-react";
-// import { useRouter } from "next/router";
+import { CircleAlert, EyeOff, Monitor } from "lucide-react";
+
 import { useEffect, useState } from "react";
-import { useRouter } from "@/i18n/routing";
-import { FileUploadFull } from "../../../../components/file-upload";
+import { FileUploadFull } from "../file-upload";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
-import { FormTextInput, FormTextArea } from "../../../../components/text-input";
+import { FormTextInput, FormTextArea } from "../text-input";
 import { characterSchema } from "@/schemas/character";
 import { useTranslations } from "next-intl";
-import StepHeader from "../../../../components/step-header";
-import ButtonOutline from "../../../../components/ui/button-outline";
-import DeleteModal from "../../../../components/delete-modal";
+import StepHeader from "../step-header";
+import ButtonOutline from "../ui/button-outline";
+import DeleteModal from "../delete-modal";
 import apiClient from "@/lib/apiService";
 import { ensureBase64HasPrefix } from "@/lib/utils";
+import { usePersonas } from "@/hooks/use-personas";
 
 type CharacterFormData = z.infer<typeof characterSchema>;
 
 export default function NewCharacterPage() {
-
   const t = useTranslations();
-  const router = useRouter();
-
   const [selectedIds, setSelectedIds] = useState<any[]>([]);
-  const [hiddenIds, setHiddenIds] = useState<number[]>([]);
-  const [isHidden, setIsHidden] = useState(false);
-  const [activeTab, setActiveTab] = useState("Character");
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [headshotImage, setHeadshotImage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isFormEdited, setIsFormEdited] = useState(false);
   const [isHeadShotImageEdited, setHeadShotImageEdited] = useState<
     boolean | null
@@ -53,108 +42,17 @@ export default function NewCharacterPage() {
     [key: string]: boolean;
   }>({});
 
-  let Showcases = {
-    showcase: {
-      id: "123e4567-e89b-12d3-a456-426614174456",
-      name: "Credential Showcase BCGov",
-      description: "Collection of credential usage scenarios",
-      status: "PENDING",
-      hidden: false,
-      scenarios: [
-        {
-          id: "789e4567-e89b-12d3-a456-434314174123",
-          name: "Credential Issuance",
-          description: "This scenario issues credentials to users",
-          type: "ISSUANCE",
-          steps: [
-            {
-              id: "123e4567-e89b-12d3-a456-434314174000",
-              title: "Verify Identity",
-              description: "Verify the user's identity",
-              order: 1,
-              type: "HUMAN_TASK",
-              subScenario: "123e4567-e89b-12d3-a456-434314174000",
-              actions: [
-                {
-                  id: "123e4567-ef2d-12d3-abcd-426614174456",
-                  title: "Connect Wallet",
-                  text: "Connect your wallet to continue",
-                },
-              ],
-              asset: {
-                id: "123e4567-e89b-12d3-a456-426614174469",
-                mediaType: "image/jpeg",
-                content: "base64 encoded binary data",
-                fileName: "asset.jpg",
-                description: "A beautiful image of a cat",
-              },
-            },
-          ],
-          personas: [
-            {
-              id: "123e4567-e89b-12d3-a456-426614174456",
-              name: "John Doe",
-              role: "Verifier",
-              description: "John Doe is a verifier for the system",
-              headshotImage: {
-                id: "123e4567-e89b-12d3-a456-426614174469",
-                mediaType: "image/jpeg",
-                content: "base64 encoded binary data",
-                fileName: "asset.jpg",
-                description: "A beautiful image of a cat",
-              },
-              bodyImage: {
-                id: "123e4567-e89b-12d3-a456-426614174469",
-                mediaType: "image/jpeg",
-                content: "base64 encoded binary data",
-                fileName: "asset.jpg",
-                description: "A beautiful image of a cat",
-              },
-            },
-          ],
-        },
-      ],
-      credentialDefinitions: [
-        {
-          id: "123e4567-e89b-12d3-a456-426614174123",
-          name: "Credential Definition Name",
-          issuerId: "123e4567-e89b-12d3-a456-426614174123",
-          schemaId: "123e4567-e89b-12d3-a456-426614174123",
-          identifierType: "DID",
-          identifier: "did:sov:XUeUZauFLeBNofY3NhaZCB",
-          version: "1.0",
-          type: "ANONCRED",
-          representations: [
-            {
-              id: "123e4567-e89b-12d3-abcd-426614174456",
-            },
-            {
-              id: "123e4567-e89b-12d3-abcd-426614174456",
-              credDefId: "123e4567-e89b-12d3-a456-426614174123",
-              schemaId: "123e4567-e89b-12d3-a456-426614174123",
-              ocaBundleUrl: "https://example.com/ocaBundle.json",
-            },
-          ],
-          revocation: {
-            id: "abcd4567-e89b-12d3-a456-426614174123",
-            title: "Revocation Information",
-            description: "This credential is revocable",
-          },
-          icon: {
-            id: "123e4567-e89b-12d3-a456-426614174469",
-            mediaType: "image/jpeg",
-            content: "base64 encoded binary data",
-            fileName: "asset.jpg",
-            description: "A beautiful image of a cat",
-          },
-        },
-      ],
-      personas: {},
-    },
-  };
+  const {
+    setEditMode,
+    editMode,
+    personaState,
+    setStepState,
+    setPersonaIds,
+    addPersonaId,
+    showcaseId,
+  } = useShowcaseStore();
 
-  const { showcaseJSON, setEditMode, editMode, personaState, setStepState, setPersonaIds, addPersonaId, showcaseId } =
-    useShowcaseStore();
+  const { data, isLoading, error } = usePersonas();
 
   const form = useForm<CharacterFormData>({
     resolver: zodResolver(characterSchema),
@@ -173,7 +71,7 @@ export default function NewCharacterPage() {
       setIsFormEdited(true);
     }
   }, [form.formState.isDirty, isHeadShotImageEdited, isbodyImageEdited]);
-  
+
   const createAssetAndPersona = async (
     headshotBase64: string | null | undefined,
     bodyBase64: string | null | undefined,
@@ -197,7 +95,10 @@ export default function NewCharacterPage() {
           fileName: "Headshot.jpg",
           description: "A beautiful headshot image",
         };
-        const headshotResponse: any = await apiClient.post<{ id: string }>("/assets", headshotPayload);
+        const headshotResponse: any = await apiClient.post<{ id: string }>(
+          "/assets",
+          headshotPayload
+        );
         headshotAssetId = headshotResponse.asset.id;
       } else if (isHeadshotRemoved) {
         headshotAssetId = null;
@@ -210,7 +111,10 @@ export default function NewCharacterPage() {
           fileName: "Body.jpg",
           description: "A full-body image",
         };
-        const bodyResponse: any = await apiClient.post<{ id: string }>("/assets", bodyPayload);
+        const bodyResponse: any = await apiClient.post<{ id: string }>(
+          "/assets",
+          bodyPayload
+        );
         bodyAssetId = bodyResponse.asset.id;
       } else if (isBodyRemoved) {
         bodyAssetId = null;
@@ -220,23 +124,27 @@ export default function NewCharacterPage() {
         name: persona.name,
         role: persona.role,
         description: persona.description,
-        hidden:persona.hidden,
-        headshotImage: isHeadShotImageEdited === null ? headshotAssetId : headshotAssetId,
+        hidden: persona.hidden,
+        headshotImage:
+          isHeadShotImageEdited === null ? headshotAssetId : headshotAssetId,
         bodyImage: isbodyImageEdited === null ? bodyAssetId : bodyAssetId,
       };
 
-      let personaResponse:any;
+      let personaResponse: any;
       if (isEditing && personaId) {
-        personaResponse = await apiClient.put(`/personas/${personaId}`, personaData);
+        personaResponse = await apiClient.put(
+          `/personas/${personaId}`,
+          personaData
+        );
         console.log("Persona Updated:", personaResponse);
       } else {
         personaResponse = await apiClient.post("/personas", personaData);
         console.log("Persona Created:", personaResponse);
-        setSelectedIds((prevIds) => [...prevIds, personaResponse?.personas?.id].filter(Boolean));
+        setSelectedIds((prevIds) =>
+          [...prevIds, personaResponse?.personas?.id].filter(Boolean)
+        );
         addPersonaId(personaResponse?.personas?.id);
       }
-
-      GetPersona();
 
       // createShowcase("Credential Showcase BCGov", "Collection of credential usage scenarios", selectedIds);
       // setTimeout(() => {
@@ -264,7 +172,6 @@ export default function NewCharacterPage() {
       await apiClient.delete(`/personas/${personaId}`);
       console.log("Persona deleted successfully!");
       // Step 2: Update the persona list after deletion
-      GetPersona();
     } catch (error) {
       console.error("Error deleting persona:", error);
     }
@@ -284,66 +191,55 @@ export default function NewCharacterPage() {
         bannerImage: "008a241c-a0c2-4897-ba59-519cd134c238",
         completionMessage: "You have successfully completed the showcase",
       };
-  
-      const response:any = await apiClient.put(`/showcases/${showcaseId}`, showcaseData);
+
+      const response: any = await apiClient.put(
+        `/showcases/${showcaseId}`,
+        showcaseData
+      );
       console.log("Showcase Updated:", response);
-      let Id = response?.showcase?.id
+      let Id = response?.showcase?.id;
       // setShowcaseId(Id);
       return response;
     } catch (error) {
       console.error("Error updating showcase:", error);
       throw error;
     }
-  };  
-
-  const GetPersona = async () => {
-    try {
-      const data: any = await apiClient.get<any[]>("/personas");
-      setPersona(data.personas);
-      setLoading(false)
-    } catch (err) {
-      console.log("Error :", err);
-      setLoading(false)
-    }
   };
 
   useEffect(() => {
-    GetPersona();
-  }, []);
-
-  
-  useEffect(() => {
     if (selectedCharacter !== null && Persona.length > 0) {
       const selectedPersona = Persona[selectedCharacter];
-  
+
       form.setValue("name", selectedPersona?.name || "");
       form.setValue("role", selectedPersona?.role || "");
       form.setValue("description", selectedPersona?.description || "");
-      form.setValue("hidden", selectedIds.length > 0 ? selectedPersona.hidden : false);
-  
+      form.setValue(
+        "hidden",
+        selectedIds.length > 0 ? selectedPersona.hidden : false
+      );
     }
   }, [selectedCharacter, Persona]);
-  
+
   const handleFormSubmit = async (data: CharacterFormData) => {
     // Check if the form is edited BEFORE resetting the form
     // const isFormEdited = form.formState.isDirty;
-    console.log('data',data)
-    console.log('is form ',isFormEdited);
+    console.log("data", data);
+    console.log("is form ", isFormEdited);
     let obj = {
       ...data,
       headshotImage: headshotImage ?? "",
       bodyImage: bodyImage ?? "",
     };
-    console.log('bodyimage',bodyImage)
-    console.log('head',headshotImage)
-    console.log('obj',obj);
+    console.log("bodyimage", bodyImage);
+    console.log("head", headshotImage);
+    console.log("obj", obj);
     if (isFormEdited) {
       console.log("called");
       await createAssetAndPersona(headshotImage ?? "", bodyImage ?? "", obj);
 
-      // form.reset(); 
+      // form.reset();
       setIsFormEdited(false);
-    }else{
+    } else {
       // setTimeout(() => {
       //   router.push({
       //     pathname: "/onboarding",
@@ -361,7 +257,6 @@ export default function NewCharacterPage() {
     // form.reset();
 
     // // Redirect after 500ms
-
   };
 
   // const handleFormSubmit = async (data: CharacterFormData) => {
@@ -411,7 +306,7 @@ export default function NewCharacterPage() {
         selectedCharacter === Persona.findIndex((c: any) => c.id === id)
       ) {
         setSelectedCharacter(0); // Reset to default (first character)
-        setStepState('no-selection');
+        setStepState("no-selection");
       } else {
         // Find the index of the selected character in Persona
         const selectedIndex = Persona.findIndex((c: any) => c.id === id);
@@ -439,10 +334,8 @@ export default function NewCharacterPage() {
   //   console.log("isDirty changed:", form.formState.isDirty);
   // }, [form.formState.isDirty]);
 
-
-  
   return (
-    <div className="flex bg-light-bg dark:bg-dark-bg dark:text-dark-text text-light-text flex-col h-full w-full bg-gray-100">
+    <div className="flex bg-light-bg dark:bg-dark-bg dark:text-dark-text text-light-text flex-col h-full w-full">
       <div className="flex flex-col h-screen">
         <div className="flex gap-4 p-4 h-full">
           {/* Left Section - Character Selection with Header */}
@@ -456,103 +349,105 @@ export default function NewCharacterPage() {
               </p>
             </div>
 
-            {loading ? (
+            {isLoading ? (
               <>
-              {/* <Loader text="Fetching persona" /> */}
-              <div className="flex flex-col items-center">
-              <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                Loading characters
-              </div>
+                {/* <Loader text="Fetching persona" /> */}
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                  Loading characters
+                </div>
               </>
             ) : (
               <div className="flex-grow overflow-y-auto">
-              {Persona &&
-                Persona.map((char: any, index: number) => (
-                  <div
-                    key={char.id}
-                    className={`hover:bg-light-bg dark:hover:bg-dark-input-hover relative p-4 border-t border-b border-light-border-secondary dark:border-dark-border flex ${
-                      selectedIds.includes(char.id)
-                        ? "flex-col items-center bg-gray-100 dark:bg-dark-bg border border-light-border-secondary"
-                        : "flex-row items-center bg-white dark:bg-dark-bg-secondary"
-                    }`}
-                    onClick={() => {
-                      toggleSelect(char.id);
-                      setStepState('editing-persona')
-                    }}
-                  >
-                    {selectedIds.includes(char.id) && (
-                      <>
-                        <div className="absolute left-0 top-4 bg-light-yellow text-light-text dark:text-dark-text px-4 py-2 text-sm font-medium rounded-tr-lg rounded-br-lg">
-                          {t("character.selected_label")}
-                        </div>
-                        {char.hidden && (
-                          <div className="flex gap-2 items-center absolute top-4 left-24 bg-[#D9D9D9] text-light-text dark:text-dark-text px-4 py-2 text-sm font-medium rounded">
-                            <EyeOff size={22} />
-                            {t("character.hidden_label")}
+                {data?.personas &&
+                  data?.personas?.map((char: any) => (
+                    <div
+                      key={char.id}
+                      className={`hover:bg-light-bg dark:hover:bg-dark-input-hover relative p-4 border-t border-b border-light-border-secondary dark:border-dark-border flex ${
+                        selectedIds.includes(char.id)
+                          ? "flex-col items-center bg-gray-100 dark:bg-dark-bg border border-light-border-secondary"
+                          : "flex-row items-center bg-white dark:bg-dark-bg-secondary"
+                      }`}
+                      onClick={() => {
+                        toggleSelect(char.id);
+                        setStepState("editing-persona");
+                      }}
+                    >
+                      {selectedIds.includes(char.id) && (
+                        <>
+                          <div className="absolute left-0 top-4 bg-light-yellow text-light-text dark:text-dark-text px-4 py-2 text-sm font-medium rounded-tr-lg rounded-br-lg">
+                            {t("character.selected_label")}
                           </div>
-                        )}
-                      </>
-                    )}
+                          {char.hidden && (
+                            <div className="flex gap-2 items-center absolute top-4 left-24 bg-[#D9D9D9] text-light-text dark:text-dark-text px-4 py-2 text-sm font-medium rounded">
+                              <EyeOff size={22} />
+                              {t("character.hidden_label")}
+                            </div>
+                          )}
+                        </>
+                      )}
 
-                    {/* {hiddenIds.includes(char.id) && (
+                      {/* {hiddenIds.includes(char.id) && (
                     <div className="absolute top-20 left-0 bg-red-200 text-red-800 px-4 py-2 text-sm font-medium rounded-tr-lg rounded-br-lg">
                       {t("character.hidden_label")}
                     </div>
                   )} */}
-                    <div
-                      className={`shrink-0 ${
-                        selectedIds.includes(char.id) ? "mb-4 mt-12" : "mr-4"
-                      }`}
-                    >
-                      <Image
-                        src={
-                          char.headshotImage?.content
-                            ? ensureBase64HasPrefix(char.headshotImage.content)
-                            : "/assets/NavBar/Joyce.png"
-                        }
-                        // src={
-                        //   char.headshotImage?.content ||
-                        //   "/assets/NavBar/Joyce.png"
-                        // }
-                        alt={char.name}
-                        width={selectedIds.includes(char.id) ? 100 : 50}
-                        height={selectedIds.includes(char.id) ? 100 : 50}
-                        className="rounded-full aspect-square object-cover"
-                      />
-                    </div>
-
-                    <div
-                      className={`${
-                        selectedIds.includes(char.id) ? "text-center" : "flex-1"
-                      }`}
-                    >
-                      <h3 className="text-lg font-semibold">{char.name}</h3>
-                      <p className="text-sm text-gray-600">{char.role}</p>
-                      {selectedIds.includes(char.id) && (
-                        <p className="text-xs text-gray-500 mt-2">
-                          {char.description}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <ButtonOutline
-                        onClick={() => {
-                          // Find the correct index of the clicked character
-                          const selectedIndex = Persona.findIndex(
-                            (c: any) => c.id === char.id
-                          );
-                          setStepState('editing-persona')
-                          setSelectedCharacter(selectedIndex);
-                        }}
-                        className={`${
-                          selectedIds.includes(char.id) ? "mt-4" : "mt-0"
+                      <div
+                        className={`shrink-0 ${
+                          selectedIds.includes(char.id) ? "mb-4 mt-12" : "mr-4"
                         }`}
                       >
-                        {t("action.edit_label")}
-                      </ButtonOutline>
+                        <Image
+                          src={
+                            char.headshotImage?.content
+                              ? ensureBase64HasPrefix(
+                                  char.headshotImage.content
+                                )
+                              : "/assets/NavBar/Joyce.png"
+                          }
+                          alt={char.name}
+                          width={selectedIds.includes(char.id) ? 100 : 50}
+                          height={selectedIds.includes(char.id) ? 100 : 50}
+                          className="rounded-full aspect-square object-cover"
+                        />
+                      </div>
+
+                      <div
+                        className={`${
+                          selectedIds.includes(char.id)
+                            ? "text-center"
+                            : "flex-1"
+                        }`}
+                      >
+                        <h3 className="text-lg font-semibold">{char.name}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {char.role}
+                        </p>
+                        {selectedIds.includes(char.id) && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                            {char.description}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <ButtonOutline
+                          onClick={() => {
+                            // Find the correct index of the clicked character
+                            const selectedIndex = Persona.findIndex(
+                              (c: any) => c.id === char.id
+                            );
+                            setStepState("editing-persona");
+                            setSelectedCharacter(selectedIndex);
+                          }}
+                          className={`${
+                            selectedIds.includes(char.id) ? "mt-4" : "mt-0"
+                          }`}
+                        >
+                          {t("action.edit_label")}
+                        </ButtonOutline>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
             {/* Create New Character Button (Stuck to Bottom) */}
@@ -560,7 +455,7 @@ export default function NewCharacterPage() {
               <ButtonOutline
                 className="w-full"
                 onClick={() => {
-                  setStepState('creating-new');
+                  setStepState("creating-new");
                   form.reset();
                   // setEditMode(true);
                   setSelectedCharacter(-1);
@@ -649,18 +544,28 @@ export default function NewCharacterPage() {
                             <button
                               type="button"
                               onClick={() => {
-                                if (selectedCharacter === null || selectedCharacter >= Persona.length) return;
-                            
+                                if (
+                                  selectedCharacter === null ||
+                                  selectedCharacter >= Persona.length
+                                )
+                                  return;
+
                                 const personaId = Persona[selectedCharacter].id;
-                                const newHiddenValue = !form.getValues("hidden");
-                                form.setValue("hidden", newHiddenValue, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
-                                setPersona((prev:any) =>
-                                  prev.map((char:any) =>
-                                    char.id === personaId ? { ...char, hidden: newHiddenValue } : char
+                                const newHiddenValue =
+                                  !form.getValues("hidden");
+                                form.setValue("hidden", newHiddenValue, {
+                                  shouldDirty: true,
+                                  shouldTouch: true,
+                                  shouldValidate: true,
+                                });
+                                setPersona((prev: any) =>
+                                  prev.map((char: any) =>
+                                    char.id === personaId
+                                      ? { ...char, hidden: newHiddenValue }
+                                      : char
                                   )
                                 );
                               }}
-                                    
                               className={`mt-1 relative min-w-10 h-6 flex items-center ${
                                 form.watch("hidden")
                                   ? "bg-[#008BE6] dark:bg-gray-600"
@@ -669,15 +574,17 @@ export default function NewCharacterPage() {
                             >
                               <div
                                 className={`w-5 h-5 bg-white dark:bg-gray-900 rounded-full shadow-md transition-all transform ${
-                                  form.watch("hidden") ? "translate-x-5" : "translate-x-0"
+                                  form.watch("hidden")
+                                    ? "translate-x-5"
+                                    : "translate-x-0"
                                 }`}
                               />
                             </button>
                             <div className="flex flex-col ml-4">
-                              <span className="text-gray-700 font-semibold text-base">
+                              <span className="text-gray-700 dark:text-white font-semibold text-base">
                                 {t("character.hide_character")}
                               </span>
-                              <p className="text-sm text-gray-500 mt-1">
+                              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 {t("character.hide_character_placeholder")}
                               </p>
                             </div>
@@ -714,7 +621,10 @@ export default function NewCharacterPage() {
                                   selectedIds.includes(
                                     Persona[selectedCharacter]?.id
                                   )
-                                    ? ensureBase64HasPrefix(Persona[selectedCharacter]?.headshotImage.content)|| ""
+                                    ? ensureBase64HasPrefix(
+                                        Persona[selectedCharacter]
+                                          ?.headshotImage.content
+                                      ) || ""
                                     : ""
                                 }
                                 handleJSONUpdate={(imageType, imageData) => {
@@ -737,7 +647,10 @@ export default function NewCharacterPage() {
                                   selectedIds.includes(
                                     Persona[selectedCharacter]?.id
                                   )
-                                    ? ensureBase64HasPrefix(Persona[selectedCharacter]?.bodyImage.content)|| ""
+                                    ? ensureBase64HasPrefix(
+                                        Persona[selectedCharacter]?.bodyImage
+                                          .content
+                                      ) || ""
                                     : ""
                                 }
                                 // initialValue={
@@ -765,8 +678,8 @@ export default function NewCharacterPage() {
                         <div className="mt-auto pt-4 border-t flex justify-end gap-3">
                           <ButtonOutline
                             onClick={() => {
-                              setStepState('no-selection');
-                              handleCancel()
+                              setStepState("no-selection");
+                              handleCancel();
                             }}
                           >
                             {t("action.cancel_label")}
@@ -774,7 +687,7 @@ export default function NewCharacterPage() {
                           {/* <Link href="/onboarding"> */}
                           <ButtonOutline
                             type="submit"
-                          // disabled={!isEdited}
+                            // disabled={!isEdited}
                           >
                             {t("action.next_label")}
                           </ButtonOutline>
@@ -786,7 +699,9 @@ export default function NewCharacterPage() {
                 </div>
               </>
             ) : (
-              <div className="self-center justify-center mt-[23%]">No Persona Selected</div>
+              <div className="self-center justify-center mt-[23%]">
+                No Persona Selected
+              </div>
             )}
           </div>
         </div>

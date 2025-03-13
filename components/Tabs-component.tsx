@@ -26,7 +26,7 @@ export default function TabsComponent() {
             className={`py-1 px-2 inline-block w-fit ${
               tab.path === pathname
                 ? "border-b-2 border-light-blue dark:border-white dark:text-dark-text text-light-text font-bold cursor-pointer"
-                : "text-gray-400"
+                : "text-gray-400 dark:text-gray-200"
             }`}
           >
             {tab.label}
