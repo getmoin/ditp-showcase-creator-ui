@@ -13,8 +13,6 @@ interface DisplaySearchResultsProps {
 }
 
 export const DisplaySearchResults = ({
-  selectedCharacter,
-  showcaseJSON,
   searchResults,
   addCredential,
 }: DisplaySearchResultsProps) => {
@@ -31,15 +29,11 @@ export const DisplaySearchResults = ({
         </Label>
       )}
       {visibleResults.map((result:any) => {
-        console.log('result vis',result);
-        const credential = result
-          // showcaseJSON.personas[selectedCharacter].credentials[result];
 
-        if (!credential) return null;
-
+        if (!result) return null;
         return (
           <button
-            key={result}
+            key={result.id}
             className="basic-step dropdown-border w-full flex flex-row text-sm mb-2 mt-2 rounded border-t-[1px] border-b-[1px] border-gray-100"
             onClick={(e) => {
               e.preventDefault();
@@ -51,24 +45,24 @@ export const DisplaySearchResults = ({
               {/* Left Section - Image and User Info */}
               <div className="flex items-center flex-1">
                 <Image
-                  src={ensureBase64HasPrefix(credential.icon?.content)}
-                  alt={"Bob"}
+                  src={ensureBase64HasPrefix(result.icon?.content)}
+                  alt={result.name}
                   width={50}
                   height={50}
                   className="rounded-full"
                 />
                 <div className="space-y-1 ml-4 text-start">
-                  <p className="font-semibold">{credential.name}</p>
+                  <p className="font-semibold">{result.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    {credential.issuer_name ?? 'Test college'}
+                    {result.issuer_name ?? 'Test college'}
                   </p>
                 </div>
               </div>
 
               {/* Center Section - Attributes */}
               <div className="flex ml-28 flex-col justify-center items-start text-start">
-                <p className="font-semibold">Attributes</p>
-                <p>{credential.credentialSchema.attributes.length}</p>
+                <p className="font-semibold">{t('credentials.attributes_label')}</p>
+                <p>{result.credentialSchema.attributes.length}</p>
               </div>
             </div>
           </button>

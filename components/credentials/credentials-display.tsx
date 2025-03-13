@@ -174,7 +174,7 @@ export const CredentialsDisplay = () => {
 
 								<div>
 									<p className="text-xs text-black dark:text-gray-200 font-bold">
-										Attributes
+										{t('credentials.attributes_label')}
 									</p>
 									<p className="text-xs text-gray-500 dark:text-gray-400">
 										{item.credentialSchema && Array.isArray(item.credentialSchema.attributes)

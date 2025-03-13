@@ -21,6 +21,8 @@ import DeleteModal from "../delete-modal";
 import apiClient from "@/lib/apiService";
 import { ErrorModal } from "../error-modal";
 import Loader from "../loader";
+import { toast } from "sonner";
+import { IssuanceScenario } from "@/openapi-types";
 
 export function IssueStepEdit() {
   const t = useTranslations();
@@ -44,7 +46,6 @@ export function IssueStepEdit() {
   });
 
   useEffect(() => {
-    console.log('current Step',currentStep);
     if (currentStep) {
       form.reset({
         title: currentStep.title,
@@ -80,7 +81,6 @@ export function IssueStepEdit() {
 
   const addCredential = (credentialId: string) => {
     const currentCredentials = form.getValues("credentials") || [];
-    console.log('currentCredentials',currentCredentials);
     if (!currentCredentials.includes(credentialId)) {
       form.setValue("credentials", [...currentCredentials, credentialId], {
         shouldDirty: true,
@@ -168,8 +168,7 @@ export function IssueStepEdit() {
   };
   
 
-  const onSubmit = (data) => {
-    console.log('data',data);
+  const onSubmit = (data: typeof IssuanceScenario._type) => {
     if (selectedStep === null) return;
 
     const updatedStep = {
@@ -185,15 +184,12 @@ export function IssueStepEdit() {
 
   const listCredentialDefinitions = async () => {
     try {
-      // setLoading(true)
       const response:any = await apiClient.get("/credentials/definitions");
-      console.log("Credential Definitions:", response);
       setCredentials(response?.credentialDefinitions);
-      setLoading(false)
+      
       return response; // Return the list of credential definitions
     } catch (error) {
-      console.error("Error fetching credential definitions:", error);
-      setLoading(false)
+      toast.error("Error fetching credential definitions");
       setErrorModal(true);
       throw error;
     }
@@ -203,20 +199,16 @@ export function IssueStepEdit() {
   const deleteStep = async (stepId:any) => {
     try {
       if (!stepId) {
-        console.error("Error: Step ID is required for deletion.");
+        toast.error("Error: Step ID is required for deletion.");
         return;
       }
-
-      console.log("Deleting persona with ID:", stepId);
       removeStep(stepId);
-
-      // // Step 1: Send DELETE request to the API
       await apiClient.delete(`/scenarios/issuances/${'credential-issuance-flow'}/steps/${stepId}`);
 
-      console.log("Persona deleted successfully!");
-      setLoading(false)
+      toast.success("Persona deleted successfully!");
+
     } catch (error) {
-      console.error("Error deleting persona:", error);
+      toast.error("Error deleting persona");
       setLoading(false)
       setErrorModal(true);
     }

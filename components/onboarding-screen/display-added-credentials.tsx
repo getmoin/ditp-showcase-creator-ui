@@ -11,6 +11,7 @@ import { Input } from "../ui/input";
 import ButtonOutline from "../ui/button-outline";
 import apiClient from "@/lib/apiService";
 import { useCredentials } from "@/hooks/use-credentials";
+import { toast } from "sonner";
 
 interface DisplayAddedCredentialsProps {
   selectedCharacter: number;
@@ -28,10 +29,8 @@ export const DisplayAddedCredentials = ({
   removeCredential,
 }: DisplayAddedCredentialsProps) => {
   const t = useTranslations();
-  const { selectedStep, stepState, screens, setStepState } = useOnboarding();
   const credentials = localJSON.credentials || [];
   const [localAttributes, setLocalAttributes] = useState<{ [key: string]: any[] }>({});
-  const {setSelectedCredential}  = useCredentials()
 
   const handleAttributeChange = (credentialId: string, attrIndex: number, newValue: string) => {
     setLocalAttributes((prev) => ({
@@ -66,29 +65,24 @@ export const DisplayAddedCredentials = ({
 
     const updateCredentialSchema = async (credentialData: any) => {
       try {
-        let CredentialSchemaId = credentialData?.credentialSchema?.id
-        // setCredentialSchemaId(CredentialSchemaId)
+        const { credentialSchema: { id: credentialSchemaId } } = credentialData
         const cleanedAttributes = Object.values(localAttributes).flatMap((attributes) =>
           attributes.map(({ id, createdAt, updatedAt, ...rest }) => rest)
         );
 
-        let payload = {
+        const payload = {
           "name": credentialData?.name,
           "version": credentialData?.version,
           "identifierType": credentialData?.identifierType,
           "identifier": credentialData?.identifier,
           "attributes": cleanedAttributes
         }
-        console.log('Payload',payload);
-        const response: any = await apiClient.put(`/credentials/schemas/${CredentialSchemaId}`, payload);
-        console.log("Updated Credential Schema:", response);
-        // setLoading(false);
+
+        const response: any = await apiClient.put(`/credentials/schemas/${credentialSchemaId}`, payload);
         setIsEditing(false);
         return response;
       } catch (error) {
-        console.error("Error updating credential schema:", error);
-        // setLoading(false);
-        // setErrorModal(true);
+        toast.error("Error updating credential schema");
         throw error;
       }
     };
@@ -100,13 +94,11 @@ export const DisplayAddedCredentials = ({
       </p>
 
       {credentials.map((credential: any, index: number) => {
-        const credentialData:any = credential
-          // showcaseJSON.personas[selectedCharacter].credentials[credential];
 
-        if (!credentialData) return null;
+        if (!credential) return null;
 
         return (
-          <div key={credential} className="flex flex-col pt-2">
+          <div key={credential.id} className="flex flex-col pt-2">
             <div className="w-full border border-dark-border dark:border-light-border rounded-t-lg">
               {/* Credential Header */}
               <div
@@ -118,24 +110,24 @@ export const DisplayAddedCredentials = ({
                 {/* Left Section - Image and User Info */}
                 <div className="flex items-center flex-1">
                   <Image
-                    src={ensureBase64HasPrefix(credentialData.icon?.content)}
+                    src={ensureBase64HasPrefix(credential.icon?.content)}
                     alt={"Bob"}
                     width={50}
                     height={50}
                     className="rounded-full"
                   />
                   <div className="space-y-1 ml-4">
-                    <p className="font-semibold">{credentialData.name}</p>
+                    <p className="font-semibold">{credential.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {credentialData?.issuer_name ?? 'Test college'}
+                      {credential?.issuer_name ?? 'Test college'}
                     </p>
                   </div>
                 </div>
 
                 {/* Center Section - Attributes */}
                 <div className=" flex flex-col justify-center items-start">
-                  <p className="font-semibold">Attributes</p>
-                  <p className="">{credentialData?.credentialSchema?.attributes?.length}</p>
+                  <p className="font-semibold">{t('credentials.attributes_label')}</p>
+                  <p className="">{credential?.credentialSchema?.attributes?.length}</p>
                 </div>
 
                 {/* Right Section - Delete Button */}
@@ -201,7 +193,7 @@ export const DisplayAddedCredentials = ({
                   <ButtonOutline
                      onClick={() =>
                       updateCredentialSchema({
-                        ...credentialData,
+                        ...credential,
                         attributes: localAttributes[credential.id]?.map(({ id, ...rest }) => rest) || [],
                       })
                     }
