@@ -26,7 +26,7 @@ export default async function Scenario({ params }: { params: PageParams }) {
           </div>
           {/* Tabs Section */}
           <div className="flex space-x-1 text-lg font-semibold justify-start">
-            <TabsComponent />
+          <TabsComponent slug="example-name" />
           </div>
           <button className="text-gray-500 hover:text-gray-700"></button>
         </div>

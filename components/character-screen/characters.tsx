@@ -18,7 +18,6 @@ import ButtonOutline from "@/components/ui/button-outline";
 import apiClient from "@/lib/apiService";
 import { ensureBase64HasPrefix } from "@/lib/utils";
 import { usePersonas, useDeletePersona } from "@/hooks/use-personas";
-import TabsComponent from "../Tabs-component";
 
 type CharacterFormData = z.infer<typeof characterSchema>;
 
@@ -37,7 +36,9 @@ export default function NewCharacterPage() {
     null
   );
   const [Persona, setPersona] = useState<any>([]);
-  const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null);
+  const [selectedCharacter, setSelectedCharacter] = useState<string | null>(
+    null
+  );
 
   const [hiddenCharacters, setHiddenCharacters] = useState<{
     [key: string]: boolean;
@@ -54,9 +55,10 @@ export default function NewCharacterPage() {
   } = useShowcaseStore();
 
   const { data, isLoading, error } = usePersonas();
-  const { mutateAsync: deletePersona, isPending: isDeleting } = useDeletePersona();
-  console.log('Personas' ,data)
-  
+  const { mutateAsync: deletePersona, isPending: isDeleting } =
+    useDeletePersona();
+  console.log("Personas", data);
+
   const form = useForm<CharacterFormData>({
     resolver: zodResolver(characterSchema),
     defaultValues: {
@@ -164,9 +166,8 @@ export default function NewCharacterPage() {
     }
   };
 
-
   //Update a showcase
-  
+
   const updateShowcase = async () => {
     try {
       const showcaseData = {
@@ -214,7 +215,7 @@ export default function NewCharacterPage() {
     // const isFormEdited = form.formState.isDirty;
     console.log("data", data);
     console.log("is form ", isFormEdited);
-    
+
     let obj = {
       ...data,
       headshotImage: headshotImage ?? "",
@@ -279,7 +280,6 @@ export default function NewCharacterPage() {
     <div className="flex bg-light-bg dark:bg-dark-bg dark:text-dark-text text-light-text flex-col h-full w-full">
       <div className="flex flex-col h-screen">
         <div className="flex gap-4 p-4 h-full">
-
           <div className="w-1/3 bg-white dark:bg-dark-bg-secondary border shadow-md rounded-md flex flex-col">
             <div className="p-4">
               <h2 className="text-lg font-bold">
@@ -334,7 +334,9 @@ export default function NewCharacterPage() {
                   )} */}
                       <div
                         className={`shrink-0 ${
-                          selectedIds.includes(char.slug) ? "mb-4 mt-12" : "mr-4"
+                          selectedIds.includes(char.slug)
+                            ? "mb-4 mt-12"
+                            : "mr-4"
                         }`}
                       >
                         <Image
@@ -414,87 +416,78 @@ export default function NewCharacterPage() {
               </ButtonOutline>
             </div>
           </div>
-          
-          <div className="w-2/3 bg-white dark:bg-dark-bg-secondary border shadow-md rounded-md p-6 flex flex-col">
-          <div className="flex space-x-1 text-lg font-semibold justify-start">
-            <TabsComponent slug="example-name" />
-          </div>
 
+          <div className="w-2/3 bg-white dark:bg-dark-bg-secondary border shadow-md rounded-md p-6 flex flex-col">
             {personaState == "creating-new" ||
             personaState == "editing-persona" ? (
-              <>
-                <div>
-                  <StepHeader
-                    icon={<Monitor strokeWidth={3} />}
-                    title={t("character.character_detail")}
-                    onActionClick={(action) => {
-                      switch (action) {
-                        case "save":
-                          console.log("Save Draft clicked");
-                          break;
-                        case "preview":
-                          console.log("Preview clicked");
-                          break;
-                        case "revert":
-                          console.log("Revert Changes clicked");
-                          break;
-                        case "delete":
-                          selectedCharacter !== null
-                            ? (console.log("Delete Page clicked"),
-                              setIsModalOpen(true),
-                              setIsOpen(false))
-                            : (console.log(
-                                "Character not selected, modal not opened"
-                              ),
-                              setEditMode(false));
-                          break;
-                        default:
-                          console.log("Unknown action");
-                      }
-                    }}
-                  />
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleFormSubmit)}>
-                      <div>
-                        <div className="flex-grow">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <FormTextInput
-                                label={t("character.edit_name_label")}
-                                name="name"
-                                register={form.register}
-                                error={form.formState.errors.name?.message}
-                                placeholder={t(
-                                  "character.edit_name_placeholder"
-                                )}
-                              />
-                            </div>
-                            <div>
-                              <FormTextInput
-                                label={t("character.edit_role_label")}
-                                name="role"
-                                register={form.register}
-                                error={form.formState.errors.role?.message}
-                                placeholder={t(
-                                  "character.edit_role_placeholder"
-                                )}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="mt-4">
-                            <FormTextArea
-                              label={t("character.edit_description_label")}
-                              name="description"
+              <div>
+                <StepHeader
+                  icon={<Monitor strokeWidth={3} />}
+                  title={t("character.character_detail")}
+                  onActionClick={(action) => {
+                    switch (action) {
+                      case "save":
+                        console.log("Save Draft clicked");
+                        break;
+                      case "preview":
+                        console.log("Preview clicked");
+                        break;
+                      case "revert":
+                        console.log("Revert Changes clicked");
+                        break;
+                      case "delete":
+                        selectedCharacter !== null
+                          ? (console.log("Delete Page clicked"),
+                            setIsModalOpen(true),
+                            setIsOpen(false))
+                          : (console.log(
+                              "Character not selected, modal not opened"
+                            ),
+                            setEditMode(false));
+                        break;
+                      default:
+                        console.log("Unknown action");
+                    }
+                  }}
+                />
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+                    <div>
+                      <div className="flex-grow">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <FormTextInput
+                              label={t("character.edit_name_label")}
+                              name="name"
                               register={form.register}
-                              error={form.formState.errors.description?.message}
-                              placeholder={t(
-                                "character.edit_description_placeholder"
-                              )}
+                              error={form.formState.errors.name?.message}
+                              placeholder={t("character.edit_name_placeholder")}
                             />
                           </div>
+                          <div>
+                            <FormTextInput
+                              label={t("character.edit_role_label")}
+                              name="role"
+                              register={form.register}
+                              error={form.formState.errors.role?.message}
+                              placeholder={t("character.edit_role_placeholder")}
+                            />
+                          </div>
+                        </div>
 
-                          {/* <div className="flex mt-4">
+                        <div className="mt-4">
+                          <FormTextArea
+                            label={t("character.edit_description_label")}
+                            name="description"
+                            register={form.register}
+                            error={form.formState.errors.description?.message}
+                            placeholder={t(
+                              "character.edit_description_placeholder"
+                            )}
+                          />
+                        </div>
+
+                        {/* <div className="flex mt-4">
                             <button
                               type="button"
                               onClick={() => {
@@ -544,106 +537,105 @@ export default function NewCharacterPage() {
                             </div>
                           </div> */}
 
-                          {form.watch("hidden") && (
-                            <div className="w-full bg-[#FDF6EA] dark:bg-[#F9DAAC] p-6 mt-4 border-[1px] border-[#F9DAAC] rounded-md flex gap-2">
-                              <CircleAlert size={22} />
-                              <div>
-                                <p className="text-light-text dark:text-dark-text text-sm font-semibold">
-                                  {t("character.warning_label")}
-                                </p>
-                                <p className="text-light-text dark:text-dark-text text-sm font-semibold">
-                                  {t("character.warning_placeholder_label")}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="grid grid-cols-2 gap-4 mt-6">
-                            <div className="text-start">
-                              <FileUploadFull
-                                text={t("character.headshot_image_label")}
-                                element={"headshot_image"}
-                                // initialValue={
-                                //   selectedIds.includes(
-                                //     Persona[selectedCharacter]?.id
-                                //   )
-                                //     ? Persona[selectedCharacter]?.headshotImage
-                                //         ?.content || ""
-                                //     : ""
-                                // }
-                                initialValue={
-                                  selectedIds.includes(
-                                    Persona[selectedCharacter]?.slug
-                                  )
-                                    ? ensureBase64HasPrefix(
-                                        Persona[selectedCharacter]
-                                          ?.headshotImage.content
-                                      ) || ""
-                                    : ""
-                                }
-                                handleJSONUpdate={(imageType, imageData) => {
-                                  console.log("Edited");
-                                  setHeadshotImage(imageData);
-                                  setIsFormEdited(true);
-                                  setHeadShotImageEdited(
-                                    imageData === null || imageData === ""
-                                      ? false
-                                      : true
-                                  );
-                                }}
-                              />
-                            </div>
-                            <div className="text-start">
-                              <FileUploadFull
-                                text={t("character.full_body_image_label")}
-                                element={"body_image"}
-                                initialValue={
-                                  selectedIds.includes(
-                                    Persona[selectedCharacter]?.slug
-                                  )
-                                    ? ensureBase64HasPrefix(
-                                        Persona[selectedCharacter]?.bodyImage
-                                          .content
-                                      ) || ""
-                                    : ""
-                                }
-                                handleJSONUpdate={(imageType, imageData) => {
-                                  setBodyImage(imageData);
-                                  setIsFormEdited(true);
-                                  setbodyImageEdited(
-                                    imageData === null || imageData === ""
-                                      ? false
-                                      : true
-                                  );
-                                }}
-                              />
+                        {form.watch("hidden") && (
+                          <div className="w-full bg-[#FDF6EA] dark:bg-[#F9DAAC] p-6 mt-4 border-[1px] border-[#F9DAAC] rounded-md flex gap-2">
+                            <CircleAlert size={22} />
+                            <div>
+                              <p className="text-light-text dark:text-dark-text text-sm font-semibold">
+                                {t("character.warning_label")}
+                              </p>
+                              <p className="text-light-text dark:text-dark-text text-sm font-semibold">
+                                {t("character.warning_placeholder_label")}
+                              </p>
                             </div>
                           </div>
-                        </div>
+                        )}
 
-                        <div className="mt-auto pt-4 border-t flex justify-end gap-3">
-                          <ButtonOutline
-                            onClick={() => {
-                              setStepState("no-selection");
-                              handleCancel();
-                            }}
-                          >
-                            {t("action.cancel_label")}
-                          </ButtonOutline>
-                          {/* <Link href="/onboarding"> */}
-                          <ButtonOutline
-                            type="submit"
-                            // disabled={!isEdited}
-                          >
-                            {t("action.next_label")}
-                          </ButtonOutline>
-                          {/* </Link> */}
+                        <div className="grid grid-cols-2 gap-4 mt-6">
+                          <div className="text-start">
+                            <FileUploadFull
+                              text={t("character.headshot_image_label")}
+                              element={"headshot_image"}
+                              // initialValue={
+                              //   selectedIds.includes(
+                              //     Persona[selectedCharacter]?.id
+                              //   )
+                              //     ? Persona[selectedCharacter]?.headshotImage
+                              //         ?.content || ""
+                              //     : ""
+                              // }
+                              initialValue={
+                                selectedIds.includes(
+                                  Persona[selectedCharacter]?.slug
+                                )
+                                  ? ensureBase64HasPrefix(
+                                      Persona[selectedCharacter]?.headshotImage
+                                        .content
+                                    ) || ""
+                                  : ""
+                              }
+                              handleJSONUpdate={(imageType, imageData) => {
+                                console.log("Edited");
+                                setHeadshotImage(imageData);
+                                setIsFormEdited(true);
+                                setHeadShotImageEdited(
+                                  imageData === null || imageData === ""
+                                    ? false
+                                    : true
+                                );
+                              }}
+                            />
+                          </div>
+                          <div className="text-start">
+                            <FileUploadFull
+                              text={t("character.full_body_image_label")}
+                              element={"body_image"}
+                              initialValue={
+                                selectedIds.includes(
+                                  Persona[selectedCharacter]?.slug
+                                )
+                                  ? ensureBase64HasPrefix(
+                                      Persona[selectedCharacter]?.bodyImage
+                                        .content
+                                    ) || ""
+                                  : ""
+                              }
+                              handleJSONUpdate={(imageType, imageData) => {
+                                setBodyImage(imageData);
+                                setIsFormEdited(true);
+                                setbodyImageEdited(
+                                  imageData === null || imageData === ""
+                                    ? false
+                                    : true
+                                );
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </form>
-                  </Form>
-                </div>
-              </>
+
+                      <div className="mt-auto pt-4 border-t flex justify-end gap-3">
+                        <ButtonOutline
+                          onClick={() => {
+                            setStepState("no-selection");
+                            handleCancel();
+                          }}
+                        >
+                          {t("action.cancel_label")}
+                        </ButtonOutline>
+                        {/* <Link href="/onboarding"> */}
+                        <ButtonOutline
+                          type="submit"
+                          // disabled={!isEdited}
+                        >
+                          {t("action.next_label")}
+                        </ButtonOutline>
+                        {/* </Link> */}
+                      </div>
+                    </div>
+                  </form>
+                </Form>
+              </div>
             ) : (
               <div className="self-center justify-center mt-[23%]">
                 No Persona Selected

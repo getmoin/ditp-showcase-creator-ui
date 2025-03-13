@@ -1,8 +1,7 @@
 "use client";
 
 import { JSX, useState } from "react";
-import { useTheme } from "next-themes";
-import { Home, Library, LogOut, Wallet, ChevronLeft } from "lucide-react";
+import {  ChevronLeft } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { LanguageSelector } from "./language-selector";
 import Image from "next/image";
@@ -12,9 +11,7 @@ import { DarkModeToggle } from "./dark-mode-toggle";
 
 export default function Sidebar() {
 	const [isExpanded, setIsExpanded] = useState(true);
-	const { theme, setTheme } = useTheme();
 	const t = useTranslations("sidebar");
-	const router = useRouter();
 	const pathname = usePathname();
 
 	return (
@@ -25,7 +22,7 @@ export default function Sidebar() {
 		>
 			<div className="flex items-center py-6 px-5">
 				<Image
-					src={require("../public/assets/NavBar/character.svg")}
+					src="/assets/NavBar/character.svg"
 					alt="College Logo"
 					width={38}
 					height={38}
@@ -93,7 +90,7 @@ export default function Sidebar() {
 
 				<button className="w-full flex items-center text-light-text dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-btn-hover p-3 rounded-md">
 					<Image
-						src={require("../public/assets/NavBar/exit.svg")}
+						src="/assets/NavBar/exit.svg"
 						alt={"Logout"}
 						width={20}
 						height={20}

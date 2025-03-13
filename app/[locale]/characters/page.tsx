@@ -1,10 +1,9 @@
-import MyShowcaseMain from "@/components/showcases-screen";
-import { PageParams } from "@/types";
+import CharactersPage from "@/components/character-screen/characters";
 
-export default function CharacterPageMain({ params }: { params: PageParams }) {
+export default function CharacterPageMain() {
   return (
     <div>
-      <MyShowcaseMain params={params} />
+      <CharactersPage />
     </div>
   );
 }

@@ -32,9 +32,9 @@ export const LandingPage = () => {
 
   return (
     <>
-      <section className="w-full px-0 py-2 bg-cover bg-center bg:light-bg dark:bg-dark-bg">
-        <div className="container mx-auto px-4 mt-12 mb-6">
-          <h1 className="text-4xl font-bold">{t("home.header_title")}</h1>
+      <section className="w-full px-0 py-2 bg-cover bg-center dark:bg-dark-bg">
+        <div className="container mx-auto px-4 mt-6 mb-6">
+          <h1 className="text-3xl font-bold">{t("home.header_title")}</h1>
         </div>
 
         <div className="container mx-auto px-4 mb-8 mt-2">
@@ -48,7 +48,7 @@ export const LandingPage = () => {
               placeholder={t("action.search_label")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-white dark:dark-bg w-full pl-10 pr-3 py-4 border rounded-md text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full pl-10 pr-3 py-4 border border-foreground/50 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-100"
             />
           </div>
         </div>

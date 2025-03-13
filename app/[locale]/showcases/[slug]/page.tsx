@@ -1,5 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
-import Showcase from "@/components/showcases-screen/showcase";
+import MyShowcaseMain from "@/components/showcases-screen";
 
 type PageParams = Promise<{ slug: string, locale: string }>
 
@@ -11,7 +11,7 @@ export default async function Showcases({ params }: {params: PageParams}) {
     <div
       className={`flex bg-light-bg  text-light-text dark:bg-dark-bg dark:text-dark-text`}
     >
-      <Showcase slug={slug} />
+      <MyShowcaseMain slug={slug}/>
     </div>
   );
 }

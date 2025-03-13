@@ -19,7 +19,6 @@ import { useOnboarding } from "@/hooks/use-onboarding";
 import Image from "next/image";
 import ButtonOutline from "../ui/button-outline";
 import apiClient from "@/lib/apiService";
-import Loader from "../loader";
 import { ErrorModal } from "../error-modal";
 
 export const OnboardingScreen = () => {
