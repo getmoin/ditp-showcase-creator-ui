@@ -194,7 +194,9 @@
     "preview_label": "Aperçu",
     "create_copy_label": "CRÉER UNE COPIE",
     "next_label": "PROCHAIN",
-    "search_label": "Recherche"
+    "search_label": "Recherche",
+    "clear_selection_label": "Effacer la sélection",
+    "proceed_label": "Continuer"
   },
   "file_upload": {
     "click_to_upload_label": "Cliquez pour téléverser",

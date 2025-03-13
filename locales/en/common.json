@@ -199,7 +199,9 @@
     "preview_label": "PREVIEW",
     "create_copy_label": "CREATE A COPY",
     "next_label": "NEXT",
-    "search_label": "Search"
+    "search_label": "Search",
+    "clear_selection_label": "Clear Selection",
+    "proceed_label": "Proceed"
   },
   "file_upload": {
     "click_to_upload_label": "Click to upload",

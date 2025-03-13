@@ -2,9 +2,10 @@
 
 import { Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
-import NewCharacterPage from "@/components/character-screen/new-character";
+import EditScenarioCharacterPage from "@/components/character-screen/scenario-character-edit";
 import { useShowcase } from "@/hooks/use-showcases";
 import { redirect } from "next/navigation";
+import TabsComponent from "../Tabs-component";
 
 export default function MyShowcaseMain({ slug }: { slug: string }) {
   const { data, isLoading, error } = useShowcase(slug);
@@ -32,13 +33,12 @@ export default function MyShowcaseMain({ slug }: { slug: string }) {
             </span>
           </div>
 
-          {/* <div className="flex space-x-1 text-lg font-semibold justify-start">
-            <TabsComponent />
-          </div> */}
-          {/* <button className="text-gray-500 hover:text-gray-700"></button> */}
+          <div className="flex space-x-1 text-lg font-semibold justify-start">
+            <TabsComponent slug={slug} />
+          </div>
         </div>
 
-        <NewCharacterPage />
+        <EditScenarioCharacterPage slug={slug} />
       </div>
     </div>
   );

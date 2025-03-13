@@ -91,7 +91,7 @@ export const ShowcaseList = () => {
                 />
             </div>
 
-            <Link href={"/showcases/character"}>
+            <Link href={"/showcases/create"}>
               <button className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 h-12 flex items-center gap-4 shadow-md">
                 {t("showcases.create_new_showcase_label")}
                 <CirclePlus size={22} />
