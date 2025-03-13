@@ -48,3 +48,18 @@ export const useCreatePersona = () => {
     }
   })
 }
+
+export const useDeletePersona = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      const response = await apiClient.delete(`/personas/${slug}`);
+      return response;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['personas'] });
+    }
+  })
+}
+

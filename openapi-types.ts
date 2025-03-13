@@ -392,7 +392,7 @@ export const PresentationScenarioResponse = z.object({
 });
 
 // Showcase schemas
-export const Showcase = z.object({
+export const ShowcaseSchema = z.object({
   id: z.string(),
   name: z.string(),
   slug: z.string(),
@@ -421,14 +421,16 @@ export const ShowcaseRequest = z.object({
 });
 
 export const ShowcasesResponse = z.object({
-  showcases: z.array(Showcase),
+  showcases: z.array(ShowcaseSchema),
 });
 
 export const ShowcaseResponse = z.object({
-  showcase: Showcase,
+  showcase: ShowcaseSchema,
 });
 
 // Error response schemas
 export const ErrorResponse = z.object({
   message: z.string(),
 });
+
+export type Showcase = z.infer<typeof ShowcaseSchema>;

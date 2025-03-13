@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "../ui/input";
 import { useTranslations } from "next-intl";
 import ButtonOutline from "../ui/button-outline";
 import { Card } from "../ui/card";
-import apiClient from "@/lib/apiService";
 import { Share2 } from "lucide-react";
 import { ensureBase64HasPrefix } from "@/lib/utils";
 import { useShowcases } from "@/hooks/use-showcases";
@@ -15,7 +14,6 @@ import { Showcase } from "@/openapi-types";
 export const LandingPage = () => {
   const t = useTranslations();
   const [activeTab, setActiveTab] = useState(t("home.header_tab_all"));
-  const [filteredShowcases, setFilteredShowcases] = useState<any>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const { data, isLoading } = useShowcases();
 
@@ -25,15 +23,12 @@ export const LandingPage = () => {
     t("home.header_tab_others"),
   ];
 
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    // Always filter from the original dataset
-    const filtered = data?.showcases.filter((showcase: any) =>
-      showcase.name.toLowerCase().includes(term.toLowerCase())
-    );
-    setFilteredShowcases(filtered);
+  const searchFilter = (showcase: Showcase) => {
+    if (searchTerm === "") {
+      return true;
+    }
+    return showcase.name.toLowerCase().includes(searchTerm.toLowerCase());
   };
-
 
   return (
     <>
@@ -52,7 +47,7 @@ export const LandingPage = () => {
               type="text"
               placeholder={t("action.search_label")}
               value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="bg-white dark:dark-bg w-full pl-10 pr-3 py-4 border rounded-md text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-gray-300"
             />
           </div>
@@ -90,7 +85,9 @@ export const LandingPage = () => {
       )}
       <section className="container mx-auto px-4">
         <div className="grid md:grid-cols-3 gap-6 mt-6">
-          {data?.showcases.map((showcase: typeof Showcase._type) => (
+          {data?.showcases
+          .filter(searchFilter)
+          .map((showcase: Showcase) => (
             <Card key={showcase.id}>
               <div
                 key={showcase.id}
@@ -158,10 +155,6 @@ export const LandingPage = () => {
                                 persona.headshotImage?.content
                               ) || "https://picsum.photos/200"
                             }
-                            // src={
-                            //   persona.headshotImage?.content ||
-                            //   "https://picsum.photos/200"
-                            // }
                             alt={persona.name}
                             className="w-[44px] h-[44px] rounded-full"
                           />

@@ -4,7 +4,7 @@ class ApiService {
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
-
+  
   private async request<T>(
     method: string,
     url: string,
@@ -26,16 +26,17 @@ class ApiService {
   
     try {
       const response = await fetch(fullUrl, options);
-      
+  
       console.log("Response Status:", response.status);
-      
+  
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Error ${response.status}: ${response.statusText} - ${errorText}`);
       }
-
+  
       if (response.status === 204) {
         console.log("No Content (204), returning void.");
+        return;
       }
   
       const jsonData = await response.json();
@@ -46,7 +47,6 @@ class ApiService {
       throw error;
     }
   }
-  
 
   get<T>(url: string, params?: Record<string, any>): Promise<T | void> {
     const queryString = params
@@ -69,6 +69,7 @@ class ApiService {
 }
 
 // Create an instance with the actual API base URL
-const apiClient = new ApiService("https://bcshowcase-api-dev.nborbit.ca");
+const apiClient = new ApiService("http://localhost:3377");
+// const apiClient = new ApiService("https://bcshowcase-api-dev.nborbit.ca");
 
 export default apiClient;

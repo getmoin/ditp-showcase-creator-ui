@@ -18,7 +18,7 @@ import ButtonOutline from "../ui/button-outline";
 import DeleteModal from "../delete-modal";
 import apiClient from "@/lib/apiService";
 import { ensureBase64HasPrefix } from "@/lib/utils";
-import { usePersonas } from "@/hooks/use-personas";
+import { usePersonas, useDeletePersona } from "@/hooks/use-personas";
 
 type CharacterFormData = z.infer<typeof characterSchema>;
 
@@ -37,7 +37,8 @@ export default function NewCharacterPage() {
     null
   );
   const [Persona, setPersona] = useState<any>([]);
-  const [selectedCharacter, setSelectedCharacter] = useState<any>(-1);
+  const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null);
+
   const [hiddenCharacters, setHiddenCharacters] = useState<{
     [key: string]: boolean;
   }>({});
@@ -53,7 +54,9 @@ export default function NewCharacterPage() {
   } = useShowcaseStore();
 
   const { data, isLoading, error } = usePersonas();
-
+  const { mutateAsync: deletePersona, isPending: isDeleting } = useDeletePersona();
+  console.log('Personas' ,data)
+  
   const form = useForm<CharacterFormData>({
     resolver: zodResolver(characterSchema),
     defaultValues: {
@@ -154,30 +157,16 @@ export default function NewCharacterPage() {
       //     query: { personaIds: selectedIds }
       //   });
       // }, 500);
+
       return personaResponse;
     } catch (error) {
       console.error("Error in process:", error);
     }
   };
 
-  const deletePersona = async (personaId: string) => {
-    try {
-      if (!personaId) {
-        console.error("Error: Persona ID is required for deletion.");
-        return;
-      }
-
-      console.log("Deleting persona with ID:", personaId);
-      // Step 1: Send DELETE request to the API
-      await apiClient.delete(`/personas/${personaId}`);
-      console.log("Persona deleted successfully!");
-      // Step 2: Update the persona list after deletion
-    } catch (error) {
-      console.error("Error deleting persona:", error);
-    }
-  };
 
   //Update a showcase
+  
   const updateShowcase = async () => {
     try {
       const showcaseData = {
@@ -225,14 +214,17 @@ export default function NewCharacterPage() {
     // const isFormEdited = form.formState.isDirty;
     console.log("data", data);
     console.log("is form ", isFormEdited);
+    
     let obj = {
       ...data,
       headshotImage: headshotImage ?? "",
       bodyImage: bodyImage ?? "",
     };
+
     console.log("bodyimage", bodyImage);
     console.log("head", headshotImage);
     console.log("obj", obj);
+
     if (isFormEdited) {
       console.log("called");
       await createAssetAndPersona(headshotImage ?? "", bodyImage ?? "", obj);
@@ -250,13 +242,6 @@ export default function NewCharacterPage() {
 
     setEditMode(false);
     setPersonaIds(selectedIds);
-    // setHeadshotImage(null); // Reset images after submission
-    // setBodyImage(null);
-
-    // // Reset form fields AFTER checking `isDirty`
-    // form.reset();
-
-    // // Redirect after 500ms
   };
 
   // const handleFormSubmit = async (data: CharacterFormData) => {
@@ -294,22 +279,22 @@ export default function NewCharacterPage() {
     setEditMode(false);
   };
 
-  const toggleSelect = (id: any) => {
+  const toggleSelect = (slug: string) => {
     setSelectedIds((prev) => {
-      const newSelectedIds = prev.includes(id)
-        ? prev.filter((charId) => charId !== id) // Deselecting character
-        : [...prev, id]; // Selecting character
+      const newSelectedIds = prev.includes(slug)
+        ? prev.filter((charId) => charId !== slug) // Deselecting character
+        : [...prev, slug]; // Selecting character
 
       // If deselecting and the current selected character is the one being removed, reset it
       if (
-        !newSelectedIds.includes(id) &&
-        selectedCharacter === Persona.findIndex((c: any) => c.id === id)
+        !newSelectedIds.includes(slug) &&
+        selectedCharacter === Persona.findIndex((c: any) => c.slug === slug)
       ) {
-        setSelectedCharacter(0); // Reset to default (first character)
+        setSelectedCharacter(null); // Reset to default (first character)
         setStepState("no-selection");
       } else {
         // Find the index of the selected character in Persona
-        const selectedIndex = Persona.findIndex((c: any) => c.id === id);
+        const selectedIndex = Persona.findIndex((c: any) => c.slug === slug);
         if (selectedIndex !== -1) {
           setSelectedCharacter(selectedIndex);
         }
@@ -318,17 +303,17 @@ export default function NewCharacterPage() {
     });
   };
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setSelectedCharacter(Number(e.currentTarget.value));
-    setEditMode(false);
-  };
+  // const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  //   setSelectedCharacter(Number(e.currentTarget.value));
+  //   setEditMode(false);
+  // };
 
-  const toggleHidden = (personaId: string) => {
-    setHiddenCharacters((prev) => ({
-      ...prev,
-      [personaId]: !prev[personaId],
-    }));
-  };
+  // const toggleHidden = (personaId: string) => {
+  //   setHiddenCharacters((prev) => ({
+  //     ...prev,
+  //     [personaId]: !prev[personaId],
+  //   }));
+  // };
 
   // useEffect(() => {
   //   console.log("isDirty changed:", form.formState.isDirty);
@@ -338,7 +323,7 @@ export default function NewCharacterPage() {
     <div className="flex bg-light-bg dark:bg-dark-bg dark:text-dark-text text-light-text flex-col h-full w-full">
       <div className="flex flex-col h-screen">
         <div className="flex gap-4 p-4 h-full">
-          {/* Left Section - Character Selection with Header */}
+
           <div className="w-1/3 bg-white dark:bg-dark-bg-secondary border shadow-md rounded-md flex flex-col">
             <div className="p-4">
               <h2 className="text-lg font-bold">
@@ -351,7 +336,6 @@ export default function NewCharacterPage() {
 
             {isLoading ? (
               <>
-                {/* <Loader text="Fetching persona" /> */}
                 <div className="flex flex-col items-center">
                   <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
                   Loading characters
@@ -362,18 +346,18 @@ export default function NewCharacterPage() {
                 {data?.personas &&
                   data?.personas?.map((char: any) => (
                     <div
-                      key={char.id}
+                      key={char.slug}
                       className={`hover:bg-light-bg dark:hover:bg-dark-input-hover relative p-4 border-t border-b border-light-border-secondary dark:border-dark-border flex ${
-                        selectedIds.includes(char.id)
+                        selectedIds.includes(char.slug)
                           ? "flex-col items-center bg-gray-100 dark:bg-dark-bg border border-light-border-secondary"
                           : "flex-row items-center bg-white dark:bg-dark-bg-secondary"
                       }`}
                       onClick={() => {
-                        toggleSelect(char.id);
+                        toggleSelect(char.slug);
                         setStepState("editing-persona");
                       }}
                     >
-                      {selectedIds.includes(char.id) && (
+                      {selectedIds.includes(char.slug) && (
                         <>
                           <div className="absolute left-0 top-4 bg-light-yellow text-light-text dark:text-dark-text px-4 py-2 text-sm font-medium rounded-tr-lg rounded-br-lg">
                             {t("character.selected_label")}
@@ -387,14 +371,14 @@ export default function NewCharacterPage() {
                         </>
                       )}
 
-                      {/* {hiddenIds.includes(char.id) && (
+                      {/* {hiddenIds.includes(char.slug) && (
                     <div className="absolute top-20 left-0 bg-red-200 text-red-800 px-4 py-2 text-sm font-medium rounded-tr-lg rounded-br-lg">
                       {t("character.hidden_label")}
                     </div>
                   )} */}
                       <div
                         className={`shrink-0 ${
-                          selectedIds.includes(char.id) ? "mb-4 mt-12" : "mr-4"
+                          selectedIds.includes(char.slug) ? "mb-4 mt-12" : "mr-4"
                         }`}
                       >
                         <Image
@@ -406,15 +390,15 @@ export default function NewCharacterPage() {
                               : "/assets/NavBar/Joyce.png"
                           }
                           alt={char.name}
-                          width={selectedIds.includes(char.id) ? 100 : 50}
-                          height={selectedIds.includes(char.id) ? 100 : 50}
+                          width={selectedIds.includes(char.slug) ? 100 : 50}
+                          height={selectedIds.includes(char.slug) ? 100 : 50}
                           className="rounded-full aspect-square object-cover"
                         />
                       </div>
 
                       <div
                         className={`${
-                          selectedIds.includes(char.id)
+                          selectedIds.includes(char.slug)
                             ? "text-center"
                             : "flex-1"
                         }`}
@@ -423,7 +407,7 @@ export default function NewCharacterPage() {
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                           {char.role}
                         </p>
-                        {selectedIds.includes(char.id) && (
+                        {selectedIds.includes(char.slug) && (
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                             {char.description}
                           </p>
@@ -432,39 +416,49 @@ export default function NewCharacterPage() {
                       <div>
                         <ButtonOutline
                           onClick={() => {
-                            // Find the correct index of the clicked character
                             const selectedIndex = Persona.findIndex(
-                              (c: any) => c.id === char.id
+                              (c: any) => c.slug === char.slug
                             );
                             setStepState("editing-persona");
                             setSelectedCharacter(selectedIndex);
                           }}
                           className={`${
-                            selectedIds.includes(char.id) ? "mt-4" : "mt-0"
+                            selectedIds.includes(char.slug) ? "mt-4" : "mt-0"
                           }`}
                         >
                           {t("action.edit_label")}
                         </ButtonOutline>
+                        {selectedIds.includes(char.slug) && (
+                          <ButtonOutline
+                            onClick={() => {
+                              deletePersona(char.slug);
+                              setStepState("editing-persona");
+                              setSelectedCharacter(null);
+                            }}
+                          >
+                            {t("action.delete_label")}
+                          </ButtonOutline>
+                        )}
                       </div>
                     </div>
                   ))}
               </div>
             )}
-            {/* Create New Character Button (Stuck to Bottom) */}
+
             <div className="p-4 mt-auto">
               <ButtonOutline
                 className="w-full"
                 onClick={() => {
                   setStepState("creating-new");
                   form.reset();
-                  // setEditMode(true);
-                  setSelectedCharacter(-1);
+                  setSelectedCharacter(null);
                 }}
               >
                 {t("character.create_new_character_label")}
               </ButtonOutline>
             </div>
           </div>
+          
           <div className="w-2/3 bg-white dark:bg-dark-bg-secondary border shadow-md rounded-md p-6 flex flex-col">
             {personaState == "creating-new" ||
             personaState == "editing-persona" ? (
@@ -485,7 +479,7 @@ export default function NewCharacterPage() {
                           console.log("Revert Changes clicked");
                           break;
                         case "delete":
-                          selectedCharacter !== -1
+                          selectedCharacter !== null
                             ? (console.log("Delete Page clicked"),
                               setIsModalOpen(true),
                               setIsOpen(false))
@@ -550,7 +544,7 @@ export default function NewCharacterPage() {
                                 )
                                   return;
 
-                                const personaId = Persona[selectedCharacter].id;
+                                const personaSlug = Persona[selectedCharacter].slug;
                                 const newHiddenValue =
                                   !form.getValues("hidden");
                                 form.setValue("hidden", newHiddenValue, {
@@ -560,7 +554,7 @@ export default function NewCharacterPage() {
                                 });
                                 setPersona((prev: any) =>
                                   prev.map((char: any) =>
-                                    char.id === personaId
+                                    char.slug === personaSlug
                                       ? { ...char, hidden: newHiddenValue }
                                       : char
                                   )
@@ -619,7 +613,7 @@ export default function NewCharacterPage() {
                                 // }
                                 initialValue={
                                   selectedIds.includes(
-                                    Persona[selectedCharacter]?.id
+                                    Persona[selectedCharacter]?.slug
                                   )
                                     ? ensureBase64HasPrefix(
                                         Persona[selectedCharacter]
@@ -645,7 +639,7 @@ export default function NewCharacterPage() {
                                 element={"body_image"}
                                 initialValue={
                                   selectedIds.includes(
-                                    Persona[selectedCharacter]?.id
+                                    Persona[selectedCharacter]?.slug
                                   )
                                     ? ensureBase64HasPrefix(
                                         Persona[selectedCharacter]?.bodyImage
@@ -653,14 +647,6 @@ export default function NewCharacterPage() {
                                       ) || ""
                                     : ""
                                 }
-                                // initialValue={
-                                //   selectedIds.includes(
-                                //     Persona[selectedCharacter]?.id
-                                //   )
-                                //     ? Persona[selectedCharacter]?.bodyImage
-                                //         ?.content || ""
-                                //     : ""
-                                // }
                                 handleJSONUpdate={(imageType, imageData) => {
                                   setBodyImage(imageData);
                                   setIsFormEdited(true);
@@ -712,7 +698,8 @@ export default function NewCharacterPage() {
         onClose={() => setIsModalOpen(false)}
         onDelete={() => {
           setIsModalOpen(false);
-          deletePersona(Persona[selectedCharacter].id);
+          console.log('Persona[selectedCharacter].id',selectedCharacter)
+          // deletePersona({Persona[selectedCharacter].id});
         }}
         header="Are you sure you want to delete this character?"
         description="Are you sure you want to delete this character?"
