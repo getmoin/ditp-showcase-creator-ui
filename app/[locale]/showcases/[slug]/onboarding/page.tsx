@@ -37,7 +37,7 @@ export default async function Onboarding({ params }: { params: PageParams }) {
               <h2 className="text-base font-bold text-foreground">
                 {t("onboarding.header_title")}
               </h2>
-              <p className="w-full text-xs">
+              <p className="w-full text-xs text-foreground">
                 {t("onboarding.header_subtitle")}
               </p>
             </div>
