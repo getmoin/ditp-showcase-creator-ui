@@ -26,9 +26,9 @@ export const usePersona = (slug  : string) => {
   });
 }
 
-export const useUpdatePersona = (slug: string) => {
+export const useUpdatePersona = () => {
   return useMutation({
-    mutationFn: async (data: typeof PersonaRequest._type) => {
+    mutationFn: async ({slug, data}: {slug: string, data: typeof PersonaRequest._type}) => {
       const response = await apiClient.put(`/personas/${slug}`, data);
       return response;
     },
@@ -48,3 +48,18 @@ export const useCreatePersona = () => {
     }
   })
 }
+
+export const useDeletePersona = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      const response = await apiClient.delete(`/personas/${slug}`);
+      return response;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['personas'] });
+    }
+  })
+}
+

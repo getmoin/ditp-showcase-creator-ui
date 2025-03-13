@@ -1,6 +1,6 @@
 "use client";
 
-import { CirclePlus, Search, Share2 } from "lucide-react";
+import { CirclePlus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Link } from "@/i18n/routing";
@@ -10,6 +10,8 @@ import DeleteModal from "@/components/delete-modal";
 import { Card } from "@/components/ui/card";
 import { ensureBase64HasPrefix } from "@/lib/utils";
 import { useCreateShowcase, useShowcases } from "@/hooks/use-showcases";
+import { Showcase } from "@/openapi-types";
+import { useRouter } from "next/navigation";
 
 export const ShowcaseList = () => {
   const t = useTranslations();
@@ -20,18 +22,14 @@ export const ShowcaseList = () => {
     t("showcases.header_tab_overview")
   );
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [Showcases, setShowcases] = useState<any>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [originalShowcases, setOriginalShowcases] = useState<any[]>([]);
 
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    // Always filter from the original dataset
-    const filtered = originalShowcases.filter((showcase: any) =>
-      showcase.name.toLowerCase().includes(term.toLowerCase())
-    );
-    setShowcases(filtered);
+  const searchFilter = (showcase: Showcase) => {
+    if (searchTerm === "") {
+      return true;
+    }
+    return showcase.name.toLowerCase().includes(searchTerm.toLowerCase());
   };
 
   const createShowcase = async () => {
@@ -71,10 +69,10 @@ export const ShowcaseList = () => {
         className={`flex-1 bg-light-bg dark:bg-dark-bg dark:text-dark-text text-light-text `}
       >
         <section
-          className="w-full px-0 py-2 bg-cover bg-center bg:light-bg dark:bg-dark-bg"
+          className="w-full px-0 py-2 bg-cover bg-center dark:bg-dark-bg"
         >
-          <div className="container mx-auto px-4 mt-12 mb-6">
-            <h1 className="text-4xl font-bold">
+          <div className="container mx-auto px-4 mt-6 mb-6">
+            <h1 className="text-3xl font-bold">
               {t("showcases.header_title")}
             </h1>
           </div>
@@ -88,9 +86,9 @@ export const ShowcaseList = () => {
                 type="text"
                 placeholder={t("action.search_label")}
                 value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="bg-white dark:dark-bg w-full pl-10 pr-3 py-4 border rounded-md text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-gray-300"
-              />
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-3 py-4 border border-foreground/50 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-100"
+                />
             </div>
 
             <Link href={"/showcases/character"}>
@@ -138,7 +136,7 @@ export const ShowcaseList = () => {
 
         <section className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-6 mt-6">
-            {data?.showcases?.map((showcase: any) => (
+            {data?.showcases?.filter(searchFilter).map((showcase: Showcase) => (
               <Card key={showcase.id}>
                 <div
                   key={showcase.id}
@@ -246,12 +244,13 @@ export const ShowcaseList = () => {
                     </div>
 
                     <div className="flex gap-4 mt-auto">
-                      <ButtonOutline
+                      <Link
                         className="w-1/2"
-                        onClick={() => setIsModalOpen(true)}
+                        // onClick={() => setIsModalOpen(true)}
+                        href={`/showcases/${showcase.slug}`}
                       >
                         {t("action.edit_label")}
-                      </ButtonOutline>
+                      </Link>
                       <ButtonOutline
                         onClick={() => createShowcase()}
                         className="w-1/2"
@@ -285,7 +284,7 @@ export const ShowcaseList = () => {
           </div>
         </section>
 
-        <DeleteModal
+        {/* <DeleteModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onDelete={() => {
@@ -296,7 +295,7 @@ export const ShowcaseList = () => {
           subDescription="If you proceed with editing, a <b>Draft version</b> will be created. This Draft will remain unpublished until an Admin approves your changes. <b>Until then, the current published showcase will stay active.</b>"
           cancelText="CANCEL"
           deleteText="PROCEED WITH EDITING"
-        />
+        /> */}
       </main>
     </>
   );

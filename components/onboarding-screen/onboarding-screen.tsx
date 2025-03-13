@@ -19,7 +19,6 @@ import { useOnboarding } from "@/hooks/use-onboarding";
 import Image from "next/image";
 import ButtonOutline from "../ui/button-outline";
 import apiClient from "@/lib/apiService";
-import Loader from "../loader";
 import { ErrorModal } from "../error-modal";
 
 export const OnboardingScreen = () => {
@@ -666,7 +665,7 @@ export const OnboardingScreen = () => {
             Loading Scenario
           </div>
         }
-       <div className="bg-white dark:bg-dark-bg-secondary text-light-text dark:text-dark-text h-screen">
+       <div className="bg-white dark:bg-dark-bg-secondary text-light-text dark:text-dark-text">
         <div className="flex bg-gray-100 rounded-md border-b">
           {/* {Data && Data.issuanceFlow.personas?.map((char: any, index: number) => ( */}
           {Personas && Personas?.map((char: any, index: number) => (

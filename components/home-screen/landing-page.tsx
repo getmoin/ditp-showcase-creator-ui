@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "../ui/input";
 import { useTranslations } from "next-intl";
 import ButtonOutline from "../ui/button-outline";
 import { Card } from "../ui/card";
-import apiClient from "@/lib/apiService";
 import { Share2 } from "lucide-react";
 import { ensureBase64HasPrefix } from "@/lib/utils";
 import { useShowcases } from "@/hooks/use-showcases";
@@ -15,7 +14,6 @@ import { Showcase } from "@/openapi-types";
 export const LandingPage = () => {
   const t = useTranslations();
   const [activeTab, setActiveTab] = useState(t("home.header_tab_all"));
-  const [filteredShowcases, setFilteredShowcases] = useState<any>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const { data, isLoading } = useShowcases();
 
@@ -25,21 +23,18 @@ export const LandingPage = () => {
     t("home.header_tab_others"),
   ];
 
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    // Always filter from the original dataset
-    const filtered = data?.showcases.filter((showcase: any) =>
-      showcase.name.toLowerCase().includes(term.toLowerCase())
-    );
-    setFilteredShowcases(filtered);
+  const searchFilter = (showcase: Showcase) => {
+    if (searchTerm === "") {
+      return true;
+    }
+    return showcase.name.toLowerCase().includes(searchTerm.toLowerCase());
   };
-
 
   return (
     <>
-      <section className="w-full px-0 py-2 bg-cover bg-center bg:light-bg dark:bg-dark-bg">
-        <div className="container mx-auto px-4 mt-12 mb-6">
-          <h1 className="text-4xl font-bold">{t("home.header_title")}</h1>
+      <section className="w-full px-0 py-2 bg-cover bg-center dark:bg-dark-bg">
+        <div className="container mx-auto px-4 mt-6 mb-6">
+          <h1 className="text-3xl font-bold">{t("home.header_title")}</h1>
         </div>
 
         <div className="container mx-auto px-4 mb-8 mt-2">
@@ -52,8 +47,8 @@ export const LandingPage = () => {
               type="text"
               placeholder={t("action.search_label")}
               value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="bg-white dark:dark-bg w-full pl-10 pr-3 py-4 border rounded-md text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-gray-300"
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-3 py-4 border border-foreground/50 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-100"
             />
           </div>
         </div>
@@ -90,7 +85,9 @@ export const LandingPage = () => {
       )}
       <section className="container mx-auto px-4">
         <div className="grid md:grid-cols-3 gap-6 mt-6">
-          {data?.showcases.map((showcase: typeof Showcase._type) => (
+          {data?.showcases
+          .filter(searchFilter)
+          .map((showcase: Showcase) => (
             <Card key={showcase.id}>
               <div
                 key={showcase.id}
@@ -158,10 +155,6 @@ export const LandingPage = () => {
                                 persona.headshotImage?.content
                               ) || "https://picsum.photos/200"
                             }
-                            // src={
-                            //   persona.headshotImage?.content ||
-                            //   "https://picsum.photos/200"
-                            // }
                             alt={persona.name}
                             className="w-[44px] h-[44px] rounded-full"
                           />
