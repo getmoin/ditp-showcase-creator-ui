@@ -18,7 +18,6 @@ export default function CreateOnboardingPage() {
         </div>
 
         <div className="flex gap-4 p-4 h-fit-content">
-          {/* Left Section - Character Selection with Header */}
           <div className="w-1/3 bg-[white] dark:bg-dark-bg-secondary border shadow-md rounded-md flex flex-col">
             <div className="p-4 border-b shadow">
               <h2 className="text-base font-bold text-foreground">
@@ -28,7 +27,6 @@ export default function CreateOnboardingPage() {
             </div>
             <ScenarioScreen />
           </div>
-          {/* Right Section - Character Details with Header */}
           <div className="w-2/3 bg-white dark:bg-dark-bg-secondary border shadow-md rounded-md flex flex-col">
             <EditStepScreen />
           </div>

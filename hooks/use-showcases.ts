@@ -40,10 +40,11 @@ export const useCreateShowcase = () => {
 
   return useMutation({
     mutationFn: async (data: typeof ShowcaseRequest._type) => {
+      console.log('data', data);
       const response = await apiClient.post(`/showcases`, data);
       return response;
     },
-    onSettled: (data) => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['showcases'] });
     }
   })

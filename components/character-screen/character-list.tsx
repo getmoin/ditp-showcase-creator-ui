@@ -1,9 +1,8 @@
 "use client";
 
-import { useShowcaseStore } from "@/hooks/use-showcase-store";
+import { useShowcaseStore } from "@/hooks/use-showcases-store";
 import Image from "next/image";
 import { EyeOff, Monitor, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 import StepHeader from "@/components/step-header";
 import ButtonOutline from "@/components/ui/button-outline";
@@ -15,18 +14,19 @@ import { Link } from "@/i18n/routing";
 export default function CreateCharacterList() {
   const t = useTranslations();
 
-  const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
-  const { setPersonaIds } = useShowcaseStore();
   const { data: personasData, isLoading } = usePersonas();
+  
+  const { 
+    selectedPersonaIds, 
+    toggleSelectedPersona, 
+    clearSelectedPersonas,
+    setPersonaIds, 
+    setDisplayPersonas, 
+    goToNextStep
+  } = useShowcaseStore();
 
   const handleToggleSelect = (personaId: string) => {
-    setSelectedPersonaIds(prev => {
-      if (prev.includes(personaId)) {
-        return prev.filter(id => id !== personaId);
-      } else {
-        return [...prev, personaId];
-      }
-    });
+    toggleSelectedPersona(personaId);
   };
 
   const handleProceed = () => {
@@ -34,7 +34,14 @@ export default function CreateCharacterList() {
       toast.error("Please select at least one character to proceed");
       return;
     }
+    
+    // Save selected personas to both showcase and displayShowcase
     setPersonaIds(selectedPersonaIds);
+    setDisplayPersonas(personasData?.personas.filter(persona => selectedPersonaIds.includes(persona.id)) || []);
+    
+    // Move to next step
+    goToNextStep();
+    
     toast.success("Characters selected successfully");
   };
 
@@ -123,7 +130,7 @@ export default function CreateCharacterList() {
             </span>
           </div>
           <div className="flex gap-3">
-            <ButtonOutline onClick={() => setSelectedPersonaIds([])}>
+            <ButtonOutline onClick={clearSelectedPersonas}>
               {t("action.clear_selection_label")}
             </ButtonOutline>
             <Link href={`/showcases/create/onboarding`}>

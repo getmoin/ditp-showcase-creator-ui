@@ -433,4 +433,7 @@ export const ErrorResponse = z.object({
 });
 
 export type Showcase = z.infer<typeof ShowcaseSchema>;
+export type ShowcaseRequestType = z.infer<typeof ShowcaseRequest>;
 export type Persona = z.infer<typeof PersonaSchema>;
+export type PersonaRequestType = z.infer<typeof PersonaRequest>;
+export type Credential = z.infer<typeof CredentialDefinition>;

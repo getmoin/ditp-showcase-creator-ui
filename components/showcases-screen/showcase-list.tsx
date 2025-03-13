@@ -6,12 +6,10 @@ import { useState } from "react";
 import { Link } from "@/i18n/routing";
 import { Input } from "@/components/ui/input";
 import ButtonOutline from "@/components/ui/button-outline";
-import DeleteModal from "@/components/delete-modal";
 import { Card } from "@/components/ui/card";
 import { ensureBase64HasPrefix } from "@/lib/utils";
 import { useCreateShowcase, useShowcases } from "@/hooks/use-showcases";
 import { Showcase } from "@/openapi-types";
-import { useRouter } from "next/navigation";
 
 export const ShowcaseList = () => {
   const t = useTranslations();
@@ -136,7 +134,7 @@ export const ShowcaseList = () => {
 
         <section className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-6 mt-6">
-            {data?.showcases?.filter(searchFilter).map((showcase: Showcase) => (
+            {data?.showcases?.filter(searchFilter).reverse().map((showcase: Showcase) => (
               <Card key={showcase.id}>
                 <div
                   key={showcase.id}
@@ -205,7 +203,7 @@ export const ShowcaseList = () => {
                       {t("showcases.description_version")}
                     </h3>
                     <p className="text-light-text dark:text-dark-text text-xs">
-                      {showcase?.version || "1.0"}
+                      1.0
                     </p>
 
                     <div className="mt-4 flex-grow mb-4">
@@ -225,8 +223,7 @@ export const ShowcaseList = () => {
                                     persona.headshotImage?.content
                                   ) || "https://picsum.photos/200"
                                 }
-                                // src={persona.headshotImage?.content || "https://picsum.photos/200"} // Fallback image
-                                alt={persona.name}
+                                alt={persona.name || "Persona"}
                                 className="w-[44px] h-[44px] rounded-full"
                               />
                               <div>

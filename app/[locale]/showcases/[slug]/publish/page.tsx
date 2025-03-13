@@ -27,12 +27,11 @@ export default async function PublishPage({ params }: { params: PageParams }) {
           </div>
           {/* Tabs Section */}
           <div className="flex space-x-1 text-lg font-semibold justify-start">
-          <TabsComponent slug="example-name" />
+            <TabsComponent slug="example-name" />
           </div>
           <button className="text-gray-500 hover:text-gray-700"></button>
         </div>
         <div className="flex gap-4 p-4 h-fit-content">
-          {/* Left Section - Character Selection with Header */}
           <div className="w-1/3 bg-[white] dark:bg-dark-bg-secondary border shadow-md rounded-md flex flex-col">
             <div className="p-4 border-b shadow">
               <h2 className="text-base font-bold text-foreground">
@@ -44,7 +43,6 @@ export default async function PublishPage({ params }: { params: PageParams }) {
             </div>
             <PublishInfo />
           </div>
-          {/* Right Section - Character Details with Header */}
           <div className="w-2/3 bg-white dark:bg-dark-bg-secondary border shadow-md rounded-md flex flex-col">
             <PublishEdit />
           </div>
