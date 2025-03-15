@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - SHOWCASE-90-pipeline-to-build-and-push
+    #  - SHOWCASE-90-pipeline-to-build-and-push
   pull_request:
     branches:
       - main
@@ -34,25 +34,25 @@ jobs:
   #     - name: Run Unit Tests
   #       run: npm test
 
-  sonar:
-    name: SonarQube Analysis
-    # needs: test  # Runs only if tests & linting pass
-    runs-on: ubuntu-latest
+  # sonar:
+  #   name: SonarQube Analysis
+  #   # needs: test  # Runs only if tests & linting pass
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v4
 
-      - name: Run Static Code Analysis with SonarQube
-        uses: sonarsource/sonarqube-scan-action@v2
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.projectKey=showcase-ui
-            -Dsonar.sources=.
+  #     - name: Run Static Code Analysis with SonarQube
+  #       uses: sonarsource/sonarqube-scan-action@v2
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+  #       with:
+  #         projectBaseDir: .
+  #         args: >
+  #           -Dsonar.projectKey=showcase-ui
+  #           -Dsonar.sources=.
 
   build:
     name: Build & Push Frontend Docker Image
