@@ -4,7 +4,6 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: {{ .Release.Name }}-{{ .Values.ui.name }}
-  namespace: {{ .Values.global.namespaceOverride | default .Release.Namespace }}
 spec:
   host: pr-{{ .Release.Name }}-{{ .Values.ui.name }}-dev.apps.silver.devops.gov.bc.ca
   path: {{ .Values.ui.openshift.route.path }}
