@@ -1,21 +1,16 @@
 import { NoSelection } from "../credentials/no-selection";
 import { Trash2 } from "lucide-react";
-import { ShowcaseJSON } from "@/types";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useOnboarding } from "@/hooks/use-onboarding";
 import { cn, ensureBase64HasPrefix } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import ButtonOutline from "../ui/button-outline";
 import apiClient from "@/lib/apiService";
-import { useCredentials } from "@/hooks/use-credentials";
 import { toast } from "sonner";
 
 interface DisplayAddedCredentialsProps {
-  selectedCharacter: number;
-  showcaseJSON: ShowcaseJSON;
   localJSON: {
     credentials?: string[];
   };
@@ -23,8 +18,6 @@ interface DisplayAddedCredentialsProps {
 }
 
 export const DisplayAddedCredentials = ({
-  selectedCharacter,
-  showcaseJSON,
   localJSON,
   removeCredential,
 }: DisplayAddedCredentialsProps) => {
@@ -93,7 +86,7 @@ export const DisplayAddedCredentials = ({
         {t("credentials.credential_added_label")} {credentials.length}
       </p>
 
-      {credentials.map((credential: any, index: number) => {
+      {credentials.map((credential: any) => {
 
         if (!credential) return null;
 

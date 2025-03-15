@@ -27,6 +27,8 @@
 //   }]
 // }
 
+// showcase
+
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { ShowcaseRequestType, PersonaRequestType } from "@/openapi-types";
@@ -34,15 +36,13 @@ import { ShowcaseRequestType, PersonaRequestType } from "@/openapi-types";
 interface ShowcaseStore {
   showcase: ShowcaseRequestType;  
   displayShowcase: any;
-  currentStep: 'info' | 'personas' | 'scenarios' | 'review';
   
   // Selection states
   selectedPersonaIds: string[];
   selectedCredentialDefinitionIds: string[];
   
   // Basic setters
-  setShowcaseName: (name: string) => void;
-  setShowcaseDescription: (description: string) => void;
+  setShowcase: (showcase: ShowcaseRequestType) => void;
   setPersonaIds: (personaIds: string[]) => void;
   setDisplayPersonas: (personas: PersonaRequestType[]) => void;
   setScenarioIds: (scenarioIds: string[]) => void;
@@ -59,11 +59,6 @@ interface ShowcaseStore {
   toggleSelectedCredentialDefinition: (definitionId: string) => void;
   clearSelectedCredentialDefinitions: () => void;
   
-  // Navigation
-  goToNextStep: () => void;
-  goToPreviousStep: () => void;
-  setStep: (step: 'info' | 'personas' | 'scenarios' | 'review') => void;
-
   reset: () => void;
 }
 
@@ -77,6 +72,7 @@ const initialState = {
     credentialDefinitions: [],
     personas: [],
   } as ShowcaseRequestType,
+  
   displayShowcase: {
     name: "",
     description: "",
@@ -116,7 +112,6 @@ const initialState = {
     }],
     personas: [],
   },
-  currentStep: 'info' as const,
   selectedPersonaIds: [] as string[],
   selectedCredentialDefinitionIds: ["86a96d6d-91c9-4357-984d-1f6b162fdfae"] as string[],
 };
@@ -125,15 +120,9 @@ export const useShowcaseStore = create<ShowcaseStore>()(
   persist(
     (set) => ({
       ...initialState,
-      
-      setShowcaseName: (name) => set((state) => ({
-        showcase: { ...state.showcase, name },
-        displayShowcase: { ...state.displayShowcase, name }
-      })),
-      
-      setShowcaseDescription: (description) => set((state) => ({
-        showcase: { ...state.showcase, description },
-        displayShowcase: { ...state.displayShowcase, description }
+      setShowcase: (showcase: ShowcaseRequestType) => set((state) => ({
+        showcase: { ...state.showcase, ...showcase },
+        displayShowcase: { ...state.displayShowcase, ...showcase }
       })),
       
       setPersonaIds: (personaIds) => set((state) => ({
@@ -182,22 +171,6 @@ export const useShowcaseStore = create<ShowcaseStore>()(
       
       clearSelectedCredentialDefinitions: () => set({ selectedCredentialDefinitionIds: [] }),
       
-      goToNextStep: () => set((state) => {
-        const steps = ['info', 'personas', 'scenarios', 'review'];
-        const currentIndex = steps.indexOf(state.currentStep);
-        const nextIndex = Math.min(currentIndex + 1, steps.length - 1);
-        return { currentStep: steps[nextIndex] as any };
-      }),
-      
-      goToPreviousStep: () => set((state) => {
-        const steps = ['info', 'personas', 'scenarios', 'review'];
-        const currentIndex = steps.indexOf(state.currentStep);
-        const prevIndex = Math.max(currentIndex - 1, 0);
-        return { currentStep: steps[prevIndex] as any };
-      }),
-      
-      setStep: (step) => set({ currentStep: step }),
-
       reset: () => set(initialState),
     }),
     {

@@ -17,7 +17,6 @@ import ButtonOutline from "@/components/ui/button-outline";
 import apiClient from "@/lib/apiService";
 import { ensureBase64HasPrefix } from "@/lib/utils";
 import { usePersonas, useCreatePersona, useUpdatePersona, useDeletePersona } from "@/hooks/use-personas";
-import { useQueryClient } from "@tanstack/react-query";
 import { Persona } from "@/openapi-types";
 import { toast } from "sonner";
 
@@ -34,10 +33,9 @@ export default function NewCharacterPage() {
   // Track the selected persona by ID for UI stability
   const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
   
-  const { setEditMode, editMode, personaState, setStepState, showcaseId } = useShowcaseStore();
+  const { setEditMode, editMode, personaState, setStepState } = useShowcaseStore();
 
   // Queries and mutations
-  const queryClient = useQueryClient();
   const { data: personasData, isLoading } = usePersonas();
   const { mutateAsync: createPersona } = useCreatePersona();
   const { mutateAsync: updatePersona } = useUpdatePersona();

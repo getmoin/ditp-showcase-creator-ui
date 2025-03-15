@@ -22,7 +22,6 @@ export default function CreateCharacterList() {
     clearSelectedPersonas,
     setPersonaIds, 
     setDisplayPersonas, 
-    goToNextStep
   } = useShowcaseStore();
 
   const handleToggleSelect = (personaId: string) => {
@@ -38,10 +37,6 @@ export default function CreateCharacterList() {
     // Save selected personas to both showcase and displayShowcase
     setPersonaIds(selectedPersonaIds);
     setDisplayPersonas(personasData?.personas.filter(persona => selectedPersonaIds.includes(persona.id)) || []);
-    
-    // Move to next step
-    goToNextStep();
-    
     toast.success("Characters selected successfully");
   };
 

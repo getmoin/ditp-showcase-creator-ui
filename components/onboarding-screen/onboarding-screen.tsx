@@ -16,10 +16,10 @@ import { useTranslations } from "next-intl";
 import { SortableStep } from "@/components/onboarding-screen/sortable-step";
 import { useIssuanceStep, useOnboarding } from "@/hooks/use-onboarding";
 import Image from "next/image";
-import ButtonOutline from "../ui/button-outline";
-import { ErrorModal } from "../error-modal";
+import ButtonOutline from "@/components/ui/button-outline";
+import { ErrorModal } from "@/components/error-modal";
 import { ensureBase64HasPrefix } from "@/lib/utils";
-import { useScenario } from "@/hooks/use-onboarding";
+import { useShowcaseStore } from "@/hooks/use-showcases-store";
 
 export const OnboardingScreen = () => {
   const t = useTranslations();
@@ -29,35 +29,30 @@ export const OnboardingScreen = () => {
     initializeScreens,
     setSelectedStep,
     moveStep,
-    setStepState  } = useOnboarding();
+    setStepState,
+  } = useOnboarding();
 
-  const {data, isLoading } = useIssuanceStep('credential-issuance-flow');
-  
+  const { displayShowcase } = useShowcaseStore();
+  const personas = displayShowcase.personas || [];
+  const { data, isLoading } = useIssuanceStep("credential-issuance-flow");
   const [showErrorModal, setErrorModal] = useState(false);
-
-  const scenarioData =  useScenario('credential-issuance-flow') || {}
-
-  // Extract personas
-  const personas = scenarioData.data?.issuanceScenario.personas || []; 
-
   let InitialId = personas.length > 0 ? personas[0]?.id : "";
-  const [selectedPersonaId, setSelectedPersonaId] = useState(InitialId);
+  const [ selectedPersonaId, setSelectedPersonaId ] = useState(InitialId);
 
   // Find the selected persona
-  const selectedPersona = personas.find((p:any) => p.id === selectedPersonaId) || null;
+  const selectedPersona =
+    personas.find((p: any) => p.id === selectedPersonaId) || null;
 
-  const Steps = data ? data?.steps : []
+  const Steps = data ? data?.steps : [];
 
   const initialScreens = useMemo(() => {
     return JSON.parse(JSON.stringify(Steps));
   }, [data]);
 
-
   useEffect(() => {
     initializeScreens(JSON.parse(JSON.stringify(Steps)));
   }, [initialScreens, initializeScreens]);
 
- 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
