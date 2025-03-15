@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.ui.name }}
-  namespace: {{ .Values.global.namespaceOverride | default .Release.Namespace }}
 spec:
   replicas: {{ .Values.ui.replicaCount }}
   selector:

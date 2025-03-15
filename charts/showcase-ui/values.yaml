@@ -84,7 +84,4 @@ ingress:
       hosts:
         - bcshowcase-ui.dev.nborbit.ca
 
-global:
-  namespaceOverride: ""
-
 debug: true 
