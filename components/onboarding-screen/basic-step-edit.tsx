@@ -9,8 +9,7 @@ import { FormTextArea, FormTextInput } from "@/components/text-input";
 import { Edit, Monitor } from "lucide-react";
 import {
   useOnboarding,
-  useCreateIssuanceStep,
-  useUpdateIssuanceStep,
+  useCreateScenario,
 } from "@/hooks/use-onboarding";
 import { BasicStepFormData } from "@/schemas/onboarding";
 import { basicStepSchema } from "@/schemas/onboarding";
@@ -19,11 +18,13 @@ import { useTranslations } from "next-intl";
 import StepHeader from "../step-header";
 import ButtonOutline from "../ui/button-outline";
 import DeleteModal from "../delete-modal";
-import { Link, usePathname, useRouter } from "@/i18n/routing";
-import apiClient from "@/lib/apiService";
+import { Link } from "@/i18n/routing";
 import { ErrorModal } from "../error-modal";
 import Loader from "../loader";
-import { StepRequest, StepResponse, Step } from "@/openapi-types";
+import { ScenarioRequestType, IssuanceScenarioResponseType } from "@/openapi-types";
+import { useShowcaseStore } from "@/hooks/use-showcases-store";
+import { toast } from "sonner";
+import { useDeleteStep } from "@/hooks/use-issue-step";
 
 export const BasicStepEdit = () => {
   const t = useTranslations();
@@ -31,23 +32,23 @@ export const BasicStepEdit = () => {
     screens,
     selectedStep,
     setSelectedStep,
-    updateStep,
     setStepState,
     stepState,
-    removeStep,
-    scenarioId,
+    removeStep
   } = useOnboarding();
+
+  const { mutateAsync: deleteStep } = useDeleteStep();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { mutateAsync } = useCreateIssuanceStep();
-  const { mutateAsync: mutateAsyncStep } = useUpdateIssuanceStep();
+  const { mutateAsync } = useCreateScenario();
   const currentStep: any = selectedStep !== null ? screens[selectedStep] : null;
+  const { showcase, setScenarioIds } = useShowcaseStore();
+  const personas = showcase.personas || [];
+  
   const isEditMode = stepState === "editing-basic";
-  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showErrorModal, setErrorModal] = useState(false);
-  const isEditing = !!currentStep?.id && currentStep.title.trim() !== "";
-  const router = useRouter();
+
   const defaultValues = currentStep
     ? {
         title: currentStep.title,
@@ -77,249 +78,291 @@ export const BasicStepEdit = () => {
   }, [currentStep, form]);
 
   const onSubmit = (data: any) => {
-    if (selectedStep !== null) {
-      updateStep(selectedStep, {
-        ...screens[selectedStep],
-        ...data,
-      });
-      if (isEditing) {
-        updateIssuanceStep(scenarioId, currentStep.id, data);
-        setStepState("no-selection");
-        setSelectedStep(null);
-      } else {
-        createIssuanceStep(scenarioId, data);
-        setStepState("no-selection");
-        setSelectedStep(null);
-      }
-    }
+    handleCreateScenario();
+    // if (selectedStep !== null) {
+    //   updateStep(selectedStep, {
+    //     ...screens[selectedStep],
+    //     ...data,
+    //   });
+    //   if (isEditing) {
+    //     updateIssuanceStep(scenarioId, currentStep.id, data);
+    //     setStepState("no-selection");
+    //     setSelectedStep(null);
+    //   } else {
+    //     createIssuanceStep(scenarioId, data);
+    //     setStepState("no-selection");
+    //     setSelectedStep(null);
+    //   }
+    // }
   };
 
-  const deleteStep = async (stepId: any) => {
+  const handleDeleteStep = async (stepId: any) => {
     try {
-      // issuanceScenarioId
       if (!stepId) {
         console.error("Error: Step ID is required for deletion.");
         return;
       }
-
-      console.log("Deleting persona with ID:", stepId);
       removeStep(stepId);
-
-      // // Step 1: Send DELETE request to the API
-      await apiClient.delete(
-        `/scenarios/issuances/${"credential-issuance-flow"}/steps/${stepId}`
-      );
-
-      console.log("Persona deleted successfully!");
+      await deleteStep({ 
+        issuanceScenarioSlug: "credential-issuance-flow", 
+        stepId 
+      });
+      toast.success("Step deleted successfully!");
       setLoading(false);
-      // // Step 2: Update the persona list after deletion
-      // GetPersona();
     } catch (error) {
-      console.error("Error deleting persona:", error);
       setLoading(false);
       setErrorModal(true);
     }
   };
 
-  const createAsset = async (
-    base64Content: string | undefined
-  ): Promise<string | null> => {
-    try {
-      if (!base64Content) {
-        console.warn("No content provided for asset creation.");
-        return null;
-      }
+  // const createAsset = async (
+  //   base64Content: string | undefined
+  // ): Promise<string | null> => {
+  //   try {
+  //     if (!base64Content) {
+  //       console.warn("No content provided for asset creation.");
+  //       return null;
+  //     }
 
-      const payload = {
-        mediaType: "image/jpeg",
-        content: base64Content,
-        fileName: "Logo.png",
-        description: "Step Logo",
-      };
+  //     const payload = {
+  //       mediaType: "image/jpeg",
+  //       content: base64Content,
+  //       fileName: "Logo.png",
+  //       description: "Step Logo",
+  //     };
 
-      const response: any = await apiClient.post<{ asset: { id: string } }>(
-        "/assets",
-        payload
-      );
-      console.log("Asset Created:", response);
+  //     const response: any = await apiClient.post<{ asset: { id: string } }>(
+  //       "/assets",
+  //       payload
+  //     );
+  //     console.log("Asset Created:", response);
 
-      return response.asset.id;
-    } catch (error) {
-      console.error("Error creating asset:", error);
-      return null;
-    }
-  };
+  //     return response.asset.id;
+  //   } catch (error) {
+  //     console.error("Error creating asset:", error);
+  //     return null;
+  //   }
+  // };
 
-  const createIssuanceStep = async (issuanceFlowId: string, formdata: any) => {
-    try {
-      console.log('FormData',formdata);
-      // setLoading(true);
-      // const showcaseSlug = "credential-issuance-flow"; // Replace with actual slug
-      // const bodyAssetId =
-      //   formdata.image !== "" ? await createAsset(formdata.image) : null;
-      // const stepData: typeof StepRequest._type = {
-      //   title: formdata.title,
-      //   description: formdata.description,
-      //   order: 7,
-      //   type: "HUMAN_TASK",
-      //   asset: bodyAssetId ?? "",
-      //   actions: [
-      //     {
-      //       title: "example_title1",
-      //       actionType: "ARIES_OOB",
-      //       text: "example_text1",
-      //       proofRequest: {
-      //         attributes: {
-      //           attribute1: {
-      //             attributes: ["attribute1", "attribute2"],
-      //             restrictions: ["restriction1", "restriction2"],
-      //           },
-      //         },
-      //         predicates: {
-      //           predicate1: {
-      //             name: "example_name",
-      //             type: "example_type",
-      //             value: "example_value",
-      //             restrictions: ["restriction1", "restriction2"],
-      //           },
-      //         },
-      //       },
-      //     },
-      //   ],
-      // };
+  // const createIssuanceStep = async (issuanceFlowId: string, formdata: any) => {
+  //   try {
+  //     console.log("FormData", formdata);
+  //     // setLoading(true);
+  //     // const showcaseSlug = "credential-issuance-flow"; // Replace with actual slug
+  //     // const bodyAssetId =
+  //     //   formdata.image !== "" ? await createAsset(formdata.image) : null;
+  //     // const stepData: typeof StepRequest._type = {
+  //     //   title: formdata.title,
+  //     //   description: formdata.description,
+  //     //   order: 7,
+  //     //   type: "HUMAN_TASK",
+  //     //   asset: bodyAssetId ?? "",
+  //     //   actions: [
+  //     //     {
+  //     //       title: "example_title1",
+  //     //       actionType: "ARIES_OOB",
+  //     //       text: "example_text1",
+  //     //       proofRequest: {
+  //     //         attributes: {
+  //     //           attribute1: {
+  //     //             attributes: ["attribute1", "attribute2"],
+  //     //             restrictions: ["restriction1", "restriction2"],
+  //     //           },
+  //     //         },
+  //     //         predicates: {
+  //     //           predicate1: {
+  //     //             name: "example_name",
+  //     //             type: "example_type",
+  //     //             value: "example_value",
+  //     //             restrictions: ["restriction1", "restriction2"],
+  //     //           },
+  //     //         },
+  //     //       },
+  //     //     },
+  //     //   ],
+  //     // };
 
-      // console.log(
-      //   `Creating issuance step for flow: ${issuanceFlowId} with data:`,
-      //   stepData
-      // );
-      // console.log("Slug", showcaseSlug);
-      // const response = await mutateAsync(
-      //   { slug: showcaseSlug, data: stepData },
-      //   {
-      //     onSuccess: (data) => {
-      //       console.log("Issuance Step Created:", data);
-      //     },
-      //   }
-      // );
-      // setLoading(false);
-      // return response;
-    } catch (error) {
-      console.error("Error creating issuance step:", error);
-      setLoading(false);
-      setErrorModal(true);
-    }
-  };
+  //     // console.log(
+  //     //   `Creating issuance step for flow: ${issuanceFlowId} with data:`,
+  //     //   stepData
+  //     // );
+  //     // console.log("Slug", showcaseSlug);
+  //     // const response = await mutateAsync(
+  //     //   { slug: showcaseSlug, data: stepData },
+  //     //   {
+  //     //     onSuccess: (data) => {
+  //     //       console.log("Issuance Step Created:", data);
+  //     //     },
+  //     //   }
+  //     // );
+  //     // setLoading(false);
+  //     // return response;
+  //   } catch (error) {
+  //     console.error("Error creating issuance step:", error);
+  //     setLoading(false);
+  //     setErrorModal(true);
+  //   }
+  // };
 
-  const updateIssuanceStep = async (
-    issuanceFlowId: string,
-    stepId: string,
-    formdata: any
-  ) => {
-    try {
-      console.log("Step ID ", stepId);
-      const scenarioSlug = "credential-issuance-flow";
-      const stepSlug: any = currentStep?.id;
-      console.log("Form data", formdata);
-      const bodyAssetId =
-        formdata.image !== "" ? await createAsset(formdata.image) : null;
-      let stepData: typeof StepRequest._type = {
-        title: formdata.title,
-        description: formdata.description,
-        order: 1,
-        type: "HUMAN_TASK",
-        asset: bodyAssetId ?? "",
-        actions: [
-          {
-            title: "example_title1",
-            actionType: "ARIES_OOB",
-            text: "example_text1",
-            proofRequest: {
-              attributes: {
-                attribute1: {
-                  attributes: ["attribute1", "attribute2"],
-                  restrictions: ["restriction1", "restriction2"],
+  // const updateIssuanceStep = async (
+  //   issuanceFlowId: string,
+  //   stepId: string,
+  //   formdata: any
+  // ) => {
+  //   try {
+  //     console.log("Step ID ", stepId);
+  //     const scenarioSlug = "credential-issuance-flow";
+  //     const stepSlug: any = currentStep?.id;
+  //     console.log("Form data", formdata);
+  //     const bodyAssetId =
+  //       formdata.image !== "" ? await createAsset(formdata.image) : null;
+  //     let stepData: typeof StepRequest._type = {
+  //       title: formdata.title,
+  //       description: formdata.description,
+  //       order: 1,
+  //       type: "HUMAN_TASK",
+  //       asset: bodyAssetId ?? "",
+  //       actions: [
+  //         {
+  //           title: "example_title1",
+  //           actionType: "ARIES_OOB",
+  //           text: "example_text1",
+  //           proofRequest: {
+  //             attributes: {
+  //               attribute1: {
+  //                 attributes: ["attribute1", "attribute2"],
+  //                 restrictions: ["restriction1", "restriction2"],
+  //               },
+  //             },
+  //             predicates: {
+  //               predicate1: {
+  //                 name: "example_name",
+  //                 type: "example_type",
+  //                 value: "example_value",
+  //                 restrictions: ["restriction1", "restriction2"],
+  //               },
+  //             },
+  //           },
+  //         },
+  //       ],
+  //     };
+  //     console.log(
+  //       `Updating issuance step ${stepId} for flow ${issuanceFlowId} with data:`,
+  //       stepData
+  //     );
+  //     // const response = await apiClient.put(`/scenarios/issuances/${issuanceFlowId}/steps/${stepId}`, stepData);
+  //     // console.log("Issuance Step Updated:", response);
+  //     const response = await mutateAsyncStep(
+  //       { slug: scenarioSlug, stepSlug, data: stepData },
+  //       {
+  //         onSuccess: (data: unknown) => {
+  //           console.log("Issuance Step Upadted:", data);
+  //         },
+  //       }
+  //     );
+  //     setLoading(false);
+  //     return response;
+  //   } catch (error) {
+  //     console.error("Error updating issuance step:", error);
+  //     setLoading(false);
+  //     setErrorModal(true);
+  //   }
+  // };
+
+  // const createIssuanceStepAction = async (
+  //   issuanceFlowId: string,
+  //   stepId: string,
+  //   actionData: any
+  // ) => {
+  //   try {
+  //     console.log(
+  //       `Creating action for step ${stepId} in flow ${issuanceFlowId} with data:`,
+  //       actionData
+  //     );
+  //     const response = await apiClient.post(
+  //       `/scenarios/issuances/${issuanceFlowId}/steps/${stepId}/actions`,
+  //       actionData
+  //     );
+  //     console.log("Issuance Step Action Created:", response);
+  //     setLoading(false);
+  //     return response;
+  //   } catch (error) {
+  //     console.error("Error creating issuance step action:", error);
+  //     setLoading(false);
+  //     setErrorModal(true);
+  //   }
+  // };
+
+  // const updateIssuanceStepAction = async (
+  //   issuanceFlowId: string,
+  //   stepId: string,
+  //   actionId: string,
+  //   actionData: any
+  // ) => {
+  //   try {
+  //     console.log(
+  //       `Updating action ${actionId} for step ${stepId} in flow ${issuanceFlowId} with data:`,
+  //       actionData
+  //     );
+  //     const response = await apiClient.put(
+  //       `/scenarios/issuances/${issuanceFlowId}/steps/${stepId}/actions/${actionId}`,
+  //       actionData
+  //     );
+  //     console.log("Issuance Step Action Updated:", response);
+  //     setLoading(false);
+  //     return response;
+  //   } catch (error) {
+  //     console.error("Error updating issuance step action:", error);
+  //   }
+  // };
+
+  const handleCreateScenario = async () => {
+    const data: ScenarioRequestType = {
+      name: "example_name",
+      description: "example_description",
+      type: "ISSUANCE" as "ISSUANCE" | "PRESENTATION",
+      issuer: "3de59a17-222e-4c92-a22a-118eff7032b5",
+      steps: [
+        {
+          title: "example_title",
+          description: "example_description",
+          order: 1,
+          type: "HUMAN_TASK", 
+          asset: "0d5094f0-c95d-414c-b810-44a9db5ccb5c",
+          actions: [
+            {
+              title: "example_title",
+              actionType: "ARIES_OOB",
+              text: "example_text",
+              proofRequest: {
+                attributes: {
+                  attribute1: {
+                    attributes: ["attribute1", "attribute2"],
+                    restrictions: ["restriction1", "restriction2"],
+                  },
                 },
-              },
-              predicates: {
-                predicate1: {
-                  name: "example_name",
-                  type: "example_type",
-                  value: "example_value",
-                  restrictions: ["restriction1", "restriction2"],
+                predicates: {
+                  predicate1: {
+                    name: "example_name",
+                    type: "example_type",
+                    value: "example_value",
+                    restrictions: ["restriction1", "restriction2"],
+                  },
                 },
               },
             },
-          },
-        ],
-      };
-      console.log(
-        `Updating issuance step ${stepId} for flow ${issuanceFlowId} with data:`,
-        stepData
-      );
-      // const response = await apiClient.put(`/scenarios/issuances/${issuanceFlowId}/steps/${stepId}`, stepData);
-      // console.log("Issuance Step Updated:", response);
-      const response = await mutateAsyncStep(
-        { slug: scenarioSlug, stepSlug, data: stepData },
-        {
-          onSuccess: (data: any) => {
-            console.log("Issuance Step Upadted:", data);
-          },
-        }
-      );
-      setLoading(false);
-      return response;
-    } catch (error) {
-      console.error("Error updating issuance step:", error);
-      setLoading(false);
-      setErrorModal(true);
+          ],
+        },
+      ],
+      personas: [...personas],
     }
-  };
 
-  const createIssuanceStepAction = async (
-    issuanceFlowId: string,
-    stepId: string,
-    actionData: any
-  ) => {
-    try {
-      console.log(
-        `Creating action for step ${stepId} in flow ${issuanceFlowId} with data:`,
-        actionData
-      );
-      const response = await apiClient.post(
-        `/scenarios/issuances/${issuanceFlowId}/steps/${stepId}/actions`,
-        actionData
-      );
-      console.log("Issuance Step Action Created:", response);
-      setLoading(false);
-      return response;
-    } catch (error) {
-      console.error("Error creating issuance step action:", error);
-      setLoading(false);
-      setErrorModal(true);
-    }
-  };
-
-  const updateIssuanceStepAction = async (
-    issuanceFlowId: string,
-    stepId: string,
-    actionId: string,
-    actionData: any
-  ) => {
-    try {
-      console.log(
-        `Updating action ${actionId} for step ${stepId} in flow ${issuanceFlowId} with data:`,
-        actionData
-      );
-      const response = await apiClient.put(
-        `/scenarios/issuances/${issuanceFlowId}/steps/${stepId}/actions/${actionId}`,
-        actionData
-      );
-      console.log("Issuance Step Action Updated:", response);
-      setLoading(false);
-      return response;
-    } catch (error) {
-      console.error("Error updating issuance step action:", error);
-    }
+    await mutateAsync(data, {
+      onSuccess: (data: unknown) => {
+        toast.success("Scenario Created");
+        setScenarioIds([(data as IssuanceScenarioResponseType).issuanceScenario.id]);
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -331,8 +374,6 @@ export const BasicStepEdit = () => {
   if (selectedStep === null) {
     return null;
   }
-
-  const Pathname = pathname.split("/")[2];
 
   if (!isEditMode && currentStep) {
     return (
@@ -383,7 +424,7 @@ export const BasicStepEdit = () => {
                 <img
                   src={currentStep.image}
                   alt="Step icon"
-                  className="w-full h-full object-cover"
+                  className="w-full object-cover"
                 />
               </div>
             </div>
@@ -431,7 +472,7 @@ export const BasicStepEdit = () => {
           />
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="space-y-6 h-screen">
+              <div className="space-y-6">
                 <FormTextInput
                   label={t("onboarding.page_title_label")}
                   name="title"
@@ -487,24 +528,21 @@ export const BasicStepEdit = () => {
                 </ButtonOutline>
                 <ButtonOutline type="submit">{"Save Changes"}</ButtonOutline>
 
-                {/* <Link href={`${Pathname}/scenarios`}> */}
+                <Link href={`/showcases/create/scenarios`}>
                 <ButtonOutline
                 // type="submit"
                 // disabled={!form.formState.isDirty || !form.formState.isValid}
                 >
                   {t("action.next_label")}
                 </ButtonOutline>
-                {/* </Link> */}
+                </Link>
               </div>
             </form>
           </Form>
           <DeleteModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
-            onDelete={() => {
-              setIsModalOpen(false);
-              deleteStep(currentStep?.id);
-            }}
+            onDelete={() => handleDeleteStep(currentStep?.id)}
             header="Are you sure you want to delete this page?"
             description="Are you sure you want to delete this page?"
             subDescription="<b>This action cannot be undone.</b>"

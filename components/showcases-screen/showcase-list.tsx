@@ -45,7 +45,7 @@ export const ShowcaseList = () => {
         personas: ["b3f83345-4448-4d21-a3d3-5d7b719c45d8"],
       },
       {
-        onSuccess: (data) => {
+        onSuccess: (data: unknown) => {
           console.log("Showcase Created:", data);
         },
       }
@@ -241,12 +241,13 @@ export const ShowcaseList = () => {
                     </div>
 
                     <div className="flex gap-4 mt-auto">
-                      <Link
+                      <Link className="w-1/2" href={`/showcases/${showcase.slug}`}>
+                      <ButtonOutline
                         className="w-1/2"
                         // onClick={() => setIsModalOpen(true)}
-                        href={`/showcases/${showcase.slug}`}
                       >
                         {t("action.edit_label")}
+                      </ButtonOutline>
                       </Link>
                       <ButtonOutline
                         onClick={() => createShowcase()}
