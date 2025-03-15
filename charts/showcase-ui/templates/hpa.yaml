@@ -4,7 +4,6 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Release.Name }}-{{ .Values.ui.name }}
-  namespace: {{ .Values.global.namespaceOverride | default .Release.Namespace }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

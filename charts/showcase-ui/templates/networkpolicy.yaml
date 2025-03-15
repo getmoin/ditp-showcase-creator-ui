@@ -4,7 +4,6 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: {{ .Release.Name }}-{{ .Values.ui.name }}
-  namespace: {{ .Values.global.namespaceOverride | default .Release.Namespace }}
 spec:
   podSelector:
     matchLabels:
