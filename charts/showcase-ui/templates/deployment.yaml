@@ -39,8 +39,8 @@ spec:
         - name: AUTH_TOKEN
           valueFrom:
             secretKeyRef:
-              name: {{ .Release.Name }}-ui-secrets
-              key: auth-token
+              name: {{ include "showcase-ui.authtoken.secret.name" . }}
+              key: token
         resources:
           {{- toYaml .Values.ui.resources | nindent 12 }}
       serviceAccountName: {{ if .Values.ui.serviceAccount.create }}{{ if .Values.ui.serviceAccount.name }}{{ .Values.ui.serviceAccount.name }}{{ else }}{{ $.Release.Name }}-{{ .Values.ui.name }}{{ end }}{{ end }}

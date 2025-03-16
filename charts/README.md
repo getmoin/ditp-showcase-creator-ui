@@ -5,3 +5,8 @@ helm upgrade --install showcase-ui -f ./charts/showcase-ui/values.yaml --set ui.
 ```
 
 
+```bash
+helm upgrade --install showcase-ui -f ./charts/showcase-ui/values.yaml ./charts/showcase-ui --wait
+```
+
+

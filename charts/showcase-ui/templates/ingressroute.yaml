@@ -8,7 +8,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`{{ .Values.ingress.hosts | first | get "host" }}`)
+    - match: Host(`{{ (index .Values.ingress.hosts 0).host }}`)
       kind: Rule
       services:
         - name: {{ .Release.Name }}-{{ .Values.ui.name }}
