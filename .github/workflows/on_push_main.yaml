@@ -1,30 +1,15 @@
 name: Build and Deploy UI
 
 on:
-  pull_request:
+  workflow_dispatch:
+  push:
     branches:
       - main
     paths:
       - "**"
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
 
 jobs:
-  ready:
-    name: "Install if ready for review"
-    runs-on: ubuntu-latest
-    outputs:
-      deploy: ${{ steps.ready_for_review.outputs.true_false }}
-      build: ${{ steps.ready_for_review.outputs.owner_true_false }}
-    steps:
-      - id: ready_for_review
-        run: |
-          echo "true_false=${{ toJSON(github.event.pull_request.draft != true && github.repository_owner == 'getmoin') }}" >> $GITHUB_OUTPUT #should change to bcgov
-          echo "owner_true_false=${{ toJSON(github.repository_owner == 'getmoin') }}" >> $GITHUB_OUTPUT
-
+  
   test:
     name: "Test Frontend Code"
     runs-on: ubuntu-latest
@@ -80,11 +65,11 @@ jobs:
           file: docker/Dockerfile
           push: true
           tags: |
-            public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:pr-${{ github.event.number }}
+            public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:${{ github.event.number }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
     outputs:
-      image_tag: pr-${{ github.event.number }}
+      image_tag: ${{ github.event.number }}
 
 
   ##### FOR github container registry use the following:
@@ -122,15 +107,14 @@ jobs:
         uses: ./.github/actions/trivy-scan
         with:
           scan-type: 'image'
-          scan-ref: 'public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:pr-${{ github.event.number }}'
+          scan-ref: 'public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:${{ github.event.number }}'
           scan-title: 'Docker Image Scan Results for Showcase UI'
 
   deploy:
-    name: Deploy PR
+    name: Deploy
     environment: development
     runs-on: ubuntu-latest
     needs:
-      - ready
       - build_showcase_ui
     if: ${{ always() && (fromJSON(needs.ready.outputs.deploy) == true) && !(contains(needs.*.result, 'failure')) }}
 
@@ -146,25 +130,25 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             # Run Helm commands on the EC2 instance
-            helm upgrade --install pr-${{ github.event.number }}-showcase-ui -f helm-k8s/ditp-showcase-creator-ui/charts/showcase-ui/values.yaml \
+            helm upgrade --install ${{ github.event.number }}-showcase-ui -f helm-k8s/ditp-showcase-creator-ui/charts/showcase-ui/values.yaml \
               --set ui.image.repository=public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui \
-              --set ui.image.tag=pr-${{ github.event.number }} \
-              --set ingress.hosts[0].host=pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca \
+              --set ui.image.tag=${{ github.event.number }} \
+              --set ingress.hosts[0].host=bcshowcase-ui.dev.nborbit.ca \
               /path/to/charts/showcase-ui --wait
             
-            # Create Certificate for PR domain
+            # Create Certificate
             cat <<EOF | kubectl apply -f -
             apiVersion: cert-manager.io/v1
             kind: Certificate
             metadata:
-              name: pr-${{ github.event.number }}-showcase-ui-tls
+              name: showcase-ui-tls
             spec:
-              secretName: pr-${{ github.event.number }}-showcase-ui-tls
+              secretName: showcase-ui-tls
               issuerRef:
                 name: letsencrypt-prod
                 kind: ClusterIssuer
               dnsNames:
-                - pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca
+                - bcshowcase-ui.dev.nborbit.ca
             EOF
             
             # Create Traefik IngressRoute
@@ -172,29 +156,28 @@ jobs:
             apiVersion: traefik.containo.us/v1alpha1
             kind: IngressRoute
             metadata:
-              name: pr-${{ github.event.number }}-showcase-ui-route
+              name: showcase-ui-route
               namespace: default
             spec:
               entryPoints:
                 - websecure
               routes:
-                - match: Host(\`pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca\`)
+                - match: Host(\`bcshowcase-ui.dev.nborbit.ca\`)
                   kind: Rule
                   services:
-                    - name: pr-${{ github.event.number }}-showcase-ui-showcase-ui
-                      port: 80
+                    - name: bcshowcase-ui-showcase-ui
+                      port: 3050
               tls:
-                secretName: pr-${{ github.event.number }}-showcase-ui-tls
+                secretName: showcase-ui-tls
             EOF
-  
+      
       - name: Restart Deployments
-          run: |
-            kubectl rollout restart deployment pr-${{ github.event.number }}-showcase-ui-showcase-ui
-
+        run: |
+          kubectl rollout restart deployment showcase-ui-showcase-ui
 
   ### FOR OPENSHIFT USE THE KUBECTL TO DEPLOY
   # deploy:
-  #   name: Deploy PR
+  #   name: Deploy
   #   environment: development
   #   runs-on: ubuntu-latest
   #   needs:
@@ -222,12 +205,12 @@ jobs:
   #         kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
   #     # Deploy to K3s for development
-  #     - name: Run Showcase UI PR Helm
+  #     - name: Run Showcase UI Helm
   #       run: |
-  #         helm upgrade --install pr-${{ github.event.number }}-showcase-ui -f ./charts/showcase-ui/values.yaml \
+  #         helm upgrade --install ${{ github.event.number }}-showcase-ui -f ./charts/showcase-ui/values.yaml \
   #           --set ui.image.repository=public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui \
-  #           --set ui.image.tag=pr-${{ github.event.number }} \
-  #           --set ingress.hosts[0].host=pr-${{ github.event.number }}-showcase-ui.dev.nborbit.ca \
+  #           --set ui.image.tag=${{ github.event.number }} \
+  #           --set ingress.hosts[0].host=${{ github.event.number }}-showcase-ui.dev.nborbit.ca \
   #           ./charts/showcase-ui --wait
 
 
@@ -256,6 +239,6 @@ jobs:
           body: |
             | Deployment | Resource | Location |
             | --- | --- | --- |
-            | Showcase UI | | https://pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca/ |
+            | Showcase UI | | bcshowcase-ui.dev.nborbit.ca/ |
 
             Deployment URLs ready for review.
