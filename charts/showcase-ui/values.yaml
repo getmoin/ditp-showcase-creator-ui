@@ -4,10 +4,10 @@ fullnameOverride: ""
 ui:
   name: showcase-ui
   image:
-    repository: kennethreitz/httpbin # public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui
+    repository: heymoinn/credential-showcase-ui # public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui
     pullPolicy: IfNotPresent
     pullSecrets: []
-    tag: "latest"
+    tag: "0.1-alpha"
   replicaCount: 1
   port: 3050
   path: /
