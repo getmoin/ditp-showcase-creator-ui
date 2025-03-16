@@ -2,12 +2,20 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { OnboardingStep } from "@/types";
 import Image from "next/image";
-import { GripVertical, Monitor } from 'lucide-react';
-import { cn } from "@/lib/utils";
+import {
+  Copy,
+  GripVertical,
+  TriangleAlert,
+} from "lucide-react";
+import { cn, ensureBase64HasPrefix } from "@/lib/utils";
 import { useOnboarding } from "@/hooks/use-onboarding";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
+import { produce } from "immer";
+import { useShowcaseStore } from "@/hooks/use-showcase-store";
+import { Step } from "@/openapi-types";
+import { useCredentials } from "@/hooks/use-credentials";
 
-const MAX_CHARS = 110;
+const MAX_CHARS = 50;
 
 export const SortableStep = ({
   selectedStep,
@@ -16,16 +24,16 @@ export const SortableStep = ({
   totalSteps,
 }: {
   selectedStep: number | null;
-  myScreen: OnboardingStep;
+  myScreen: typeof Step._type;
   stepIndex: number;
   totalSteps: number;
 }) => {
-  const t = useTranslations()
-  const { setSelectedStep, setStepState } = useOnboarding();
-
+  const t = useTranslations();
+  const { setSelectedStep, setStepState, stepState } = useOnboarding();
+  const {selectedCredential} = useCredentials()
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: myScreen.screenId,
+      id: myScreen.id,
     });
 
   const style = {
@@ -35,69 +43,137 @@ export const SortableStep = ({
 
   const handleStepClick = () => {
     setSelectedStep(stepIndex - 1);
-    setStepState(myScreen.credentials ? "editing-issue" : "editing-basic");
+    const ScreenType = myScreen.type 
+    setStepState(ScreenType == 'SERVICE' ? "editing-issue" : "editing-basic");
   };
 
+  const handleCopyStep = (index: number) => {
+    try {
+      const { screens, selectedStep } = useOnboarding.getState();
+
+      if (!screens[index]) return;
+
+      const stepToCopy = screens[index];
+
+      const newStep = JSON.parse(JSON.stringify(stepToCopy));
+      newStep.id = `${Date.now()}`; // Ensure a unique ID
+
+      useOnboarding.setState(
+        produce((state) => {
+          state.screens.splice(index + 1, 0, newStep);
+          state.selectedStep = index + 1;
+
+          // Update showcaseJSON
+          const { selectedCharacter } = useShowcaseStore.getState();
+          useShowcaseStore.setState((draft) => {
+            draft.showcaseJSON.personas[selectedCharacter].onboarding =
+              JSON.parse(JSON.stringify(state.screens));
+          });
+        })
+      );
+    } catch (error) {
+      console.log("Error ", error);
+    }
+  };
+// console.log('myScreenmyScreen',myScreen);
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="p-4 flex flex-row justify-items-center items-center w-full"
+      className="flex mb-2 flex-row items-center w-full bg-white dark:bg-dark-bg-secondary min-h-28"
     >
-      <div {...attributes} {...listeners} className="cursor-grab">
-        <span className="text-2xl mt-10">
-          <GripVertical />
-        </span>
-      </div>
-
       <div
-        className="px-3 flex-flex-col w-full justify-items-center cursor-pointer"
+        className={`cursor-default h-full flex-shrink-0 flex items-center ${
+          myScreen.type == 'SERVICE'
+            ? "bg-light-yellow"
+            : "bg-[#898A8A]"
+        } px-3 py-5 rounded-l`}
+      >
+        <div className="flex flex-col gap-3">
+          <div
+            {...attributes}
+            {...listeners}
+            className="text-white text-2xl flex flex-col gap-2 cursor-grab"
+          >
+            <GripVertical />
+          </div>
+
+          {/* Copy Step on Click */}
+          <div
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent drag interference
+              handleCopyStep(stepIndex - 1);
+            }}
+            className="text-white text-2xl flex flex-col gap-2 cursor-pointer"
+          >
+            <Copy />
+          </div>
+        </div>
+      </div>
+      <div
+        className="bg-light-bg dark:bg-dark-bg flex flex-col w-full cursor-pointer"
         onClick={handleStepClick}
       >
-        <p className={cn(
-          "text-sm",
-          myScreen.credentials && "text-amber-500 font-bold"
-        )}>
-          {myScreen.credentials ? t('onboarding.step_issue_step_label') : t('onboarding.step_basic_step_label')}
-        </p>
-
-        <p className="font-bold">
-          {myScreen.title} - ({stepIndex} / {totalSteps})
-        </p>
-
         <div
           className={cn(
-            "bg-light-bg dark:bg-dark-bg w-full hover:bg-light-btn-hover dark:hover:bg-dark-btn-hover flex flex-row justify-items-center items-center rounded p-3",
-            "border-2",
+            "min-h-28  w-full hover:bg-light-btn-hover dark:hover:bg-dark-btn-hover",
+            "flex flex-col justify-center rounded p-3",
+            "border-b-2 border-light-border dark:border-dark-border",
             selectedStep === stepIndex - 1
               ? "border-foreground"
               : "border-light-bg-secondary"
           )}
         >
-          <div className="text-2xl p-2 mx-2 rounded highlight-text">
-            {myScreen.image ? (
-              <Image
-                width={100}
-                height={100}
-                src={myScreen.image}
-                alt={myScreen.title}
-                className="object-cover"
-              />
-            ) : (
-              <Monitor />
-            )}
-          </div>
+          
 
+          <span className="font-semibold">{myScreen.title}</span>
           <p>
-            {myScreen.text.length > MAX_CHARS ? (
+            {myScreen.description.length > MAX_CHARS ? (
               <>
-                {myScreen.text.slice(0, MAX_CHARS)}...{" "}
-                <span className="font-bold">{t('action.see_more_label')}</span>
+                <span className="text-xs">
+                  {myScreen.description.slice(0, MAX_CHARS)}...{" "}
+                </span>
+                <span className="text-xs">{t("action.see_more_label")}</span>
               </>
             ) : (
-              myScreen.text
+              myScreen.description
             )}
           </p>
+          {myScreen.type == 'SERVICE' && (
+            <>
+           {!selectedCredential ? (
+            <>
+               {/* <div className="bg-[#FFE6AB] mt-2 font-bold rounded gap-2 flex flex-row items-center justify-center">
+               <TriangleAlert fill={'#FFCB00'} size={22}/>
+               Select Credential to Proceed
+             </div> */}
+            </>
+           ):(
+            <>
+            {selectedCredential &&        
+            <div className="bg-white dark:bg-dark-bg-secondary p-2 flex">
+              <Image
+                src={ensureBase64HasPrefix(selectedCredential.icon?.content)}
+                alt={"Bob"}
+                width={50}
+                height={50}
+                className="rounded-full"
+              />
+              <div className="ml-4 flex-col">
+                <div className="font-semibold">{selectedCredential?.name}</div>
+                <div className="text-sm">{selectedCredential.issuer  ?? 'Test college'}</div>
+              </div>
+              <div className="align-middle ml-auto">
+                <div className="font-semibold">Attributes</div>
+                <div className="text-sm text-end">{Object.keys(selectedCredential.credentialSchema.attributes).length}</div>
+              </div>
+            </div>
+            }
+            </>
+           )}
+            
+            </>
+          )}
         </div>
       </div>
     </div>

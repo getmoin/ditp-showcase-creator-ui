@@ -19,7 +19,7 @@ export const CharacterEdit = () => {
     resolver: zodResolver(characterSchema),
     defaultValues: {
       name: showcaseJSON.personas[selectedCharacter].name,
-      type: showcaseJSON.personas[selectedCharacter].type,
+      role: showcaseJSON.personas[selectedCharacter].type,
       description: showcaseJSON.personas[selectedCharacter].description,
     },
     mode: "onChange",
@@ -34,7 +34,7 @@ export const CharacterEdit = () => {
   const handleCancel = () => {
     form.reset({
       name: showcaseJSON.personas[selectedCharacter].name,
-      type: showcaseJSON.personas[selectedCharacter].type,
+      role: showcaseJSON.personas[selectedCharacter].type,
       description: showcaseJSON.personas[selectedCharacter].description,
     });
     setEditMode(false);
@@ -67,9 +67,9 @@ export const CharacterEdit = () => {
 
           <FormTextInput
             label={t('character.edit_role_label')}
-            name="type"
+            name="role"
             register={form.register}
-            error={form.formState.errors.type?.message}
+            error={form.formState.errors.role?.message}
             placeholder={t('character.edit_role_placeholder')}
           />
         </div>

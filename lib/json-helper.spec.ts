@@ -8,7 +8,6 @@ import {
   removeCredentialAttribute,
   getNestedValue,
   updateOnboardingStep,
-  checkCredentialProperties,
   updateOnboardingStepSingleValue,
   updateOnboardingStepCredentials,
   removeOnboardingStepCredential,
@@ -421,19 +420,6 @@ describe('Onboarding Step Helpers', () => {
    it('should handle optional properties', () => {
      updateOnboardingStep(mockDraft, 'image', undefined);
      expect(mockDraft.image).toBeUndefined();
-   });
- });
-
- describe('checkCredentialProperties', () => {
-   it('should return true for credentials property', () => {
-     expect(checkCredentialProperties('credentials')).toBe(true);
-   });
-
-   it('should return false for non-array properties', () => {
-     expect(checkCredentialProperties('title')).toBe(false);
-     expect(checkCredentialProperties('text')).toBe(false);
-     expect(checkCredentialProperties('screenId')).toBe(false);
-     expect(checkCredentialProperties('image')).toBe(false);
    });
  });
 

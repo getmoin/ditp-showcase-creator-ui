@@ -23,16 +23,19 @@ export const EditStepScreen = () => {
     setScenarios,
     addStep,
   } = useScenarios();
-
+  console.log('scenarios in Edit Step',scenarios);
   useEffect(() => {
-    setScenarios(showcaseJSON.personas[selectedCharacter].scenarios);
+    setScenarios(scenarios);
   }, [selectedCharacter, showcaseJSON.personas]);
-
+  console.log('selectedScenario in Edit Step',selectedScenario);
   const currentScenario = selectedScenario !== null ? scenarios[selectedScenario] : null;
+  console.log('currentScenario in Edit',currentScenario)
+  console.log('selectedStep in Edit',selectedStep)
   const currentStep = currentScenario && selectedStep !== null 
     ? currentScenario.steps[selectedStep] 
     : null;
 
+    console.log('currentStepcurrentStep',currentStep);
   const handleAddStep = (type: StepType) => {
     if (selectedScenario === null) return;
     const newStep = createEmptyStep(type);
@@ -40,14 +43,15 @@ export const EditStepScreen = () => {
   };
 
   return (
-    <div className="w-3/5 two-column-col bg-light-bg-secondary dark:bg-dark-bg-secondary text-light-text dark:text-dark-text p-6 rounded-md right-col">
+    <div 
+    className="w-full two-column-col bg-white dark:bg-dark-bg-secondary text-light-text dark:text-dark-text p-6 rounded-md right-col">
       {stepState === "adding-step" && (
         <ChooseStepType addNewStep={handleAddStep} />
       )}
 
       {stepState === "editing-scenario" && <ScenarioEdit />}
 
-      {stepState === "basic-step-edit" && currentStep?.type === "BASIC" && (
+      {stepState === "basic-step-edit" && currentStep?.type === "HUMAN_TASK" && (
         <BasicStepEdit />
       )}
 
