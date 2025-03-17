@@ -4,7 +4,7 @@ fullnameOverride: ""
 ui:
   name: showcase-ui
   image:
-    repository: heymoinn/credential-showcase-ui # public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui
+    repository: public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui
     pullPolicy: IfNotPresent
     pullSecrets: []
     tag: "0.1-alpha"
@@ -80,7 +80,7 @@ ingress:
           pathType: Prefix
           service: ui
   tls:
-    - secretName: showcase-tls
+    - secretName: showcase-ui-tls
       hosts:
         - bcshowcase-ui.dev.nborbit.ca
 

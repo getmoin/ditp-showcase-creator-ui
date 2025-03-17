@@ -1,11 +1,12 @@
-name: Build and Deploy UI
+name: PR Build and Deploy UI
 
 on:
   pull_request:
     branches:
       - main
+      - develop
     paths:
-      - "**"
+      - "**"  # You may want to restrict this to frontend code paths
     types:
       - opened
       - synchronize
@@ -14,7 +15,7 @@ on:
 
 jobs:
   ready:
-    name: "Install if ready for review"
+    name: "Check if PR is ready for review"
     runs-on: ubuntu-latest
     outputs:
       deploy: ${{ steps.ready_for_review.outputs.true_false }}
@@ -24,14 +25,13 @@ jobs:
         run: |
           echo "true_false=${{ toJSON(github.event.pull_request.draft != true && github.repository_owner == 'getmoin') }}" >> $GITHUB_OUTPUT #should change to bcgov
           echo "owner_true_false=${{ toJSON(github.repository_owner == 'getmoin') }}" >> $GITHUB_OUTPUT
-
+          
   build_showcase_ui:
     name: "Build Showcase UI"
     runs-on: ubuntu-latest
-    # if: ${{ always() && fromJSON(needs.ready.outputs.build) == true }}
     needs:
       - ready
-      # - test
+    if: ${{ always() && fromJSON(needs.ready.outputs.build) == true }}
     steps:
       - uses: actions/checkout@v4
       
@@ -59,7 +59,6 @@ jobs:
           tags: |
             public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:pr-${{ github.event.number }}
             public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:${{ github.sha }}
-            public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           # Add build args to disable type checking
@@ -70,8 +69,9 @@ jobs:
 
   image-scan:
     name: "Image Scan - Showcase UI"
-    needs: build_showcase_ui
+    needs: [build_showcase_ui, ready]
     runs-on: ubuntu-latest
+    if: ${{ always() && fromJSON(needs.ready.outputs.deploy) == true && !(contains(needs.*.result, 'failure')) }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -79,20 +79,31 @@ jobs:
         uses: ./.github/actions/trivy-scan
         with:
           scan-type: 'image'
-          scan-ref: 'public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:${{ github.sha }}'
-          scan-title: 'Docker Image Scan Results for Showcase UI'
-
+          scan-ref: 'public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:${{ needs.build_showcase_ui.outputs.image_tag }}'
+          scan-title: 'Docker Image Scan Results for ditp-showcase-creator-ui'
+  
   deploy:
-    name: Deploy PR
+    name: "Deploy PR Environment - UI"
     environment: development
     runs-on: ubuntu-latest
     needs:
       - ready
       - build_showcase_ui
-    if: ${{ always() && (fromJSON(needs.ready.outputs.deploy) == true) && !(contains(needs.*.result, 'failure')) }}
-
+    if: ${{ always() && fromJSON(needs.ready.outputs.deploy) == true && !(contains(needs.*.result, 'failure')) }}
     steps:
       - uses: actions/checkout@v4
+      
+      # Copy charts to EC2 server first
+      - name: Copy charts to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "charts/"
+          target: "/home/ubuntu/pipeline"
+          overwrite: true
+          strip_components: 0
 
       # Deploy using SSH to EC2 instance
       - name: Deploy to EC2 via SSH
@@ -102,15 +113,41 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            # Run Helm commands on the EC2 instance
-            helm upgrade --install pr-${{ github.event.number }}-showcase-ui -f helm-k8s/ditp-showcase-creator-ui/charts/showcase-ui/values.yaml \
-              --set ui.image.repository=public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui \
-              --set ui.image.tag=${{github.sha}} \
-              --set ingress.hosts[0].host=pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca \
-              /path/to/charts/showcase-ui --wait
+            cd /home/ubuntu/pipeline/charts/showcase-ui
+
+            cat > pr-values.yaml <<EOF
+            # UI configuration
+            ui:
+              ingress:
+                enabled: true
+                annotations:
+                  kubernetes.io/ingress.class: "traefik"
+                  traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+                  traefik.ingress.kubernetes.io/router.tls: "true"
+                host: "pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca"
             
-            # Create Certificate for PR domain
-            cat <<EOF | kubectl apply -f -
+            # Global ingress settings
+            ingress:
+              enabled: true
+              className: "traefik"
+              annotations:
+                kubernetes.io/ingress.class: "traefik"
+                traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+                cert-manager.io/cluster-issuer: "letsencrypt-prod"
+              hosts:
+                - host: pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      service: showcase-ui
+              tls:
+                - secretName: pr-${{ github.event.number }}-showcase-ui-tls
+                  hosts:
+                    - pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca
+            EOF
+
+            # Create PR-specific Certificate
+            cat > cert.yaml << 'CERTEOF'
             apiVersion: cert-manager.io/v1
             kind: Certificate
             metadata:
@@ -122,10 +159,11 @@ jobs:
                 kind: ClusterIssuer
               dnsNames:
                 - pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca
-            EOF
-            
-            # Create Traefik IngressRoute
-            cat <<EOF | kubectl apply -f -
+            CERTEOF
+            sudo kubectl apply -f cert.yaml
+
+            # Create PR-specific UI IngressRoute
+            cat > ingress.yaml << 'INGRESSEOF'
             apiVersion: traefik.containo.us/v1alpha1
             kind: IngressRoute
             metadata:
@@ -135,65 +173,34 @@ jobs:
               entryPoints:
                 - websecure
               routes:
-                - match: Host(\`pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca\`)
+                - match: Host(`pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca`)
                   kind: Rule
                   services:
                     - name: pr-${{ github.event.number }}-showcase-ui-showcase-ui
-                      port: 80
+                      port: 3050
               tls:
                 secretName: pr-${{ github.event.number }}-showcase-ui-tls
-            EOF
-  
-      - name: Restart Deployments
-        run: |
-          kubectl rollout restart deployment pr-${{ github.event.number }}-showcase-ui-showcase-ui
+            INGRESSEOF
+            sudo kubectl apply -f ingress.yaml
 
-
-  ### FOR OPENSHIFT USE THE KUBECTL TO DEPLOY
-  # deploy:
-  #   name: Deploy PR
-  #   environment: development
-  #   runs-on: ubuntu-latest
-  #   needs:
-  #     - ready
-  #     - build_showcase_ui
-  #   if: ${{ always() && (fromJSON(needs.ready.outputs.deploy) == true) && !(contains(needs.*.result, 'failure')) }}
-
-  #   steps:
-  #     - uses: actions/checkout@v4
-
-  #     - name: Install Helm
-  #       uses: azure/setup-helm@v3
-  #       with:
-  #         version: 'latest'
-
-  #     - name: Set up kubectl
-  #       uses: azure/setup-kubectl@v3
-  #       with:
-  #         version: 'latest'
-
-  #     - name: Set Kubernetes context
-  #       uses: azure/k8s-set-context@v3
-  #       with:
-  #         method: kubeconfig
-  #         kubeconfig: ${{ secrets.KUBE_CONFIG }}
-
-  #     # Deploy to K3s for development
-  #     - name: Run Showcase UI PR Helm
-  #       run: |
-  #         helm upgrade --install pr-${{ github.event.number }}-showcase-ui -f ./charts/showcase-ui/values.yaml \
-  #           --set ui.image.repository=public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui \
-  #           --set ui.image.tag=pr-${{ github.event.number }} \
-  #           --set ingress.hosts[0].host=pr-${{ github.event.number }}-showcase-ui.dev.nborbit.ca \
-  #           ./charts/showcase-ui --wait
-
+            helm upgrade --install pr-${{ github.event.number }}-showcase-ui -f ./pr-values.yaml --set ui.image.tag=${{ needs.build_showcase_ui.outputs.image_tag }} . --wait
+            rm -rf /home/ubuntu/pipeline/charts
+      
+      - name: Restart PR Deployments
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            sudo kubectl rollout restart deployment pr-${{ github.event.number }}-showcase-ui-showcase-ui
 
   deploymenturls:
-    name: Deployment URLs comment
+    name: PR Deployment URLs comment
     runs-on: ubuntu-latest
     needs:
       - deploy
-    # if: ${{ (fromJSON(needs.ready.outputs.deploy) == true) && !(contains(needs.*.result, 'failure')) }}
+    if: ${{ always() && fromJSON(needs.ready.outputs.deploy) == true && !(contains(needs.*.result, 'failure')) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -203,7 +210,7 @@ jobs:
         with:
           issue-number: ${{ github.event.number }}
           comment-author: "github-actions[bot]"
-          body-includes: Deployment URLs ready for review.
+          body-includes: PR Deployment URLs ready for review.
 
       - name: Create comment
         if: steps.fc.outputs.comment-id == ''
@@ -215,4 +222,4 @@ jobs:
             | --- | --- | --- |
             | Showcase UI | | https://pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca/ |
 
-            Deployment URLs ready for review.
+            PR Deployment URLs ready for review.

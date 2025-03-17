@@ -10,29 +10,6 @@ on:
 
 jobs:
   
-  # test:
-  #   name: "Test Frontend Code"
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v4
-        
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 18
-  #         cache: "npm"
-
-  #     - name: Install Dependencies
-  #       run: |
-  #         rm -rf node_modules
-  #         rm -f package-lock.json
-  #         npm cache clean --force
-  #         npm install
-
-  #     - name: Run Unit Tests
-  #       run: npm test
-
   build_showcase_ui:
     name: "Build Showcase UI"
     runs-on: ubuntu-latest
@@ -116,7 +93,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             echo "Deploying Showcase UI"
-            
+
             # Create Certificate
             cat > cert.yaml << 'CERTEOF'
             apiVersion: cert-manager.io/v1
@@ -155,7 +132,7 @@ jobs:
             sudo kubectl apply -f ingress.yaml
             
             cd /home/ubuntu/pipeline/charts/showcase-ui
-            helm dependency update && helm upgrade --install showcase-ui -f ./values.yaml --set ui.image.repository=public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui --set ui.image.tag=${{ github.sha }} . --wait
+            helm dependency update && helm upgrade --install showcase-ui -f ./values.yaml --set ui.image.tag=${{ github.sha }} . --wait
             
             rm -rf /home/ubuntu/pipeline/charts
       
@@ -167,44 +144,6 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             sudo kubectl rollout restart deployment showcase-ui-showcase-ui
-
-  ### FOR OPENSHIFT USE THE KUBECTL TO DEPLOY
-  # deploy:
-  #   name: Deploy
-  #   environment: development
-  #   runs-on: ubuntu-latest
-  #   needs:
-  #     - ready
-  #     - build_showcase_ui
-  #   if: ${{ always() && (fromJSON(needs.ready.outputs.deploy) == true) && !(contains(needs.*.result, 'failure')) }}
-
-  #   steps:
-  #     - uses: actions/checkout@v4
-
-  #     - name: Install Helm
-  #       uses: azure/setup-helm@v3
-  #       with:
-  #         version: 'latest'
-
-  #     - name: Set up kubectl
-  #       uses: azure/setup-kubectl@v3
-  #       with:
-  #         version: 'latest'
-
-  #     - name: Set Kubernetes context
-  #       uses: azure/k8s-set-context@v3
-  #       with:
-  #         method: kubeconfig
-  #         kubeconfig: ${{ secrets.KUBE_CONFIG }}
-
-  #     # Deploy to K3s for development
-  #     - name: Run Showcase UI Helm
-  #       run: |
-  #         helm upgrade --install ${{ github.event.number }}-showcase-ui -f ./charts/showcase-ui/values.yaml \
-  #           --set ui.image.repository=public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui \
-  #           --set ui.image.tag=${{ github.event.number }} \
-  #           --set ingress.hosts[0].host=${{ github.event.number }}-showcase-ui.dev.nborbit.ca \
-  #           ./charts/showcase-ui --wait
 
 
   deploymenturls:
