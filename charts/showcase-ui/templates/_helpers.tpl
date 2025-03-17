@@ -40,19 +40,8 @@ it randomly.
 {{- end }}
 
 {{/*
-Create a default fully qualified postgresql name.
+Define auth token secret name - using the same helper template name as backend
 */}}
-{{- define "credential-showcase.database.secret.name" -}}
-{{- if .Values.postgresql.auth.existingSecret -}}
-{{- .Values.postgresql.auth.existingSecret -}}
-{{- else -}}
-{{ .Release.Name }}-postgresql
-{{- end -}}
-{{- end -}}
-
-{{/*
-Define auth token secret name
-*/}}
-{{- define "showcase-ui.authtoken.secret.name" -}}
-{{ .Release.Name }}-authtoken
+{{- define "credential-showcase.authtoken.secret.name" -}}
+showcase-authtoken
 {{- end -}} 

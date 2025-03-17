@@ -39,7 +39,7 @@ spec:
         - name: AUTH_TOKEN
           valueFrom:
             secretKeyRef:
-              name: {{ include "showcase-ui.authtoken.secret.name" . }}
+              name: {{ include "credential-showcase.authtoken.secret.name" . }}
               key: token
         resources:
           {{- toYaml .Values.ui.resources | nindent 12 }}
