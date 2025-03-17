@@ -35,7 +35,7 @@ export function IssueStepEdit() {
   const [loading, setLoading] = useState(false);
   const [showErrorModal, setErrorModal] = useState(false);
   const [credential,setCredentials] = useState([]);
-  const currentStep = selectedStep !== null ? screens[selectedStep] : null;
+  const currentStep:any = selectedStep !== null ? screens[selectedStep] : null;
 
   const form = useForm<IssueStepFormData>({
     resolver: zodResolver(issueStepSchema),
@@ -168,7 +168,7 @@ export function IssueStepEdit() {
   };
   
 
-  const onSubmit = (data: typeof IssuanceScenario._type) => {
+  const onSubmit = (data: any) => {
     if (selectedStep === null) return;
 
     const updatedStep = {

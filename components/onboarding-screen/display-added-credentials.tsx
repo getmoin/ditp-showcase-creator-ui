@@ -9,12 +9,15 @@ import { Input } from "../ui/input";
 import ButtonOutline from "../ui/button-outline";
 import apiClient from "@/lib/apiService";
 import { toast } from "sonner";
+import { ShowcaseJSON } from "@/types";
 
 interface DisplayAddedCredentialsProps {
   localJSON: {
     credentials?: string[];
   };
   removeCredential: (credential: string) => void;
+  selectedCharacter: number;
+  showcaseJSON: ShowcaseJSON;
 }
 
 export const DisplayAddedCredentials = ({

@@ -596,14 +596,13 @@ const Showcases = {
                       strategy={verticalListSortingStrategy}
                       key={scenario.id}
                     >
-                  {scenario.steps.map((step, stepIndex) => (
+                  {scenario.steps.map((step, stepIndex:number) => (
                       <div key={step.id}>
                         {/* {step.actions.map((action, actionIndex) => ( */}
                           <ScenarioStep
                             key={step.id} // Ensure each action has a unique key
                             step={step} // Pass action directly
                             stepIndex={stepIndex}
-                            actionIndex={stepIndex} // Optional if needed
                             scenarioIndex={index}
                             totalSteps={scenario.steps.length}
                           />

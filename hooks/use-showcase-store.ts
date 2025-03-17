@@ -35,8 +35,8 @@ interface Actions {
   removeCharacter: (index: number) => void;
 
   // credentials
-  updateCredential: (credentialId: string, data: CredentialFormData) => void;
-  createCredential: (credentialId: string, data: CredentialFormData) => void;
+  updateCredential: (credentialId: string, data: any) => void;
+  createCredential: (credentialId: string, data: any) => void;
   removeCredential: (credentialId: string) => void;
   setShowcaseId: (id: string) => void;
   setPersonaIds: (ids: string[]) => void;
@@ -49,7 +49,7 @@ interface Actions {
 export const useShowcaseStore = create<State & Actions>()(
   immer((set) => ({
     showcaseJSON: {
-      personas: [DEFAULT_JSON] as Persona[],
+      personas: [DEFAULT_JSON] as any,
     },
     showcaseId: "",
     personaIds: [],
@@ -140,9 +140,9 @@ export const useShowcaseStore = create<State & Actions>()(
         const persona = state.showcaseJSON.personas[state.selectedCharacter];
         persona.credentials[credentialId] = {
           name: data.name,
-          issuer_name: data.issuer_name,
+          issuer_name: data.issuer || "",
           version: data.version || "",
-          icon: data.icon || "",
+          icon: data.assetId || "",
           attributes: data.attributes,
         };
       }),
@@ -152,9 +152,9 @@ export const useShowcaseStore = create<State & Actions>()(
         const persona = state.showcaseJSON.personas[state.selectedCharacter];
         persona.credentials[credentialId] = {
           name: data.name,
-          issuer_name: data.issuer_name,
+          issuer_name: data.issuer,
           version: data.version || "",
-          icon: data.icon || "",
+          icon: data.assetId || "",
           attributes: data.attributes,
         };
       }),
@@ -167,7 +167,7 @@ export const useShowcaseStore = create<State & Actions>()(
 
     reset: () =>
       set((state) => {
-        state.showcaseJSON = { personas: [DEFAULT_JSON] as Persona[] };
+        state.showcaseJSON = { personas: [DEFAULT_JSON] as any };
         state.selectedCharacter = 0;
         state.currentPage = "character";
         state.editMode = false;

@@ -20,7 +20,7 @@ export const CredentialsList = ({
   const t = useTranslations('credentials')
   const {
     selectedCredential,
-    startEditing,
+    // startEditing,
     viewCredential
   } = useCredentials();
   const { removeCredential } = useShowcaseStore();
@@ -28,7 +28,7 @@ export const CredentialsList = ({
 
   return (
     <div className="space-y-3">
-      {Object.entries(credentials).map(([credentialId, credential]) => (
+      {Object.entries(credentials).map(([credentialId, credential]:any) => (
         <div
           key={credentialId}
           onClick={() => viewCredential(credentialId)}
@@ -53,7 +53,7 @@ export const CredentialsList = ({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => startEditing(credentialId)}
+                // onClick={() => startEditing(credentialId)}
                 className="hover:bg-primary/10"
               >
                 <Edit className="h-4 w-4" />

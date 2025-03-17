@@ -21,7 +21,7 @@ import { ErrorModal } from "../error-modal";
 import { ensureBase64HasPrefix } from "@/lib/utils";
 import { useShowcaseStore } from "@/hooks/use-showcases-store";
 import { toast } from "sonner";
-import { Persona } from "@/openapi-types";
+import { Persona, Step } from "@/openapi-types";
 
 const createDefaultStep = (id: string) => ({
   id,
@@ -42,7 +42,7 @@ export const CreateOnboardingScreen = () => {
     setSelectedStep,
     moveStep,
     setStepState,
-    addStep,
+    // addStep,
     removeStep,
     updateStep
   } = useOnboarding();
@@ -101,7 +101,7 @@ export const CreateOnboardingScreen = () => {
     const newId = `step-${Date.now()}`;
     const newStep = createDefaultStep(newId);
     newStep.order = screens.length;
-    addStep(newStep);
+    // addStep(newStep);
     toast.success("New step added");
   };
 
@@ -185,7 +185,7 @@ export const CreateOnboardingScreen = () => {
                     <p>No steps created yet. Click the button below to add your first step.</p>
                   </div>
                 ) : (
-                  screens.map((screen, index) => (
+                  screens.map((screen, index):any => (
                     <div key={screen.id} className="flex flex-row">
                       <SortableStep
                         selectedStep={selectedStep}
@@ -195,7 +195,7 @@ export const CreateOnboardingScreen = () => {
                         onDelete={() => removeStep(index)}
                         onEdit={() => {
                           setSelectedStep(index);
-                          setStepState("editing");
+                          setStepState("editing-basic");
                         }}
                       />
                     </div>
