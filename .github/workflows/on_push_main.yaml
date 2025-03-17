@@ -120,6 +120,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
+      # Copy charts to EC2 server first
+      - name: Copy charts to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "charts/"
+          target: "/home/ubuntu/pipeline"
+          overwrite: true
+          strip_components: 0
 
       # Deploy using SSH to EC2 instance
       - name: Deploy to EC2 via SSH
@@ -129,15 +141,9 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            # Run Helm commands on the EC2 instance
-            helm upgrade --install showcase-ui -f helm-k8s/ditp-showcase-creator-ui/charts/showcase-ui/values.yaml \
-              --set ui.image.repository=public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui \
-              --set ui.image.tag=${{ github.sha }} \
-              --set ingress.hosts[0].host=bcshowcase-ui.dev.nborbit.ca \
-              /path/to/charts/showcase-ui --wait
-            
+                        
             # Create Certificate
-            cat <<EOF | kubectl apply -f -
+            cat <<EOF | sudo kubectl apply -f -
             apiVersion: cert-manager.io/v1
             kind: Certificate
             metadata:
@@ -152,12 +158,12 @@ jobs:
             EOF
             
             # Create Traefik IngressRoute
-            cat <<EOF | kubectl apply -f -
+            cat <<EOF | sudo kubectl apply -f -
             apiVersion: traefik.containo.us/v1alpha1
             kind: IngressRoute
             metadata:
               name: showcase-ui-route
-              namespace: default
+              namespace: kube-system
             spec:
               entryPoints:
                 - websecure
@@ -170,6 +176,10 @@ jobs:
               tls:
                 secretName: showcase-ui-tls
             EOF
+            
+            cd /home/ubuntu/pipeline/charts/showcase-ui
+            helm upgrade --install showcase-ui -f ./values.yaml --set ui.image.repository=public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui --set ui.image.tag=${{ github.sha }} . --wait
+            rm -rf /home/ubuntu/pipeline/charts
       
       - name: Restart Deployments
         uses: appleboy/ssh-action@v0.1.10
@@ -178,7 +188,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            kubectl rollout restart deployment showcase-ui-showcase-ui
+            sudo kubectl rollout restart deployment showcase-ui-showcase-ui
 
   ### FOR OPENSHIFT USE THE KUBECTL TO DEPLOY
   # deploy:
