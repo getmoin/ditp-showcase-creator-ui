@@ -115,9 +115,10 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-                        
+            echo "Deploying Showcase UI"
+            
             # Create Certificate
-            cat <<EOF | sudo kubectl apply -f -
+            cat > cert.yaml << 'CERTEOF'
             apiVersion: cert-manager.io/v1
             kind: Certificate
             metadata:
@@ -129,10 +130,11 @@ jobs:
                 kind: ClusterIssuer
               dnsNames:
                 - bcshowcase-ui.dev.nborbit.ca
-            EOF
+            CERTEOF
+            sudo kubectl apply -f cert.yaml
             
             # Create Traefik IngressRoute
-            cat <<EOF | sudo kubectl apply -f -
+            cat > ingress.yaml << 'INGRESSEOF'
             apiVersion: traefik.containo.us/v1alpha1
             kind: IngressRoute
             metadata:
@@ -142,17 +144,19 @@ jobs:
               entryPoints:
                 - websecure
               routes:
-                - match: Host(\`bcshowcase-ui.dev.nborbit.ca\`)
+                - match: Host(`bcshowcase-ui.dev.nborbit.ca`)
                   kind: Rule
                   services:
                     - name: showcase-ui-showcase-ui
                       port: 3050
               tls:
                 secretName: showcase-ui-tls
-            EOF
+            INGRESSEOF
+            sudo kubectl apply -f ingress.yaml
             
             cd /home/ubuntu/pipeline/charts/showcase-ui
-            helm upgrade --install showcase-ui -f ./values.yaml --set ui.image.repository=public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui --set ui.image.tag=${{ github.sha }} . --wait
+            helm dependency update && helm upgrade --install showcase-ui -f ./values.yaml --set ui.image.repository=public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui --set ui.image.tag=${{ github.sha }} . --wait
+            
             rm -rf /home/ubuntu/pipeline/charts
       
       - name: Restart Deployments
