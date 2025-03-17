@@ -72,30 +72,6 @@ jobs:
       image_tag: ${{ github.sha }}
 
 
-  ##### FOR github container registry use the following:
-  # build_showcase_ui:
-  #   name: "Build Showcase UI"
-  #   runs-on: ubuntu-latest
-  #   if: ${{ always() && fromJSON(needs.ready.outputs.build) == true }}
-  #   needs:
-  #     - ready
-  #     - test
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Build & Push Docker Image
-  #       uses: ./.github/actions/build_docker
-  #       id: builder
-  #       with:
-  #         context: "."
-  #         dockerfile: "./docker/Dockerfile"
-  #         image_name: ${{ github.repository_owner}}/ditp-showcase-creator-ui
-  #         registry: ghcr.io
-  #         registry_username: ${{ github.repository_owner}}
-  #         registry_password: ${{ secrets.GITHUB_TOKEN }}
-  #   outputs:
-  #     image_tag: ${{ steps.builder.outputs.image_tag }}
-
-
   image-scan:
     name: "Image Scan - Showcase UI"
     needs: build_showcase_ui
@@ -116,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build_showcase_ui
-    # if: ${{ always() && (fromJSON(needs.ready.outputs.deploy) == true) && !(contains(needs.*.result, 'failure')) }}
+    if: ${{ always() && (fromJSON(needs.ready.outputs.deploy) == true) && !(contains(needs.*.result, 'failure')) }}
 
     steps:
       - uses: actions/checkout@v4
