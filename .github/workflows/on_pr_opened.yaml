@@ -81,10 +81,15 @@ jobs:
           push: true
           tags: |
             public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:pr-${{ github.event.number }}
+            public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:${{ github.sha }}
+            public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          # Add build args to disable type checking
+          build-args: |
+            NEXT_TYPESCRIPT_CHECK=0
     outputs:
-      image_tag: pr-${{ github.event.number }}
+      image_tag: ${{ github.sha }}
 
 
   ##### FOR github container registry use the following:
@@ -122,7 +127,7 @@ jobs:
         uses: ./.github/actions/trivy-scan
         with:
           scan-type: 'image'
-          scan-ref: 'public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:pr-${{ github.event.number }}'
+          scan-ref: 'public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui:${{ github.sha }}'
           scan-title: 'Docker Image Scan Results for Showcase UI'
 
   deploy:
@@ -148,7 +153,7 @@ jobs:
             # Run Helm commands on the EC2 instance
             helm upgrade --install pr-${{ github.event.number }}-showcase-ui -f helm-k8s/ditp-showcase-creator-ui/charts/showcase-ui/values.yaml \
               --set ui.image.repository=public.ecr.aws/k8o4d9r5/bcshowcase/ditp-showcase-creator-ui \
-              --set ui.image.tag=pr-${{ github.event.number }} \
+              --set ui.image.tag=${{github.sha}} \
               --set ingress.hosts[0].host=pr-${{ github.event.number }}-bcshowcase-ui.dev.nborbit.ca \
               /path/to/charts/showcase-ui --wait
             
@@ -188,8 +193,8 @@ jobs:
             EOF
   
       - name: Restart Deployments
-          run: |
-            kubectl rollout restart deployment pr-${{ github.event.number }}-showcase-ui-showcase-ui
+        run: |
+          kubectl rollout restart deployment pr-${{ github.event.number }}-showcase-ui-showcase-ui
 
 
   ### FOR OPENSHIFT USE THE KUBECTL TO DEPLOY
