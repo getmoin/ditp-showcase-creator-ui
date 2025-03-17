@@ -34,7 +34,7 @@ export const OnboardingScreen = () => {
 
   const { displayShowcase } = useShowcaseStore();
   const personas = displayShowcase.personas || [];
-  const { data, isLoading } = useIssuanceStep("credential-issuance-flow");
+  const { data, isLoading }:any = useIssuanceStep("credential-issuance-flow");
   const [showErrorModal, setErrorModal] = useState(false);
   let InitialId = personas.length > 0 ? personas[0]?.id : "";
   const [ selectedPersonaId, setSelectedPersonaId ] = useState(InitialId);
@@ -157,6 +157,8 @@ export const OnboardingScreen = () => {
                 <div key={screen.id} className="flex flex-row">
                   <SortableStep
                     selectedStep={selectedStep}
+                    onEdit={() =>{}}
+                    onDelete={() => {}}
                     myScreen={screen}
                     stepIndex={index + 1}
                     totalSteps={screens.length}

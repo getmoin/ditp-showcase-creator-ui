@@ -22,11 +22,15 @@ export const SortableStep = ({
   myScreen,
   stepIndex,
   totalSteps,
+  onDelete,
+  onEdit
 }: {
   selectedStep: number | null;
-  myScreen: typeof Step._type;
+  myScreen:any;
   stepIndex: number;
   totalSteps: number;
+  onDelete:() => void;
+  onEdit:() => void;
 }) => {
   const t = useTranslations();
   const { setSelectedStep, setStepState, stepState } = useOnboarding();
@@ -161,7 +165,7 @@ export const SortableStep = ({
               />
               <div className="ml-4 flex-col">
                 <div className="font-semibold">{selectedCredential?.name}</div>
-                <div className="text-sm">{selectedCredential.issuer  ?? 'Test college'}</div>
+                <div className="text-sm">{'Test college'}</div>
               </div>
               <div className="align-middle ml-auto">
                 <div className="font-semibold">Attributes</div>

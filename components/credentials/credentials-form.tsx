@@ -44,7 +44,7 @@ export const CredentialsForm = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [showErrorModal, setErrorModal] = useState(false);
-	const form = useForm<CredentialFormData>({
+	const form:any = useForm<CredentialFormData>({
 		resolver: zodResolver(credentialDefinition), // Use the schema here, not the type
 		mode: "onChange",
 	});
