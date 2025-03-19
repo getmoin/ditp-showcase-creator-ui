@@ -38,7 +38,7 @@ ui:
       podSelector: {}
   openshift:
     route:
-      enabled: false
+      enabled: true
       path: "/"
       targetPort: http
       tls:
@@ -57,31 +57,5 @@ ui:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
     stabilizationWindowSeconds: 300
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: "traefik"
-      traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-      traefik.ingress.kubernetes.io/router.tls: "true"
-    host: "bcshowcase-ui.dev.nborbit.ca"
-
-# Global ingress settings
-ingress:
-  enabled: true
-  className: "traefik"
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
-    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  hosts:
-    - host: bcshowcase-ui.dev.nborbit.ca
-      paths:
-        - path: /
-          pathType: Prefix
-          service: ui
-  tls:
-    - secretName: showcase-ui-tls
-      hosts:
-        - bcshowcase-ui.dev.nborbit.ca
-
+  
 debug: true 
