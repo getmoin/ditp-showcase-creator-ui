@@ -2,16 +2,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.ui.name }}
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "showcase-ui.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.ui.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-{{ .Values.ui.name }}
+      app.kubernetes.io/name: {{ .Values.ui.labels."app.kubernetes.io/name" }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-{{ .Values.ui.name }}
+        {{- include "showcase-ui.labels" . | nindent 8 }}
       {{- with .Values.ui.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
@@ -31,6 +34,7 @@ spec:
         {{- end }}
         ports:
         - containerPort: {{ .Values.ui.port }}
+          name: http
         env:
         {{- range $key, $value := .Values.ui.env }}
         - name: {{ $key }}
@@ -43,5 +47,5 @@ spec:
               key: token
         resources:
           {{- toYaml .Values.ui.resources | nindent 12 }}
-      serviceAccountName: {{ if .Values.ui.serviceAccount.create }}{{ if .Values.ui.serviceAccount.name }}{{ .Values.ui.serviceAccount.name }}{{ else }}{{ $.Release.Name }}-{{ .Values.ui.name }}{{ end }}{{ end }}
+      serviceAccountName: {{ if .Values.ui.serviceAccount.create }}{{ if .Values.ui.serviceAccount.name }}{{ .Values.ui.serviceAccount.name }}{{ else }}{{ $.Release.Name }}{{ end }}{{ end }}
 {{- end }} 

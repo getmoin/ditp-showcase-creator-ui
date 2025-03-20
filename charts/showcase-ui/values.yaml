@@ -1,5 +1,18 @@
 nameOverride: ""
-fullnameOverride: ""
+fullnameOverride: "showcase-ui"
+
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    kubernetes.io/ingress.class: openshift-default
+    route.openshift.io/termination: edge
+  hosts:
+    - host: showcase-ui-dev.apps.silver.devops.gov.bc.ca
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
 
 ui:
   name: showcase-ui
@@ -9,7 +22,7 @@ ui:
     pullSecrets: []
     tag: "latest"
   replicaCount: 1
-  port: 3050
+  port: 8080
   path: /
   env:
     NODE_ENV: development
@@ -26,24 +39,18 @@ ui:
   containerSecurityContext: {}
   service:
     type: ClusterIP
-    port: 3050
+    port: 80
   affinity: {}
   nodeSelector: {}
   tolerations: []
   networkPolicy:
-    enabled: false
+    enabled: true
     ingress:
-      enabled: false
-      namespaceSelector: {}
-      podSelector: {}
-  openshift:
-    route:
       enabled: true
-      path: "/"
-      targetPort: http
-      tls:
+      internet: true
+      apiServer:
         enabled: true
-        termination: edge
+        namespace: ""
   enabled: true
   serviceAccount:
     create: false
@@ -57,5 +64,10 @@ ui:
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
     stabilizationWindowSeconds: 300
+  labels:
+    app.kubernetes.io/name: showcase-ui
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+    app.kubernetes.io/part-of: credential-showcase
+    app.kubernetes.io/managed-by: helm
   
 debug: true 

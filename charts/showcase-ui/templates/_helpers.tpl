@@ -44,4 +44,13 @@ Define auth token secret name - using the same helper template name as backend
 */}}
 {{- define "credential-showcase.authtoken.secret.name" -}}
 showcase-authtoken
-{{- end -}} 
+{{- end -}}
+
+{{/*
+Common labels
+*/}}
+{{- define "showcase-ui.labels" -}}
+{{- with .Values.ui.labels }}
+{{- toYaml . | nindent 0 }}
+{{- end }}
+{{- end }} 

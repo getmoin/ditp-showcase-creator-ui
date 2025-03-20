@@ -3,15 +3,41 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.ui.name }}
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "showcase-ui.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
-      app: {{ .Release.Name }}-{{ .Values.ui.name }}
+      app.kubernetes.io/name: {{ .Values.ui.labels."app.kubernetes.io/name" }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
   policyTypes:
     - Ingress
   ingress:
+    {{- if .Values.ui.networkPolicy.ingress.internet }}
+    # Allow traffic from internet via ingress controller
+    - from:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: router
+    {{- end }}
+    
+    {{- if .Values.ui.networkPolicy.ingress.apiServer.enabled }}
+    # Allow traffic from api-server pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: credential-showcase-api-server
+          {{- if .Values.ui.networkPolicy.ingress.apiServer.namespace }}
+          namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.ui.networkPolicy.ingress.apiServer.namespace }}
+          {{- end }}
+    {{- end }}
+    
     {{- if .Values.ui.networkPolicy.ingress.enabled }}
+    # Additional custom ingress rules
     - from:
         {{- with .Values.ui.networkPolicy.ingress.namespaceSelector }}
         - namespaceSelector:
